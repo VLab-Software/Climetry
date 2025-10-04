@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
-import '../state/climate_view_model.dart'; // presentation/state
+import '../state/climate_view_model.dart';
 import '../widgets/location_field.dart';
 import '../widgets/timeframe_selector.dart';
 import '../widgets/variable_selector.dart';
@@ -60,38 +60,72 @@ class _DesktopLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ClimateViewModel>();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        // Coluna esquerda: localização + data + botão
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _section(context, 'Location', LocationField(vm: vm)),
-              const SizedBox(height: 16),
-              _section(context, 'Date', TimeframeSelector(vm: vm)),
-              const SizedBox(height: 24),
-              _analysisButton(context, vm, alignedLeft: true),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        // Coluna direita: variáveis + mapa
-        Expanded(
-          flex: 7,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _section(
-                context,
-                'Variables (${vm.selectedCount}/${vm.maxVariables})',
-                VariableSelector(vm: vm),
+        // 🔒 Congela o conteúdo de baixo quando o menu de localização estiver aberto
+        Selector<ClimateViewModel, bool>(
+          selector: (_, m) => m.locationMenuOpen,
+          builder: (_, menuOpen, __) {
+            return AbsorbPointer(
+              absorbing: menuOpen,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Coluna esquerda: data + botão
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 120),
+                        const SizedBox(height: 16),
+                        _section(context, 'Date', TimeframeSelector(vm: vm)),
+                        const SizedBox(height: 24),
+                        _analysisButton(context, vm, alignedLeft: true),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Coluna direita: variáveis + mapa
+                  Expanded(
+                    flex: 7,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _section(
+                          context,
+                          'Variables (${vm.selectedCount}/${vm.maxVariables})',
+                          VariableSelector(vm: vm),
+                        ),
+                        const SizedBox(height: 16),
+                        _section(
+                          context,
+                          'Map',
+                          // 🔒 Garante que o mapa não capture toques enquanto o menu está aberto
+                          AbsorbPointer(
+                            absorbing: menuOpen,
+                            child: _Map(vm: vm),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              _section(context, 'Map', _Map(vm: vm)),
-            ],
+            );
+          },
+        ),
+        // Location Field flutuando por cima - DESKTOP
+        Positioned(
+          top: 0,
+          left: 0,
+          right: MediaQuery.of(context).size.width >= ClimateScreen.kDesktop
+              ? MediaQuery.of(context).size.width * 0.58
+              : 0,
+          child: IgnorePointer(
+            ignoring: false, // Permite cliques no LocationField
+            child: _locationSection(context, vm),
           ),
         ),
       ],
@@ -105,29 +139,96 @@ class _StackedLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ClimateViewModel>();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+
+    return Stack(
+      clipBehavior: Clip.none, // Importante!
       children: [
-        _section(context, 'Location', LocationField(vm: vm)),
-        const SizedBox(height: 16),
-        _section(context, 'Date', TimeframeSelector(vm: vm)),
-        const SizedBox(height: 16),
-        _section(
-          context,
-          'Variables (${vm.selectedCount}/${vm.maxVariables})',
-          VariableSelector(vm: vm),
+        // Conteúdo principal
+        Padding(
+          padding: const EdgeInsets.only(top: 120), // Espaço para Location card
+          child: Selector<ClimateViewModel, bool>(
+            selector: (_, m) => m.locationMenuOpen,
+            builder: (_, menuOpen, __) {
+              return AbsorbPointer(
+                absorbing: menuOpen, // 🔒 congela tudo atrás enquanto o menu está aberto
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _section(context, 'Date', TimeframeSelector(vm: vm)),
+                    const SizedBox(height: 16),
+                    _section(
+                      context,
+                      'Variables (${vm.selectedCount}/${vm.maxVariables})',
+                      VariableSelector(vm: vm),
+                    ),
+                    const SizedBox(height: 16),
+                    _section(
+                      context,
+                      'Map',
+                      AbsorbPointer(
+                        absorbing: menuOpen, // 🔒 evita toques no mapa
+                        child: _Map(vm: vm),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _analysisButton(context, vm),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-        const SizedBox(height: 16),
-        _section(context, 'Map', _Map(vm: vm)),
-        const SizedBox(height: 24),
-        _analysisButton(context, vm),
+        // Location Field - DEVE ser o último filho para ter z-index maior
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: _locationSection(context, vm), // Seção especial com overflow
+        ),
       ],
     );
   }
 }
 
-Widget _section(BuildContext context, String title, Widget child) {
+// 👇 Seção especial para Location com overflow completo
+Widget _locationSection(BuildContext context, ClimateViewModel vm) {
+  return Material(
+    color: Colors.transparent,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Location', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 10),
+          LocationField(vm: vm),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _section(
+    BuildContext context,
+    String title,
+    Widget child, {
+      bool allowOverflow = false, // Novo parâmetro
+    }) {
   return Container(
+    clipBehavior: allowOverflow ? Clip.none : Clip.hardEdge, // Controla o overflow
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(12),
@@ -168,13 +269,14 @@ Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedL
               location: vm.locationController.text,
               date: vm.userFriendlyDateRange,
               coordinates: vm.currentLocation,
-              // 👇 sua tela atual espera `weatherData: Map<String,dynamic>`
               weatherData: payload.raw,
             ),
           ),
         );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
       }
     },
     label: vm.isLoading
@@ -216,8 +318,11 @@ class _Map extends StatelessWidget {
             initialCenter: vm.currentLocation,
             initialZoom: 5.0,
             onTap: (tapPosition, point) {
+              // Mantém compatibilidade com seu VM atual
               vm.currentLocation = point;
               vm.notifyListeners();
+              // Se preferir (se existir no seu VM):
+              // vm.setCurrentLocation(point);
             },
           ),
           children: [

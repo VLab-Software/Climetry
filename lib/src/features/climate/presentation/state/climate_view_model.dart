@@ -8,6 +8,13 @@ import '../../domain/repositories/location_repository.dart';
 import '../../domain/repositories/weather_repository.dart';
 
 class ClimateViewModel extends ChangeNotifier {
+  bool locationMenuOpen = false;
+  void setLocationMenuOpen(bool v) {
+    if (locationMenuOpen == v) return;
+    locationMenuOpen = v;
+    notifyListeners();
+  }
+
   ClimateViewModel({
     required this.weatherRepository,
     required this.locationRepository,
