@@ -1,8 +1,12 @@
+// ==============================
+// 📁 lib/src/features/climate/presentation/screens/climate_screen.dart
+// ==============================
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import '../state/climate_view_model.dart';
+
+import '../state/climate_view_model.dart'; // presentation/state
 import '../widgets/location_field.dart';
 import '../widgets/timeframe_selector.dart';
 import '../widgets/variable_selector.dart';
@@ -11,7 +15,6 @@ import 'climate_details_screen.dart';
 class ClimateScreen extends StatelessWidget {
   const ClimateScreen({super.key});
 
-  static const double kTablet = 768;
   static const double kDesktop = 1100;
   static const double kMaxWidth = 1200;
 
@@ -31,8 +34,7 @@ class _ResponsiveBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final isDesktop = w >= ClimateScreen.kDesktop;
+        final isDesktop = constraints.maxWidth >= ClimateScreen.kDesktop;
         return Scrollbar(
           thumbVisibility: true,
           child: Center(
@@ -61,6 +63,7 @@ class _DesktopLayout extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Coluna esquerda: localização + data + botão
         Expanded(
           flex: 5,
           child: Column(
@@ -75,12 +78,17 @@ class _DesktopLayout extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
+        // Coluna direita: variáveis + mapa
         Expanded(
           flex: 7,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _section(context, 'Variables (${vm.selectedCount}/${vm.maxVariables})', VariableSelector(vm: vm)),
+              _section(
+                context,
+                'Variables (${vm.selectedCount}/${vm.maxVariables})',
+                VariableSelector(vm: vm),
+              ),
               const SizedBox(height: 16),
               _section(context, 'Map', _Map(vm: vm)),
             ],
@@ -104,7 +112,11 @@ class _StackedLayout extends StatelessWidget {
         const SizedBox(height: 16),
         _section(context, 'Date', TimeframeSelector(vm: vm)),
         const SizedBox(height: 16),
-        _section(context, 'Variables (${vm.selectedCount}/${vm.maxVariables})', VariableSelector(vm: vm)),
+        _section(
+          context,
+          'Variables (${vm.selectedCount}/${vm.maxVariables})',
+          VariableSelector(vm: vm),
+        ),
         const SizedBox(height: 16),
         _section(context, 'Map', _Map(vm: vm)),
         const SizedBox(height: 24),
@@ -156,6 +168,7 @@ Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedL
               location: vm.locationController.text,
               date: vm.userFriendlyDateRange,
               coordinates: vm.currentLocation,
+              // 👇 sua tela atual espera `weatherData: Map<String,dynamic>`
               weatherData: payload.raw,
             ),
           ),
@@ -168,7 +181,10 @@ Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedL
         ? const SizedBox(
       height: 22,
       width: 22,
-      child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(Colors.black)),
+      child: CircularProgressIndicator(
+        strokeWidth: 2.5,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+      ),
     )
         : const Text('Analyze'),
   );
@@ -209,14 +225,16 @@ class _Map extends StatelessWidget {
               urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
               subdomains: const ['a', 'b', 'c', 'd'],
             ),
-            MarkerLayer(markers: [
-              Marker(
-                width: 80,
-                height: 80,
-                point: vm.currentLocation,
-                child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
-              ),
-            ]),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  width: 80,
+                  height: 80,
+                  point: vm.currentLocation,
+                  child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                ),
+              ],
+            ),
           ],
         ),
       ),
