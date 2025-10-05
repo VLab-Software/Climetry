@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/activity.dart';
@@ -11,31 +12,43 @@ class ActivityRepository {
   /// Get all activities where user is owner or participant
   Future<List<Activity>> getAll() async {
     try {
-      if (_userId == null) return [];
+      if (_userId == null) {
+        print('⚠️ ActivityRepository: Usuário não autenticado');
+        return [];
+      }
 
-      // Query: activities where user is owner
-      final ownerQuery = await _firestore
-          .collection('activities')
-          .where('ownerId', isEqualTo: _userId)
-          .get();
+      print('🔍 ActivityRepository: Buscando atividades para $_userId');
 
-      // Query: activities where user is in participants
-      final participantQuery = await _firestore
+      // Query: activities where user is owner or participant
+      // Usando apenas uma query com array-contains é mais eficiente
+      final query = await _firestore
           .collection('activities')
           .where('participantIds', arrayContains: _userId)
-          .get();
+          .get()
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () {
+              print('⏱️ ActivityRepository: Timeout na query');
+              throw TimeoutException('Query timeout');
+            },
+          );
 
-      // Combine results and remove duplicates
-      final allDocs = <QueryDocumentSnapshot>{
-        ...ownerQuery.docs,
-        ...participantQuery.docs,
-      };
+      print('✅ ActivityRepository: ${query.docs.length} documentos encontrados');
 
-      return allDocs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Activity.fromJson(data);
-      }).toList();
+      final activities = query.docs.map((doc) {
+        try {
+          final data = doc.data();
+          return Activity.fromJson(data);
+        } catch (e) {
+          print('⚠️ Erro ao parsear atividade ${doc.id}: $e');
+          return null;
+        }
+      }).whereType<Activity>().toList();
+
+      print('✅ ActivityRepository: ${activities.length} atividades válidas');
+      return activities;
     } catch (e) {
+      print('❌ ActivityRepository erro: $e');
       throw Exception('Erro ao carregar atividades: $e');
     }
   }

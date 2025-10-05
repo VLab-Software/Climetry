@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,12 +15,31 @@ void main() async {
 
   // Inicializar Firebase
   try {
-    await Firebase.initializeApp();
+    if (kIsWeb) {
+      // Configuração Firebase para Web
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyDYHDKJUcQEOMpi-h8QQ7afHuZtMYopb6Q",
+          authDomain: "climetry-app.firebaseapp.com",
+          projectId: "climetry-app",
+          storageBucket: "climetry-app.firebasestorage.app",
+          messagingSenderId: "537476913348",
+          appId: "1:537476913348:web:bd37e5edc50b2e57c3b6ac",
+          measurementId: "G-5MQSWRYL5Q",
+        ),
+      );
+    } else {
+      // Para Android e iOS, usa os arquivos de configuração nativos
+      await Firebase.initializeApp();
+    }
+    
     debugPrint('✅ Firebase inicializado com sucesso');
     
-    // Inicializar FCM (Notificações Push)
-    final fcmService = FCMService();
-    await fcmService.initialize();
+    // Inicializar FCM (Notificações Push) - apenas para mobile
+    if (!kIsWeb) {
+      final fcmService = FCMService();
+      await fcmService.initialize();
+    }
   } catch (e) {
     // Se Firebase não estiver configurado, continuar sem ele
     debugPrint('⚠️ Firebase não configurado: $e');

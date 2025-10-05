@@ -71,8 +71,19 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _loading = true);
 
     try {
-      // Carregar eventos do ActivityRepository (Firebase)
-      final events = await _activityRepository.getAll();
+      // Carregar eventos do ActivityRepository (Firebase) com timeout
+      debugPrint('🔄 Iniciando carregamento de eventos...');
+      
+      final events = await _activityRepository.getAll()
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint('⚠️ Timeout ao carregar eventos');
+              return [];
+            },
+          );
+
+      debugPrint('✅ Eventos carregados: ${events.length}');
 
       // Filtrar eventos futuros (até 6 meses)
       final now = DateTime.now();
@@ -81,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen>
       final upcomingEvents = events.where((event) {
         return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
       }).toList();
+
+      debugPrint('📅 Eventos futuros: ${upcomingEvents.length}');
 
       // Ordenar por data
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
@@ -95,9 +108,12 @@ class _HomeScreenState extends State<HomeScreen>
           final analysis = await _predictionService.analyzeEvent(event);
           analyses.add(analysis);
         } catch (e) {
-          debugPrint('Erro ao analisar evento ${event.title}: $e');
+          debugPrint('⚠️ Erro ao analisar evento ${event.title}: $e');
+          // Continuar mesmo com erro em um evento específico
         }
       }
+
+      debugPrint('✅ Análises completadas: ${analyses.length}');
 
       if (!mounted) return;
       setState(() {
@@ -106,10 +122,15 @@ class _HomeScreenState extends State<HomeScreen>
         _loading = false;
         _applyFilter();
       });
-    } catch (e) {
-      debugPrint('Erro ao carregar previsões: $e');
+    } catch (e, stackTrace) {
+      debugPrint('❌ Erro ao carregar previsões: $e');
+      debugPrint('Stack trace: $stackTrace');
       if (!mounted) return;
-      setState(() => _loading = false);
+      setState(() {
+        _analyses = [];
+        _filteredAnalyses = [];
+        _loading = false;
+      });
     }
   }
 
