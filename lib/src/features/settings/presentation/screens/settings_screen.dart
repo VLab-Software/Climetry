@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
+// provider e theme_provider removidos - tema fixo light
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
-import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/presentation/screens/welcome_screen.dart';
 import '../../../friends/presentation/screens/friends_management_screen.dart';
 import 'edit_profile_screen.dart';
@@ -203,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    // themeProvider removido - tema fixo light
 
     if (_isLoading) {
       return Scaffold(
@@ -224,10 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           // Perfil
           SliverToBoxAdapter(child: _buildProfileSection(isDark)),
 
-          // Aparência
-          SliverToBoxAdapter(
-            child: _buildAppearanceSection(isDark, themeProvider),
-          ),
+          // SEÇÃO DE APARÊNCIA/TEMA REMOVIDA - TEMA FIXO LIGHT
 
           // Unidades de Medida
           SliverToBoxAdapter(child: _buildUnitsSection(isDark)),
@@ -373,28 +369,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  Widget _buildAppearanceSection(bool isDark, ThemeProvider themeProvider) {
-    return _buildSection(
-      isDark,
-      title: 'Aparência',
-      icon: Icons.palette_outlined,
-      children: [
-        _buildSettingTile(
-          isDark,
-          icon: Icons.dark_mode,
-          title: 'Tema Escuro',
-          subtitle: 'Ativar tema escuro',
-          trailing: Switch(
-            value: themeProvider.themeMode == ThemeMode.dark,
-            onChanged: (value) {
-              themeProvider.setTheme(value ? ThemeMode.dark : ThemeMode.light);
-            },
-            activeColor: Color(0xFF3B82F6),
-          ),
-        ),
-      ],
-    );
-  }
+  // MÉTODO REMOVIDO - TEMA FIXO LIGHT
+  // Widget _buildAppearanceSection(...) removido
 
   Widget _buildUnitsSection(bool isDark) {
     return _buildSection(
