@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart'; // TODO: Usar para seleção de localização
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../auth/presentation/screens/welcome_screen.dart';
-import '../../../disasters/presentation/widgets/location_picker_widget.dart';
+// import '../../../disasters/presentation/widgets/location_picker_widget.dart'; // TODO: Usar para seleção de localização
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -169,6 +169,96 @@ class _SettingsScreenState extends State<SettingsScreen> {
           );
         }
       }
+    }
+  }
+
+  Future<void> _toggleLocationMode(bool value) async {
+    setState(() {
+      _useCurrentLocation = value;
+    });
+    if (value) {
+      // Usar localização atual do dispositivo
+      // TODO: Implementar obtenção de localização atual
+    }
+  }
+
+  Future<void> _showLocationOptions() async {
+    final action = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A3A4D),
+        title: const Text('Localização Salva', style: TextStyle(color: Colors.white)),
+        content: Text(
+          _savedLocationName ?? 'Nenhuma localização salva',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'change'),
+            child: const Text('Alterar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'remove'),
+            child: const Text('Remover', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+
+    if (action == 'change' && mounted) {
+      await _pickLocation();
+    } else if (action == 'remove' && mounted) {
+      setState(() {
+        _savedLocationName = null;
+      });
+    }
+  }
+
+  Future<void> _pickLocation() async {
+    // TODO: Implementar seleção de localização com Google Maps
+    // Por enquanto, mostrar um diálogo simples
+    final controller = TextEditingController();
+    
+    final locationName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A3A4D),
+        title: const Text('Adicionar Localização', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            labelText: 'Nome da cidade',
+            labelStyle: TextStyle(color: Colors.white70),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white30),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A9EFF),
+            ),
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+
+    if (locationName != null && locationName.isNotEmpty && mounted) {
+      setState(() {
+        _savedLocationName = locationName;
+      });
     }
   }
 
