@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 
@@ -50,19 +50,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
+      debugPrint('🔐 Iniciando registro...');
+      
+      // TIMEOUT DE 15s PARA REGISTRO COMPLETO
       final userCredential = await _authService.registerWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
         displayName: _nameController.text,
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          debugPrint('⏱️ Timeout no registro (15s)');
+          throw Exception('Timeout ao criar conta. Tente novamente.');
+        },
       );
 
+      debugPrint('✅ Usuário criado no Auth: ${userCredential.user?.uid}');
+
+      // CRIAR PERFIL NO FIRESTORE (COM TIMEOUT)
       if (userCredential.user != null) {
-        await _userDataService.createUserProfile(userCredential.user!);
+        try {
+          debugPrint('📝 Criando perfil no Firestore...');
+          await _userDataService.createUserProfile(userCredential.user!).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint('⏱️ Timeout ao criar perfil - continuando mesmo assim');
+              // NÃO LANÇA ERRO - usuário já foi criado no Auth
+            },
+          );
+          debugPrint('✅ Perfil criado com sucesso');
+        } catch (e) {
+          // SE FALHAR NO PERFIL, NÃO IMPORTA - usuário já foi criado
+          debugPrint('⚠️ Erro ao criar perfil (não crítico): $e');
+        }
       }
 
       if (!mounted) return;
+      
+      // SUCESSO - remover loading
       setState(() => _isLoading = false);
+      
+      // Mostrar sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Conta criada com sucesso!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      
+      debugPrint('🎉 Registro completo!');
+      
     } catch (e) {
+      debugPrint('❌ Erro no registro: $e');
+      
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,6 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           content: Text(e.toString()),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
         ),
       );
 
