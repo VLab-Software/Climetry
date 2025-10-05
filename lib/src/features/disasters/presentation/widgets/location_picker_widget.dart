@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
 import '../../../../core/widgets/location_autocomplete_field.dart';
+import '../../../../core/services/location_service.dart';
 
 class LocationPickerWidget extends StatefulWidget {
   final LatLng initialLocation;
@@ -24,6 +24,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   GoogleMapController? _mapController;
   final Set<Marker> _markers = {};
   bool _isLoadingAddress = false;
+  final LocationService _locationService = LocationService();
 
   @override
   void initState() {
@@ -51,52 +52,33 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     setState(() => _isLoadingAddress = true);
     
     try {
-      final placemarks = await placemarkFromCoordinates(
+      // Usar LocationService para obter apenas o nome da cidade principal
+      final cityName = await _locationService.getCityName(
         location.latitude,
         location.longitude,
       );
       
-      if (placemarks.isNotEmpty && mounted) {
-        final place = placemarks.first;
-        final parts = <String>[];
-        
-        if (place.street != null && place.street!.isNotEmpty) {
-          parts.add(place.street!);
-        }
-        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
-          parts.add(place.subLocality!);
-        }
-        if (place.locality != null && place.locality!.isNotEmpty) {
-          parts.add(place.locality!);
-        }
-        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty) {
-          parts.add(place.administrativeArea!);
-        }
-        
-        final address = parts.join(', ');
-        
+      if (mounted) {
         setState(() {
-          _nameController.text = address.isNotEmpty ? address : 'Local Selecionado';
+          _nameController.text = cityName;
         });
         
         // Mostrar snackbar de confirmação
-        if (mounted && address.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('Endereço encontrado: $address'),
-                  ),
-                ],
-              ),
-              duration: const Duration(seconds: 2),
-              backgroundColor: const Color(0xFF2A3A4D),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('Localização: $cityName'),
+                ),
+              ],
             ),
-          );
-        }
+            duration: const Duration(seconds: 2),
+            backgroundColor: const Color(0xFF2A3A4D),
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Erro ao buscar endereço: $e');

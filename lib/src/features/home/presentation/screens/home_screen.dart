@@ -8,6 +8,8 @@ import '../../../weather/domain/entities/daily_weather.dart';
 import '../../../activities/domain/entities/activity.dart';
 import '../../../../core/services/openai_service.dart';
 import '../../../../core/services/user_data_service.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../disasters/presentation/widgets/location_picker_widget.dart';
 import 'dart:math' as math;
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final MeteomaticsService _weatherService = MeteomaticsService();
   final OpenAIService _aiService = OpenAIService();
   final UserDataService _userDataService = UserDataService();
+  final LocationService _locationService = LocationService();
   
   CurrentWeather? _currentWeather;
   List<HourlyWeather> _hourlyForecast = [];
@@ -31,15 +34,145 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, String>> _insightCards = [];
   bool _loading = true;
   bool _loadingInsights = false;
+  bool _loadingLocation = false;
   String? _error;
-  String _locationName = 'São Paulo, SP';
-  final LatLng _location = const LatLng(-23.5505, -46.6333);
+  String _locationName = 'Carregando...';
+  LatLng _location = const LatLng(-23.5505, -46.6333);
 
   @override
   void initState() {
     super.initState();
-    _loadWeather();
-    _loadNextActivity();
+    _loadLocation();
+  }
+
+  Future<void> _loadLocation() async {
+    setState(() => _loadingLocation = true);
+    
+    try {
+      final locationData = await _locationService.getActiveLocation();
+      
+      if (mounted) {
+        setState(() {
+          _location = locationData['coordinates'] as LatLng;
+          _locationName = locationData['name'] as String;
+          _loadingLocation = false;
+        });
+        
+        // Carregar dados do tempo após obter localização
+        _loadWeather();
+        _loadNextActivity();
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar localização: $e');
+      if (mounted) {
+        setState(() {
+          _locationName = 'São Paulo';
+          _loadingLocation = false;
+        });
+        _loadWeather();
+        _loadNextActivity();
+      }
+    }
+  }
+
+  Future<void> _changeLocation() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationPickerWidget(
+          initialLocation: _location,
+          initialLocationName: _locationName,
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      final newLocation = result['location'] as LatLng;
+      final newName = result['name'] as String;
+      
+      // Salvar nova localização
+      await _locationService.saveCustomLocation(
+        latitude: newLocation.latitude,
+        longitude: newLocation.longitude,
+        name: newName,
+      );
+      
+      setState(() {
+        _location = newLocation;
+        _locationName = newName;
+      });
+      
+      // Recarregar dados do tempo
+      _loadWeather();
+      _loadNextActivity();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Localização alterada para $newName'),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF2A3A4D),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _useCurrentLocation() async {
+    setState(() => _loadingLocation = true);
+    
+    try {
+      // Ativar uso de GPS
+      await _locationService.setUseCurrentLocation(true);
+      
+      // Recarregar localização
+      await _loadLocation();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.my_location, color: Colors.green),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Usando sua localização atual: $_locationName'),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF2A3A4D),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadingLocation = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text('Não foi possível obter sua localização'),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF2A3A4D),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _loadWeather() async {
@@ -285,28 +418,70 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Row(
           children: [
-            const Spacer(),
-            Column(
-              children: [
-                Text(
-                  _locationName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$dayOfWeek, $date',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            // Botão para usar localização atual (GPS)
+            IconButton(
+              onPressed: _loadingLocation ? null : _useCurrentLocation,
+              icon: Icon(
+                Icons.my_location,
+                color: _loadingLocation
+                    ? Colors.white38
+                    : const Color(0xFF4A9EFF),
+              ),
+              tooltip: 'Usar minha localização',
             ),
             const Spacer(),
+            GestureDetector(
+              onTap: _changeLocation,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _locationName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.edit_location_alt,
+                        color: Color(0xFF4A9EFF),
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$dayOfWeek, $date',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            // Botão para abrir configurações (espaço reservado)
+            IconButton(
+              onPressed: () {
+                // TODO: Abrir tela de configurações
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Configurações em breve...'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white54,
+              ),
+              tooltip: 'Configurações',
+            ),
           ],
         ),
       ],
