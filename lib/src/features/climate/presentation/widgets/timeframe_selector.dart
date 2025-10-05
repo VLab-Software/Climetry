@@ -16,7 +16,6 @@ class TimeframeSelector extends StatelessWidget {
       if (picked != null) {
         vm.selectedSingleDate = picked;
         vm.selectedDateRange = null;
-        vm.notifyListeners();
       }
     } else {
       final picked = await showDateRangePicker(
@@ -29,7 +28,6 @@ class TimeframeSelector extends StatelessWidget {
       if (picked != null) {
         vm.selectedDateRange = picked;
         vm.selectedSingleDate = null;
-        vm.notifyListeners();
       }
     }
   }

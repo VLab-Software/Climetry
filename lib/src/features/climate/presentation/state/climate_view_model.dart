@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../domain/entities/climate_variable.dart';
 import '../../domain/entities/location_suggestion.dart';
 import '../../domain/entities/weather_payload.dart';
@@ -53,7 +53,12 @@ class ClimateViewModel extends ChangeNotifier {
   int get selectedCount => selectedVariables.length;
 
   // Map state
-  LatLng currentLocation = const LatLng(-18.7394, -46.8767);
+  LatLng _currentLocation = const LatLng(-18.7394, -46.8767);
+  LatLng get currentLocation => _currentLocation;
+  set currentLocation(LatLng value) {
+    _currentLocation = value;
+    notifyListeners();
+  }
 
   // Suggestions
   List<LocationSuggestion> suggestions = [];
@@ -128,7 +133,7 @@ class ClimateViewModel extends ChangeNotifier {
   }
 
   void selectLocation(LocationSuggestion s) {
-    currentLocation = LatLng(s.lat, s.lon);
+    _currentLocation = LatLng(s.lat, s.lon);
     locationController.text = s.displayName;
     showSuggestions = false;
     suggestions = [];

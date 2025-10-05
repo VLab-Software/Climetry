@@ -2,8 +2,7 @@
 // 📁 lib/src/features/climate/presentation/screens/climate_screen.dart
 // ==============================
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../state/climate_view_model.dart';
@@ -294,9 +293,47 @@ Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedL
   return alignedLeft ? Align(alignment: Alignment.centerLeft, child: btn) : Center(child: btn);
 }
 
-class _Map extends StatelessWidget {
+class _Map extends StatefulWidget {
   final ClimateViewModel vm;
   const _Map({required this.vm});
+
+  @override
+  State<_Map> createState() => _MapState();
+}
+
+class _MapState extends State<_Map> {
+  Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _updateMarker();
+  }
+
+  @override
+  void didUpdateWidget(_Map oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.vm.currentLocation != widget.vm.currentLocation) {
+      _updateMarker();
+    }
+  }
+
+  void _updateMarker() {
+    setState(() {
+      _markers = {
+        Marker(
+          markerId: const MarkerId('current_location'),
+          position: widget.vm.currentLocation,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      };
+    });
+  }
+
+  void _onMapTap(LatLng position) {
+    widget.vm.currentLocation = position;
+    _updateMarker();
+  }
 
   double _heightForWidth(double w) {
     if (w >= 1100) return 420;
@@ -313,34 +350,17 @@ class _Map extends StatelessWidget {
       height: h,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: FlutterMap(
-          options: MapOptions(
-            initialCenter: vm.currentLocation,
-            initialZoom: 5.0,
-            onTap: (tapPosition, point) {
-              // Mantém compatibilidade com seu VM atual
-              vm.currentLocation = point;
-              vm.notifyListeners();
-              // Se preferir (se existir no seu VM):
-              // vm.setCurrentLocation(point);
-            },
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: widget.vm.currentLocation,
+            zoom: 5.0,
           ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-              subdomains: const ['a', 'b', 'c', 'd'],
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  width: 80,
-                  height: 80,
-                  point: vm.currentLocation,
-                  child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
-                ),
-              ],
-            ),
-          ],
+          onTap: _onMapTap,
+          markers: _markers,
+          myLocationEnabled: false,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          mapType: MapType.normal,
         ),
       ),
     );
