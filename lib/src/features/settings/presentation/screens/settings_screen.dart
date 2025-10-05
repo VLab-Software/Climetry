@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart'; // TODO: Usar para seleção de localização
+import 'package:provider/provider.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/presentation/screens/welcome_screen.dart';
-// import '../../../disasters/presentation/widgets/location_picker_widget.dart'; // TODO: Usar para seleção de localização
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,17 +14,21 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAliveClientMixin {
   final _authService = AuthService();
   final _userDataService = UserDataService();
   final _locationService = LocationService();
-  String _appVersion = '1.0.0';
   
-  Map<String, dynamic> _preferences = {};
   User? _currentUser;
   bool _isLoading = true;
+  String _temperatureUnit = 'celsius'; // celsius, fahrenheit
+  String _windUnit = 'kmh'; // kmh, mph
+  String _precipitationUnit = 'mm'; // mm, inch
   bool _useCurrentLocation = true;
   String? _savedLocationName;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -33,14 +37,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
+    
     try {
       _currentUser = _authService.currentUser;
       if (_currentUser != null) {
-        _preferences = await _userDataService.getPreferences();
+        final prefs = await _userDataService.getPreferences();
+        _temperatureUnit = prefs['temperatureUnit'] ?? 'celsius';
+        _windUnit = prefs['windUnit'] ?? 'kmh';
+        _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
       }
       
-      // Carregar configurações de localização
       _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
       final savedLocation = await _locationService.getSavedLocation();
       _savedLocationName = savedLocation?['name'];
@@ -55,11 +63,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _savePreferences() async {
     try {
-      await _userDataService.savePreferences(_preferences);
+      await _userDataService.savePreferences({
+        'temperatureUnit': _temperatureUnit,
+        'windUnit': _windUnit,
+        'precipitationUnit': _precipitationUnit,
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preferências salvas!'),
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Preferências salvas!'),
+              ],
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -68,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar: $e'),
+            content: Text('Erro: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -80,21 +98,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Sair', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Tem certeza que deseja sair?',
+        backgroundColor: Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Sair da Conta', style: TextStyle(color: Colors.white)),
+        content: Text(
+          'Deseja realmente sair?',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Sair'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF3B82F6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text('Sair'),
           ),
         ],
       ),
@@ -113,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao sair: $e'),
+              content: Text('Erro: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -126,21 +148,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Excluir Conta', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Esta ação é permanente! Todos os seus dados serão excluídos. Deseja continuar?',
-          style: TextStyle(color: Colors.white70),
+        backgroundColor: Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Excluir Conta', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: Text(
+          'Esta ação é PERMANENTE!\n\nTodos os seus dados serão excluídos e não poderão ser recuperados.',
+          style: TextStyle(color: Colors.white70, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Excluir'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text('Excluir Conta'),
           ),
         ],
       ),
@@ -148,11 +180,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (confirm == true && mounted) {
       try {
-        // Deletar dados do Firestore
         await _userDataService.deleteAllUserData();
-        // Deletar conta do Firebase Auth
         await _authService.deleteAccount();
-        
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const WelcomeScreen()),
@@ -172,385 +201,168 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _toggleLocationMode(bool value) async {
-    setState(() {
-      _useCurrentLocation = value;
-    });
-    if (value) {
-      // Usar localização atual do dispositivo
-      // TODO: Implementar obtenção de localização atual
-    }
-  }
-
-  Future<void> _showLocationOptions() async {
-    final action = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Localização Salva', style: TextStyle(color: Colors.white)),
-        content: Text(
-          _savedLocationName ?? 'Nenhuma localização salva',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'change'),
-            child: const Text('Alterar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'remove'),
-            child: const Text('Remover', style: TextStyle(color: Colors.red)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-        ],
-      ),
-    );
-
-    if (action == 'change' && mounted) {
-      await _pickLocation();
-    } else if (action == 'remove' && mounted) {
-      setState(() {
-        _savedLocationName = null;
-      });
-    }
-  }
-
-  Future<void> _pickLocation() async {
-    // TODO: Implementar seleção de localização com Google Maps
-    // Por enquanto, mostrar um diálogo simples
-    final controller = TextEditingController();
-    
-    final locationName = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Adicionar Localização', style: TextStyle(color: Colors.white)),
-        content: TextField(
-          controller: controller,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            labelText: 'Nome da cidade',
-            labelStyle: TextStyle(color: Colors.white70),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white30),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A9EFF),
-            ),
-            child: const Text('Salvar'),
-          ),
-        ],
-      ),
-    );
-
-    if (locationName != null && locationName.isNotEmpty && mounted) {
-      setState(() {
-        _savedLocationName = locationName;
-      });
-    }
-  }
-
-  Future<void> _changePassword() async {
-    final controller = TextEditingController();
-    
-    final newPassword = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Nova Senha', style: TextStyle(color: Colors.white)),
-        content: TextField(
-          controller: controller,
-          obscureText: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            labelText: 'Nova senha (mín. 6 caracteres)',
-            labelStyle: const TextStyle(color: Colors.white70),
-            enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white30),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A9EFF),
-            ),
-            child: const Text('Alterar'),
-          ),
-        ],
-      ),
-    );
-
-    if (newPassword != null && newPassword.isNotEmpty && mounted) {
-      try {
-        await _authService.updatePassword(newPassword);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Senha alterada com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF1E2A3A),
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF4A9EFF)),
-        ),
+      return Scaffold(
+        backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF3B82F6))),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E2A3A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E2A3A),
-        elevation: 0,
-        title: const Text('Configurações'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Padding para floating tab bar
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Perfil
-            _buildSectionTitle('Perfil'),
-            _buildProfileCard(),
-            const SizedBox(height: 24),
+      backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
+      body: CustomScrollView(
+        slivers: [
+          // Header
+          SliverToBoxAdapter(
+            child: _buildHeader(isDark),
+          ),
 
-            // Localização
-            _buildSectionTitle('Localização'),
-            _buildSwitchCard(
-              '📍',
-              'Usar Minha Localização',
-              _useCurrentLocation,
-              _toggleLocationMode,
-            ),
-            if (_savedLocationName != null)
-              _buildSettingCard(
-                '🏙️',
-                'Localização Salva',
-                _savedLocationName!,
-                _showLocationOptions,
-              )
-            else
-              _buildSettingCard(
-                '➕',
-                'Adicionar Localização',
-                'Escolha uma localização personalizada',
-                _pickLocation,
-              ),
-            const SizedBox(height: 24),
+          // Perfil
+          SliverToBoxAdapter(
+            child: _buildProfileSection(isDark),
+          ),
 
-            // Conta
-            _buildSectionTitle('Conta'),
-            _buildSettingCard(
-              '�',
-              'Alterar Senha',
-              'Modifique sua senha',
-              _changePassword,
-            ),
-            const SizedBox(height: 24),
+          // Aparência
+          SliverToBoxAdapter(
+            child: _buildAppearanceSection(isDark, themeProvider),
+          ),
 
-            // Unidades
-            _buildSectionTitle('Unidades de Medida'),
-            _buildSettingCard(
-              '🌡️',
-              'Temperatura',
-              _preferences['temperatureUnit'] ?? 'Celsius (°C)',
-              () => _showUnitDialog('Temperatura', 'temperatureUnit', ['Celsius (°C)', 'Fahrenheit (°F)']),
-            ),
-            _buildSettingCard(
-              '💨',
-              'Velocidade do Vento',
-              _preferences['windSpeedUnit'] ?? 'km/h',
-              () => _showUnitDialog('Velocidade do Vento', 'windSpeedUnit', ['km/h', 'm/s', 'mph']),
-            ),
-            _buildSettingCard(
-              '☔',
-              'Precipitação',
-              _preferences['precipitationUnit'] ?? 'milímetros (mm)',
-              () => _showUnitDialog('Precipitação', 'precipitationUnit', ['milímetros (mm)', 'polegadas (in)']),
-            ),
-            const SizedBox(height: 24),
+          // Unidades de Medida
+          SliverToBoxAdapter(
+            child: _buildUnitsSection(isDark),
+          ),
 
-            // Notificações
-            _buildSectionTitle('Notificações'),
-            _buildSwitchCard(
-              '🔔',
-              'Ativar Notificações',
-              _preferences['notificationsEnabled'] == true,
-              (value) {
-                setState(() {
-                  _preferences['notificationsEnabled'] = value;
-                });
-                _savePreferences();
-              },
-            ),
-            _buildSwitchCard(
-              '�',
-              'Som',
-              _preferences['soundEnabled'] == true,
-              (value) {
-                setState(() {
-                  _preferences['soundEnabled'] = value;
-                });
-                _savePreferences();
-              },
-            ),
-            _buildSwitchCard(
-              '�',
-              'Vibração',
-              _preferences['vibrationEnabled'] == true,
-              (value) {
-                setState(() {
-                  _preferences['vibrationEnabled'] = value;
-                });
-                _savePreferences();
-              },
-            ),
-            const SizedBox(height: 24),
+          // Localização
+          SliverToBoxAdapter(
+            child: _buildLocationSection(isDark),
+          ),
 
-            // Sobre
-            _buildSectionTitle('Sobre'),
-            _buildSettingCard(
-              '📱',
-              'Versão do App',
-              _appVersion,
-              null,
-            ),
-            const SizedBox(height: 24),
+          // Conta
+          SliverToBoxAdapter(
+            child: _buildAccountSection(isDark),
+          ),
 
-            // Botões de ação
-            Center(
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: _logout,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4A9EFF),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Sair da Conta',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: _deleteAccount,
-                    child: const Text(
-                      'Excluir Conta',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          // Sobre
+          SliverToBoxAdapter(
+            child: _buildAboutSection(isDark),
+          ),
+
+          SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileCard() {
-    final userName = _currentUser?.displayName ?? 'Usuário';
-    final userEmail = _currentUser?.email ?? 'email@example.com';
-    final firstLetter = userName.isNotEmpty ? userName[0].toUpperCase() : 'U';
-
+  Widget _buildHeader(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 20,
+        left: 20,
+        right: 20,
+        bottom: 20,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A3A4D),
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? Color(0xFF1F2937) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: const Color(0xFF4A9EFF),
-            child: Text(
-              firstLetter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFF3B82F6).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.settings,
+              color: Color(0xFF3B82F6),
+              size: 24,
+            ),
+          ),
+          SizedBox(width: 12),
+          Text(
+            'Configurações',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Color(0xFF1F2937),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileSection(bool isDark) {
+    return Container(
+      margin: EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? Color(0xFF1F2937) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                _currentUser?.displayName?.substring(0, 1).toUpperCase() ??
+                    _currentUser?.email?.substring(0, 1).toUpperCase() ??
+                    'U',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  userName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  _currentUser?.displayName ?? 'Usuário',
+                  style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Color(0xFF1F2937),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
-                  userEmail,
+                  _currentUser?.email ?? '',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 14,
+                    fontSize: 13,
+                    color: Colors.grey,
                   ),
                 ),
               ],
@@ -561,145 +373,330 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingCard(
-    String icon,
-    String title,
-    String subtitle,
-    VoidCallback? onTap,
-  ) {
+  Widget _buildAppearanceSection(bool isDark, ThemeProvider themeProvider) {
+    return _buildSection(
+      isDark,
+      title: 'Aparência',
+      icon: Icons.palette_outlined,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.dark_mode,
+          title: 'Tema Escuro',
+          subtitle: 'Ativar tema escuro',
+          trailing: Switch(
+            value: themeProvider.themeMode == ThemeMode.dark,
+            onChanged: (value) {
+              themeProvider.setTheme(value ? ThemeMode.dark : ThemeMode.light);
+            },
+            activeColor: Color(0xFF3B82F6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUnitsSection(bool isDark) {
+    return _buildSection(
+      isDark,
+      title: 'Unidades de Medida',
+      icon: Icons.straighten,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.thermostat,
+          title: 'Temperatura',
+          subtitle: _temperatureUnit == 'celsius' ? 'Celsius (°C)' : 'Fahrenheit (°F)',
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          onTap: () => _showUnitPicker(
+            'Temperatura',
+            _temperatureUnit,
+            {'celsius': 'Celsius (°C)', 'fahrenheit': 'Fahrenheit (°F)'},
+            (value) {
+              setState(() => _temperatureUnit = value);
+              _savePreferences();
+            },
+          ),
+        ),
+        _buildSettingTile(
+          isDark,
+          icon: Icons.air,
+          title: 'Vento',
+          subtitle: _windUnit == 'kmh' ? 'km/h' : 'mph',
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          onTap: () => _showUnitPicker(
+            'Vento',
+            _windUnit,
+            {'kmh': 'Quilômetros por hora (km/h)', 'mph': 'Milhas por hora (mph)'},
+            (value) {
+              setState(() => _windUnit = value);
+              _savePreferences();
+            },
+          ),
+        ),
+        _buildSettingTile(
+          isDark,
+          icon: Icons.water_drop,
+          title: 'Precipitação',
+          subtitle: _precipitationUnit == 'mm' ? 'Milímetros (mm)' : 'Polegadas (in)',
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          onTap: () => _showUnitPicker(
+            'Precipitação',
+            _precipitationUnit,
+            {'mm': 'Milímetros (mm)', 'inch': 'Polegadas (in)'},
+            (value) {
+              setState(() => _precipitationUnit = value);
+              _savePreferences();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationSection(bool isDark) {
+    return _buildSection(
+      isDark,
+      title: 'Localização',
+      icon: Icons.location_on_outlined,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.my_location,
+          title: 'Usar localização atual',
+          subtitle: 'Detectar automaticamente',
+          trailing: Switch(
+            value: _useCurrentLocation,
+            onChanged: (value) async {
+              setState(() => _useCurrentLocation = value);
+              await _locationService.setUseCurrentLocation(value);
+            },
+            activeColor: Color(0xFF3B82F6),
+          ),
+        ),
+        if (_savedLocationName != null)
+          _buildSettingTile(
+            isDark,
+            icon: Icons.location_city,
+            title: 'Localização Salva',
+            subtitle: _savedLocationName!,
+            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAccountSection(bool isDark) {
+    return _buildSection(
+      isDark,
+      title: 'Conta',
+      icon: Icons.person_outline,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.logout,
+          title: 'Sair',
+          subtitle: 'Desconectar da conta',
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          onTap: _logout,
+        ),
+        _buildSettingTile(
+          isDark,
+          icon: Icons.delete_forever,
+          title: 'Excluir Conta',
+          subtitle: 'Remover permanentemente',
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+          onTap: _deleteAccount,
+          textColor: Colors.red,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(bool isDark) {
+    return _buildSection(
+      isDark,
+      title: 'Sobre',
+      icon: Icons.info_outline,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.apps,
+          title: 'Versão do App',
+          subtitle: '1.0.0',
+        ),
+        _buildSettingTile(
+          isDark,
+          icon: Icons.code,
+          title: 'Desenvolvido por',
+          subtitle: 'VLab Software',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection(bool isDark, {required String title, required IconData icon, required List<Widget> children}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: const Color(0xFF2A3A4D),
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      decoration: BoxDecoration(
+        color: isDark ? Color(0xFF1F2937) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16),
             child: Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(icon, style: const TextStyle(fontSize: 20)),
+                Icon(icon, color: Color(0xFF3B82F6), size: 20),
+                SizedBox(width: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Color(0xFF1F2937),
+                    letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+              ],
+            ),
+          ),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingTile(
+    bool isDark, {
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+    Color? textColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: (textColor ?? Color(0xFF3B82F6)).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: textColor ?? Color(0xFF3B82F6),
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: textColor ?? (isDark ? Colors.white : Color(0xFF1F2937)),
                       ),
-                      const SizedBox(height: 2),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 2),
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 13,
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                if (onTap != null)
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Colors.white38,
-                  ),
-              ],
-            ),
+              ),
+              if (trailing != null) trailing,
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSwitchCard(
-    String icon,
-    String title,
-    bool value,
-    Function(bool) onChanged,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A3A4D),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(icon, style: const TextStyle(fontSize: 20)),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: const Color(0xFF4A9EFF),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUnitDialog(String title, String preferenceKey, List<String> options) {
-    showDialog(
+  void _showUnitPicker(String title, String currentValue, Map<String, String> options, Function(String) onChanged) {
+    showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF2A3A4D),
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.white),
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? Color(0xFF1F2937) : Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          content: Column(
+          padding: EdgeInsets.all(20),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: options.map((option) {
-              return ListTile(
-                title: Text(
-                  option,
-                  style: const TextStyle(color: Colors.white),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Color(0xFF1F2937),
                 ),
-                onTap: () {
-                  setState(() {
-                    _preferences[preferenceKey] = option;
-                  });
-                  _savePreferences();
-                  Navigator.pop(context);
-                },
-              );
-            }).toList(),
+              ),
+              SizedBox(height: 20),
+              ...options.entries.map((entry) {
+                final isSelected = currentValue == entry.key;
+                return ListTile(
+                  onTap: () {
+                    onChanged(entry.key);
+                    Navigator.pop(context);
+                  },
+                  leading: Radio<String>(
+                    value: entry.key,
+                    groupValue: currentValue,
+                    onChanged: (value) {
+                      if (value != null) {
+                        onChanged(value);
+                        Navigator.pop(context);
+                      }
+                    },
+                    activeColor: Color(0xFF3B82F6),
+                  ),
+                  title: Text(
+                    entry.value,
+                    style: TextStyle(
+                      color: isSelected
+                          ? Color(0xFF3B82F6)
+                          : (isDark ? Colors.white : Color(0xFF1F2937)),
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                );
+              }).toList(),
+              SizedBox(height: MediaQuery.of(context).padding.bottom),
+            ],
           ),
         );
       },
