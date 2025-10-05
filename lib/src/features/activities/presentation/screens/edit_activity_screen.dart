@@ -4,13 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../activities/domain/entities/activity.dart';
 import '../../../../core/widgets/location_autocomplete_field.dart';
 import '../../../../core/services/user_data_service.dart';
-import '../../../../core/services/custom_alerts_service.dart';
 import '../../../../core/providers/event_refresh_notifier.dart';
-import '../../../../core/theme/theme_provider.dart';
-import '../widgets/event_participants_selector.dart';
-import '../widgets/custom_alerts_settings.dart';
-import '../../data/services/event_notification_service.dart';
-import '../../../friends/domain/entities/friend.dart';
 
 class EditActivityScreen extends StatefulWidget {
   final Activity activity;
@@ -24,7 +18,6 @@ class EditActivityScreen extends StatefulWidget {
 class _EditActivityScreenState extends State<EditActivityScreen> {
   final _formKey = GlobalKey<FormState>();
   final _userDataService = UserDataService();
-  final _notificationService = EventNotificationService();
 
   late TextEditingController _titleController;
   late TextEditingController _locationController;
@@ -40,8 +33,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   late RecurrenceType _selectedRecurrence;
   late List<String> _tags;
   late List<WeatherCondition> _monitoredConditions;
-  late List<EventParticipant> _participants;
-  late Map<String, CustomAlert> _customAlerts;
 
   bool _isLoading = false;
 
@@ -64,8 +55,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     _selectedRecurrence = widget.activity.recurrence;
     _tags = List.from(widget.activity.tags);
     _monitoredConditions = List.from(widget.activity.monitoredConditions);
-    _participants = List.from(widget.activity.participants);
-    _customAlerts = Map.from(widget.activity.customAlerts);
 
     // Converter startTime string para TimeOfDay
     if (widget.activity.startTime != null) {

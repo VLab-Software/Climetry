@@ -5,6 +5,7 @@ import '../../../activities/domain/entities/activity.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
 import '../../data/services/event_notification_service.dart';
+import '../../data/repositories/activity_repository.dart';
 import 'new_activity_screen.dart';
 import '../../../home/presentation/screens/event_details_screen.dart';
 import '../../../friends/domain/entities/friend.dart';
@@ -19,6 +20,7 @@ class ActivitiesScreen extends StatefulWidget {
 class _ActivitiesScreenState extends State<ActivitiesScreen>
     with AutomaticKeepAliveClientMixin {
   final UserDataService _userDataService = UserDataService();
+  final ActivityRepository _activityRepository = ActivityRepository();
   final EventWeatherPredictionService _predictionService =
       EventWeatherPredictionService();
 
@@ -27,64 +29,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   Map<String, EventWeatherAnalysis> _analyses = {};
   String _selectedFilter = 'all'; // all, upcoming, past
   String _recurrenceFilter = 'all'; // all, single, recurring
-  bool _isLoading = true;
   bool _isAnalyzing = false;
   String _searchQuery = '';
 
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadActivities();
-  }
-
-  Future<void> _loadActivities() async {
-    if (FirebaseAuth.instance.currentUser == null) {
-      if (!mounted) return;
-      setState(() {
-        _allActivities = [];
-        _filteredActivities = [];
-        _isLoading = false;
-      });
-      return;
-    }
-
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    try {
-      final loadedActivities = await _userDataService.getActivities();
-
-      // Analisar eventos futuros
-      final now = DateTime.now();
-      final futureEvents = loadedActivities
-          .where((a) => a.date.isAfter(now))
-          .toList();
-
-      if (!mounted) return;
-      setState(() {
-        _allActivities = loadedActivities;
-        _filteredActivities = loadedActivities;
-        _isLoading = false;
-      });
-
-      // Analisar clima em background
-      if (futureEvents.isNotEmpty) {
-        _analyzeActivities(futureEvents);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao carregar: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
 
   Future<void> _analyzeActivities(List<Activity> activities) async {
     if (!mounted) return;
@@ -216,49 +165,74 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
     return Scaffold(
       backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
-      body: CustomScrollView(
-        slivers: [
-          // Header
-          SliverToBoxAdapter(child: _buildHeader(isDark)),
+      body: StreamBuilder<List<Activity>>(
+        stream: _activityRepository.watchAll(),
+        builder: (context, snapshot) {
+          // Update local state when stream updates
+          if (snapshot.hasData) {
+            _allActivities = snapshot.data!;
+            _filterActivities();
+            
+            // Analyze future events in background (only if not already analyzing)
+            if (!_isAnalyzing) {
+              final now = DateTime.now();
+              final futureEvents = _allActivities
+                  .where((a) => a.date.isAfter(now))
+                  .toList();
+              if (futureEvents.isNotEmpty) {
+                _analyzeActivities(futureEvents);
+              }
+            }
+          }
 
-          // Filtros
-          SliverToBoxAdapter(child: _buildFilters(isDark)),
+          final bool isLoading = snapshot.connectionState == ConnectionState.waiting;
+          final bool hasData = snapshot.hasData && _filteredActivities.isNotEmpty;
 
-          // Loading
-          if (_isLoading)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: Color(0xFF3B82F6)),
-                    SizedBox(height: 16),
-                    Text(
-                      'Carregando eventos...',
-                      style: TextStyle(color: Colors.grey),
+          return CustomScrollView(
+            slivers: [
+              // Header
+              SliverToBoxAdapter(child: _buildHeader(isDark)),
+
+              // Filtros
+              SliverToBoxAdapter(child: _buildFilters(isDark)),
+
+              // Loading
+              if (isLoading)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Color(0xFF3B82F6)),
+                        SizedBox(height: 16),
+                        Text(
+                          'Carregando eventos...',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                )
+              // Empty State
+              else if (!hasData)
+                SliverFillRemaining(child: _buildEmptyState(isDark))
+              // Lista de eventos
+              else
+                SliverPadding(
+                  padding: EdgeInsets.all(20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final activity = _filteredActivities[index];
+                      final analysis = _analyses[activity.id];
+                      return _buildActivityCard(activity, analysis, isDark);
+                    }, childCount: _filteredActivities.length),
+                  ),
                 ),
-              ),
-            )
-          // Empty State
-          else if (_filteredActivities.isEmpty)
-            SliverFillRemaining(child: _buildEmptyState(isDark))
-          // Lista de eventos
-          else
-            SliverPadding(
-              padding: EdgeInsets.all(20),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final activity = _filteredActivities[index];
-                  final analysis = _analyses[activity.id];
-                  return _buildActivityCard(activity, analysis, isDark);
-                }, childCount: _filteredActivities.length),
-              ),
-            ),
 
-          SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+              SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          );
+        },
       ),
     );
   }
@@ -350,8 +324,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                 );
                               }
                               
-                              // Recarregar lista
-                              _loadActivities();
+                              // StreamBuilder atualiza automaticamente, não precisa recarregar
                               // Mostrar sucesso
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1137,8 +1110,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   if (result != null) {
                     // Salvar no Firebase
                     await _userDataService.saveActivity(result);
-                    // Recarregar lista
-                    _loadActivities();
+                    // StreamBuilder atualiza automaticamente
                     // Mostrar sucesso
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
