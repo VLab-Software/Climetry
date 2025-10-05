@@ -237,10 +237,18 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                           ),
                                         )
                                       : null,
-                                  trailing: Checkbox(
-                                    value: isSelected,
-                                    onChanged: (value) => _toggleParticipant(friend),
-                                    activeColor: const Color(0xFF3B82F6),
+                                  trailing: AnimatedScale(
+                                    scale: isSelected ? 1.0 : 0.9,
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeOut,
+                                    child: Checkbox(
+                                      value: isSelected,
+                                      onChanged: (value) => _toggleParticipant(friend),
+                                      activeColor: const Color(0xFF3B82F6),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
                                   ),
                                   onTap: () => _toggleParticipant(friend),
                                 ),
@@ -273,22 +281,14 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                               friend.id,
                                               EventRole.admin,
                                               '👑 Admin',
-                                              'Pode editar e convidar',
+                                              'Pode editar e gerenciar',
                                               role == EventRole.admin,
                                               isDark,
                                             ),
                                             _buildRoleChip(
                                               friend.id,
-                                              EventRole.moderator,
-                                              '🎖️ Moderador',
-                                              'Pode convidar',
-                                              role == EventRole.moderator,
-                                              isDark,
-                                            ),
-                                            _buildRoleChip(
-                                              friend.id,
                                               EventRole.participant,
-                                              '👤 Participante',
+                                              '👤 Convidado',
                                               'Apenas visualiza',
                                               role == EventRole.participant,
                                               isDark,

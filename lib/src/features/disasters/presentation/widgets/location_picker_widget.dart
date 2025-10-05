@@ -167,13 +167,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
           icon: Icon(Icons.close, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.check, color: Colors.green[600]),
-            onPressed: _confirm,
-            tooltip: 'Confirmar',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -309,19 +302,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         ),
                       ),
                       if (_isMapMoving)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'Movendo...',
-                            style: TextStyle(
-                              color: accentColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                           ),
                         ),
                     ],

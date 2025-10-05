@@ -801,13 +801,15 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildWeatherConditionsPicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Monitorar Condições Climáticas',
           style: TextStyle(
-            color: Colors.grey[400],
+            color: isDark ? Colors.grey[400] : Colors.grey[700],
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -815,8 +817,11 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[300]!,
+            ),
           ),
           child: Column(
             children: WeatherCondition.values.map((condition) {
@@ -838,13 +843,18 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                     const SizedBox(width: 12),
                     Text(
                       condition.label,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
-                checkColor: Colors.black,
-                activeColor: Colors.blue,
-                side: const BorderSide(color: Colors.white24),
+                checkColor: Colors.white,
+                activeColor: const Color(0xFF3B82F6),
+                side: BorderSide(
+                  color: isDark ? Colors.white24 : Colors.grey[400]!,
+                ),
               );
             }).toList(),
           ),

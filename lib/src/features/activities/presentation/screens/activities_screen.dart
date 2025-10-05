@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../activities/domain/entities/activity.dart';
-import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
 import '../../../../core/services/event_sharing_service.dart';
 import '../../data/services/event_notification_service.dart';
@@ -20,7 +19,6 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen>
     with AutomaticKeepAliveClientMixin {
-  final UserDataService _userDataService = UserDataService();
   final ActivityRepository _activityRepository = ActivityRepository();
   final EventWeatherPredictionService _predictionService =
       EventWeatherPredictionService();
@@ -138,7 +136,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
     if (confirm == true) {
       try {
-        await _userDataService.deleteActivity(activity.id);
+        await _activityRepository.delete(activity.id);
         if (!mounted) return;
         setState(() {
           _allActivities.removeWhere((a) => a.id == activity.id);
@@ -314,8 +312,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                               ),
                             );
                             if (result != null) {
-                              // Salvar no Firebase
-                              await _userDataService.saveActivity(result);
+                              // Salvar no Firebase usando ActivityRepository
+                              await _activityRepository.save(result);
                               
                               // Enviar notificações para participantes convidados
                               if (result.participants.isNotEmpty) {
@@ -326,32 +324,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                 );
                               }
                               
-                              // StreamBuilder atualiza automaticamente, não precisa recarregar
-                              // Mostrar sucesso
+                              // Mostrar diálogo de compartilhamento
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            '✅ Evento "${result.title}" criado!',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    backgroundColor: Color(0xFF10B981),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                );
+                                _showEventCreatedDialog(result);
                               }
                             }
                           },
@@ -1267,8 +1242,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     ),
                   );
                   if (result != null) {
-                    // Salvar no Firebase
-                    await _userDataService.saveActivity(result);
+                    // Salvar no Firebase usando ActivityRepository
+                    await _activityRepository.save(result);
                     // StreamBuilder atualiza automaticamente
                     // Mostrar sucesso com opções de compartilhamento
                     if (mounted) {
