@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../activities/domain/entities/activity.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
+import '../../../../core/services/event_sharing_service.dart';
 import '../../data/services/event_notification_service.dart';
 import '../../data/repositories/activity_repository.dart';
 import 'new_activity_screen.dart';
@@ -23,6 +24,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   final ActivityRepository _activityRepository = ActivityRepository();
   final EventWeatherPredictionService _predictionService =
       EventWeatherPredictionService();
+  final EventSharingService _sharingService = EventSharingService();
 
   List<Activity> _allActivities = [];
   List<Activity> _filteredActivities = [];
@@ -1062,6 +1064,163 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     );
   }
 
+  void _showEventCreatedDialog(Activity activity) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 32),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Evento Criado!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '✅ "${activity.title}" foi criado com sucesso!',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'O que você gostaria de fazer?',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Botão: Adicionar ao Calendário
+            _buildActionButton(
+              icon: Icons.calendar_today,
+              label: 'Adicionar ao Calendário',
+              color: const Color(0xFF3B82F6),
+              isDark: isDark,
+              onTap: () async {
+                Navigator.pop(context);
+                final success = await _sharingService.addToCalendar(activity);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? '✅ Evento adicionado ao calendário!'
+                            : '❌ Erro ao adicionar ao calendário',
+                      ),
+                      backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            
+            // Botão: Compartilhar no WhatsApp
+            _buildActionButton(
+              icon: Icons.chat_bubble,
+              label: 'Compartilhar no WhatsApp',
+              color: const Color(0xFF25D366),
+              isDark: isDark,
+              onTap: () async {
+                Navigator.pop(context);
+                await _sharingService.shareViaWhatsApp(activity: activity);
+              },
+            ),
+            const SizedBox(height: 12),
+            
+            // Botão: Compartilhar (genérico)
+            _buildActionButton(
+              icon: Icons.share,
+              label: 'Compartilhar',
+              color: const Color(0xFF8B5CF6),
+              isDark: isDark,
+              onTap: () async {
+                Navigator.pop(context);
+                await _sharingService.shareEvent(activity);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Fechar',
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, color: color, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState(bool isDark) {
     return Center(
       child: Padding(
@@ -1111,24 +1270,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     // Salvar no Firebase
                     await _userDataService.saveActivity(result);
                     // StreamBuilder atualiza automaticamente
-                    // Mostrar sucesso
+                    // Mostrar sucesso com opções de compartilhamento
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              Icon(Icons.check_circle, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text('✅ Evento "${result.title}" criado!'),
-                            ],
-                          ),
-                          backgroundColor: Color(0xFF10B981),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
+                      _showEventCreatedDialog(result);
                     }
                   }
                 },

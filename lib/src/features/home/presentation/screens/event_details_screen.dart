@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
+import '../../../../core/services/event_sharing_service.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
 import '../../../activities/presentation/screens/edit_activity_screen.dart';
 import '../../../activities/data/repositories/activity_repository.dart';
@@ -21,6 +22,7 @@ class EventDetailsScreen extends StatefulWidget {
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Timer? _countdownTimer;
   String _timeRemaining = '';
+  final EventSharingService _sharingService = EventSharingService();
 
   @override
   void initState() {
@@ -80,6 +82,109 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     setState(() {
       _timeRemaining = result.trim();
     });
+  }
+
+  void _showShareOptions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1F2937) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Compartilhar Evento',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Adicionar ao Calendário
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.calendar_today, color: Color(0xFF3B82F6)),
+              ),
+              title: const Text('Adicionar ao Calendário'),
+              subtitle: const Text('Google Calendar ou Apple Calendar'),
+              onTap: () async {
+                Navigator.pop(context);
+                final success = await _sharingService.addToCalendar(widget.analysis.activity);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? '✅ Evento adicionado ao calendário!'
+                            : '❌ Erro ao adicionar ao calendário',
+                      ),
+                      backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+            
+            const Divider(),
+            
+            // WhatsApp
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF25D366).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.chat_bubble, color: Color(0xFF25D366)),
+              ),
+              title: const Text('Compartilhar no WhatsApp'),
+              subtitle: const Text('Enviar convite com link'),
+              onTap: () async {
+                Navigator.pop(context);
+                await _sharingService.shareViaWhatsApp(activity: widget.analysis.activity);
+              },
+            ),
+            
+            const Divider(),
+            
+            // Compartilhar Genérico
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.share, color: Color(0xFF8B5CF6)),
+              ),
+              title: const Text('Compartilhar'),
+              subtitle: const Text('Email, SMS, outras apps'),
+              onTap: () async {
+                Navigator.pop(context);
+                await _sharingService.shareEvent(widget.analysis.activity);
+              },
+            ),
+            
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _leaveEvent() async {
@@ -253,6 +358,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
+              // Botão Compartilhar
+              IconButton(
+                icon: Icon(Icons.share, color: Colors.white),
+                onPressed: () => _showShareOptions(),
+                tooltip: 'Compartilhar evento',
+              ),
+              // Botão Editar
               IconButton(
                 icon: Icon(Icons.edit_outlined, color: Colors.white),
                 onPressed: () async {
