@@ -62,14 +62,14 @@ class MeteomaticsParser {
       return AlertInfo(
         title: 'Alerta de Calor Extremo',
         message: 'Temperaturas podem exceder 32°C. Mantenha-se hidratado e evite exposição prolongada ao sol.',
-        probability: p,
+        probability: p.toDouble(),
       );
     } else if (temp.minValue < 10) {
       final p = math.min((10 - temp.minValue) * 8 + 40, 100);
       return AlertInfo(
         title: 'Alerta de Frio Intenso',
         message: 'Temperaturas baixas detectadas. Use roupas adequadas e mantenha-se aquecido.',
-        probability: p,
+        probability: p.toDouble(),
       );
     } else {
       return const AlertInfo(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../state/climate_view_model.dart';
 
 class LocationField extends StatelessWidget {
