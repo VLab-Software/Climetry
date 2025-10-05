@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -8,6 +7,7 @@ import '../../../../core/providers/event_refresh_notifier.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
 import '../../../weather/domain/entities/daily_weather.dart';
 import '../../../activities/domain/entities/activity.dart';
+import '../../../activities/data/repositories/activity_repository.dart';
 import '../../../activities/presentation/widgets/participants_avatars.dart';
 import '../widgets/notifications_sheet.dart';
 import 'event_details_screen.dart';
@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
-  final UserDataService _userDataService = UserDataService();
+  final ActivityRepository _activityRepository = ActivityRepository();
   final EventWeatherPredictionService _predictionService =
       EventWeatherPredictionService();
 
@@ -71,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _loading = true);
 
     try {
-      // Carregar eventos dos próximos 6 meses
-      final events = await _userDataService.getActivities();
+      // Carregar eventos do ActivityRepository (Firebase)
+      final events = await _activityRepository.getAll();
 
       // Filtrar eventos futuros (até 6 meses)
       final now = DateTime.now();
