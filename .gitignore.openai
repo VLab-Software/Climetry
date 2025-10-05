@@ -1,0 +1,4 @@
+# OpenAI API Key Configuration
+# NUNCA commite suas chaves de API!
+.env
+lib/src/core/services/openai_service.dart.local

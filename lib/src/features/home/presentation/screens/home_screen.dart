@@ -4,6 +4,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/current_weather.dart';
 import '../../../weather/domain/entities/hourly_weather.dart';
+import '../../../weather/domain/entities/daily_weather.dart';
+import '../../../activities/domain/entities/activity.dart';
+import '../../../../core/services/openai_service.dart';
+import '../../../../core/services/user_data_service.dart';
 import 'dart:math' as math;
 
 class HomeScreen extends StatefulWidget {
@@ -15,9 +19,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MeteomaticsService _weatherService = MeteomaticsService();
+  final OpenAIService _aiService = OpenAIService();
+  final UserDataService _userDataService = UserDataService();
+  
   CurrentWeather? _currentWeather;
   List<HourlyWeather> _hourlyForecast = [];
+  Activity? _nextActivity;
+  DailyWeather? _nextActivityWeather;
+  String? _activityTips;
+  Map<String, dynamic>? _alternativeLocations;
+  List<Map<String, String>> _insightCards = [];
   bool _loading = true;
+  bool _loadingInsights = false;
   String? _error;
   String _locationName = 'São Paulo, SP';
   final LatLng _location = const LatLng(-23.5505, -46.6333);
@@ -26,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadWeather();
+    _loadNextActivity();
   }
 
   Future<void> _loadWeather() async {
@@ -43,6 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _hourlyForecast = hourly;
         _loading = false;
       });
+
+      // Carregar insights da IA
+      _loadAIInsights();
     } catch (e) {
       setState(() {
         _loading = false;
@@ -64,6 +81,104 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadNextActivity() async {
+    try {
+      final activities = await _userDataService.getActivities();
+      
+      if (activities.isEmpty) return;
+
+      // Filtrar atividades futuras e ordenar por data
+      final futureActivities = activities.where(
+        (a) => a.date.isAfter(DateTime.now())
+      ).toList()..sort((a, b) => a.date.compareTo(b.date));
+
+      if (futureActivities.isEmpty) return;
+
+      final next = futureActivities.first;
+      
+      // Buscar previsão do tempo para o dia da atividade
+      final forecast = await _weatherService.getWeeklyForecast(next.coordinates);
+      final activityWeather = forecast.firstWhere(
+        (w) => w.date.day == next.date.day && 
+               w.date.month == next.date.month &&
+               w.date.year == next.date.year,
+        orElse: () => forecast.first,
+      );
+
+      // Buscar alertas
+      final alerts = _weatherService.calculateWeatherAlerts(forecast)
+        .where((alert) => alert.date.day == next.date.day)
+        .toList();
+
+      // Gerar dicas da IA
+      final tips = await _aiService.generateActivityTips(
+        activity: next,
+        weather: activityWeather,
+        alerts: alerts,
+      );
+
+      // Verificar se evento é ao ar livre e clima está ruim
+      Map<String, dynamic>? alternatives;
+      final isOutdoorActivity = next.type == ActivityType.outdoor || 
+                                 next.type == ActivityType.sport;
+      
+      if (isOutdoorActivity && _shouldSuggestAlternatives(activityWeather, alerts)) {
+        alternatives = await _aiService.suggestAlternativeLocations(
+          activity: next,
+          cityName: _locationName,
+          weather: activityWeather,
+          alerts: alerts,
+        );
+      }
+
+      if (mounted) {
+        setState(() {
+          _nextActivity = next;
+          _nextActivityWeather = activityWeather;
+          _activityTips = tips;
+          _alternativeLocations = alternatives;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar próxima atividade: $e');
+    }
+  }
+
+  bool _shouldSuggestAlternatives(DailyWeather weather, List<dynamic> alerts) {
+    // Sugere alternativas se houver alertas críticos ou condições ruins
+    if (alerts.isNotEmpty) return true;
+    if (weather.precipitationProbability > 60) return true;
+    if (weather.windSpeed > 50) return true;
+    return false;
+  }
+
+  Future<void> _loadAIInsights() async {
+    if (_currentWeather == null) return;
+
+    setState(() => _loadingInsights = true);
+
+    try {
+      final cards = await _aiService.generateWeatherInsightCards(
+        temperature: _currentWeather!.temperature,
+        humidity: _currentWeather!.humidity,
+        uvIndex: _currentWeather!.uvIndex,
+        windSpeed: _currentWeather!.windSpeed,
+        precipitation: _currentWeather!.precipitation,
+        location: _locationName,
+      );
+
+      if (mounted) {
+        setState(() {
+          _insightCards = cards;
+          _loadingInsights = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar insights: $e');
+      setState(() => _loadingInsights = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -78,7 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
             : _error != null
                 ? _buildErrorState()
                 : RefreshIndicator(
-                    onRefresh: _loadWeather,
+                    onRefresh: () async {
+                      await _loadWeather();
+                      await _loadNextActivity();
+                    },
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Adiciona padding bottom para floating tab bar
@@ -87,12 +205,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           _buildHeader(dayOfWeek, date),
                           const SizedBox(height: 24),
+                          
+                          // Card do Próximo Evento
+                          if (_nextActivity != null) ...[
+                            _buildNextEventCard(),
+                            const SizedBox(height: 24),
+                          ],
+                          
                           if (_currentWeather != null) ...[
                             _buildMainWeatherCard(),
                             const SizedBox(height: 24),
                             _buildWeatherDetails(),
                             const SizedBox(height: 24),
                           ],
+                          
+                          // Cards de Insights da IA
+                          if (_insightCards.isNotEmpty) ...[
+                            _buildAIInsightsSection(),
+                            const SizedBox(height: 24),
+                          ],
+                          
                           if (_hourlyForecast.isNotEmpty) ...[
                             _buildHourlyForecastSection(),
                             const SizedBox(height: 24),
@@ -468,5 +600,596 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-}
 
+  Widget _buildNextEventCard() {
+    if (_nextActivity == null || _nextActivityWeather == null) {
+      return const SizedBox.shrink();
+    }
+
+    final activity = _nextActivity!;
+    final weather = _nextActivityWeather!;
+    final daysUntil = activity.date.difference(DateTime.now()).inDays;
+    
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF5DD3D3).withValues(alpha: 0.3),
+            const Color(0xFF2A3A4D),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF5DD3D3).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5DD3D3).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      activity.type.icon,
+                      style: const TextStyle(fontSize: 26),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Próximo Evento',
+                        style: TextStyle(
+                          color: Color(0xFF5DD3D3),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        activity.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        daysUntil == 0
+                            ? 'Hoje'
+                            : daysUntil == 1
+                                ? 'Amanhã'
+                                : 'Em $daysUntil dias',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Previsão do Tempo
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E2A3A).withValues(alpha: 0.5),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildEventWeatherItem(
+                      '🌡️',
+                      '${weather.minTemp.toInt()}-${weather.maxTemp.toInt()}°C',
+                    ),
+                    _buildEventWeatherItem(
+                      '💧',
+                      '${weather.precipitationProbability.toInt()}%',
+                    ),
+                    _buildEventWeatherItem(
+                      '💨',
+                      '${weather.windSpeed.toInt()} km/h',
+                    ),
+                  ],
+                ),
+                
+                if (_activityTips != null) ...[
+                  const SizedBox(height: 16),
+                  const Divider(color: Colors.white24, height: 1),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '🤖',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Dicas da IA',
+                              style: TextStyle(
+                                color: Color(0xFF5DD3D3),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _activityTips!,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                
+                if (_alternativeLocations != null) ...[
+                  const SizedBox(height: 16),
+                  const Divider(color: Colors.white24, height: 1),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => _showAlternativeLocationsDialog(),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFD93D).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFFFD93D).withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFD93D).withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text('⚠️', style: TextStyle(fontSize: 18)),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Clima Desfavorável Detectado',
+                                  style: TextStyle(
+                                    color: Color(0xFFFFD93D),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Ver locais alternativos sugeridos pela IA',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Color(0xFFFFD93D),
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventWeatherItem(String emoji, String text) {
+    return Column(
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 24)),
+        const SizedBox(height: 4),
+        Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAIInsightsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              'Insights Climáticos',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A9EFF).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                children: [
+                  Text('🤖', style: TextStyle(fontSize: 12)),
+                  SizedBox(width: 4),
+                  Text(
+                    'IA',
+                    style: TextStyle(
+                      color: Color(0xFF4A9EFF),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        if (_loadingInsights)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _insightCards.length,
+              itemBuilder: (context, index) {
+                final card = _insightCards[index];
+                return _buildInsightCard(
+                  icon: card['icon']!,
+                  title: card['title']!,
+                  tip: card['tip']!,
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildInsightCard({
+    required String icon,
+    required String title,
+    required String tip,
+  }) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF4A9EFF).withValues(alpha: 0.15),
+            const Color(0xFF2A3A4D),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF4A9EFF).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                icon,
+                style: const TextStyle(fontSize: 32),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            tip,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 12,
+              height: 1.3,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAlternativeLocationsDialog() {
+    if (_alternativeLocations == null) return;
+
+    final alternatives = _alternativeLocations!['alternatives'] as List? ?? [];
+    final reason = _alternativeLocations!['reason'] as String? ?? 
+                   'Condições climáticas desfavoráveis detectadas';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Color(0xFF1E2A3A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white30,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD93D).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text('⚠️', style: TextStyle(fontSize: 28)),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Locais Alternativos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text('🤖', style: TextStyle(fontSize: 12)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Sugeridos pela IA',
+                                  style: TextStyle(
+                                    color: Color(0xFF4A9EFF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD93D).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFFFD93D).withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      reason,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: alternatives.length,
+                itemBuilder: (context, index) {
+                  final alt = alternatives[index] as Map<String, dynamic>;
+                  return _buildAlternativeCard(alt);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAlternativeCard(Map<String, dynamic> alternative) {
+    final name = alternative['name'] as String? ?? 'Local não especificado';
+    final type = alternative['type'] as String? ?? '';
+    final reason = alternative['reason'] as String? ?? '';
+    final address = alternative['address'] as String? ?? '';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A3A4D),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF4A9EFF).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4A9EFF).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.place,
+                  color: Color(0xFF4A9EFF),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (type.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        type,
+                        style: TextStyle(
+                          color: const Color(0xFF4A9EFF).withValues(alpha: 0.8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (reason.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              reason,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
+          ],
+          if (address.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 16,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    address,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

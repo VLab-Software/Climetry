@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
+import '../../../weather/domain/entities/daily_weather.dart';
 import '../../data/repositories/alert_preferences_repository.dart';
 import 'package:intl/intl.dart';
 import '../widgets/location_picker_widget.dart';
+import 'alert_details_screen.dart';
 
 class DisastersScreen extends StatefulWidget {
   const DisastersScreen({super.key});
@@ -18,6 +20,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
   final AlertPreferencesRepository _prefsRepo = AlertPreferencesRepository();
   
   List<WeatherAlert> _alerts = [];
+  List<DailyWeather> _forecast = [];
   Set<WeatherAlertType> _enabledAlerts = {};
   bool _loading = true;
   LatLng _monitoringLocation = const LatLng(-23.5505, -46.6333);
@@ -68,6 +71,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
       
       setState(() {
         _alerts = alerts;
+        _forecast = forecast;
         _loading = false;
       });
     } catch (e) {
@@ -344,56 +348,71 @@ class _DisastersScreenState extends State<DisastersScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                  child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(alert.type.label, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Text(alert.type.description, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 16,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.calendar_today, size: 14, color: color),
-                              const SizedBox(width: 6),
-                              Text(dateFormat.format(alert.date), style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                          if (alert.value != null)
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlertDetailsScreen(
+                alert: alert,
+                forecast: _forecast,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(alert.type.label, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(alert.type.description, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 16,
+                          children: [
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.speed, size: 14, color: color),
+                                Icon(Icons.calendar_today, size: 14, color: color),
                                 const SizedBox(width: 6),
-                                Text('${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                                Text(dateFormat.format(alert.date), style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
                               ],
                             ),
-                        ],
-                      ),
-                    ],
+                            if (alert.value != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.speed, size: 14, color: color),
+                                  const SizedBox(width: 6),
+                                  Text('${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  Icon(Icons.arrow_forward_ios, color: color, size: 18),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
