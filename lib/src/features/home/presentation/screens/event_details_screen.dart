@@ -513,6 +513,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   
                   SizedBox(height: 24),
 
+                  // Participantes
+                  _buildSectionTitle('Participantes', isDark),
+                  SizedBox(height: 12),
+                  _buildParticipantsCard(isDark),
+                  SizedBox(height: 24),
+
                   // Previsão do tempo
                   if (widget.analysis.weather != null) ...[
                     _buildSectionTitle('Previsão do Tempo', isDark),
@@ -968,6 +974,239 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         return 'MÉDIA';
       case SuggestionPriority.low:
         return 'BAIXA';
+    }
+  }
+
+  Widget _buildParticipantsCard(bool isDark) {
+    final activity = widget.analysis.activity;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final isOwner = currentUserId != null && activity.isOwner(currentUserId);
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1F2937) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.people,
+                color: const Color(0xFF3B82F6),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Participantes (${activity.participants.length})',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF1F2937),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // Lista de participantes
+          ...activity.participants.map((participant) {
+            final isCurrentUser = participant.userId == currentUserId;
+            final isOwnerParticipant = participant.userId == activity.ownerId;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  // Avatar
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage: participant.photoUrl != null
+                        ? NetworkImage(participant.photoUrl!)
+                        : null,
+                    backgroundColor: const Color(0xFF3B82F6),
+                    child: participant.photoUrl == null
+                        ? Text(
+                            participant.name[0].toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  
+                  // Nome e papel
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              participant.name,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF1F2937),
+                              ),
+                            ),
+                            if (isCurrentUser) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF3B82F6).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Você',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF3B82F6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            // Badge de papel
+                            _buildRoleBadge(participant.role, isOwnerParticipant),
+                            
+                            // Status
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(participant.status).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _getStatusLabel(participant.status),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: _getStatusColor(participant.status),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Botão de promoção (apenas para owner)
+                  if (isOwner && !isOwnerParticipant && participant.role != EventRole.admin)
+                    IconButton(
+                      icon: const Icon(Icons.star_border, size: 20),
+                      color: const Color(0xFFFBBF24),
+                      onPressed: () {
+                        // TODO: Implementar promoção a admin
+                        print('Promover ${participant.name} a admin');
+                      },
+                      tooltip: 'Promover a Admin',
+                    ),
+                  
+                  // Botão de rebaixar (apenas para owner)
+                  if (isOwner && !isOwnerParticipant && participant.role == EventRole.admin)
+                    IconButton(
+                      icon: const Icon(Icons.star, size: 20),
+                      color: const Color(0xFFFBBF24),
+                      onPressed: () {
+                        // TODO: Implementar rebaixar de admin
+                        print('Rebaixar ${participant.name} de admin');
+                      },
+                      tooltip: 'Remover Admin',
+                    ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleBadge(EventRole role, bool isOwner) {
+    String emoji;
+    String label;
+    Color color;
+    
+    if (isOwner) {
+      emoji = '👑';
+      label = 'Dono';
+      color = const Color(0xFFFBBF24);
+    } else if (role == EventRole.admin) {
+      emoji = '⭐';
+      label = 'Admin';
+      color = const Color(0xFF3B82F6);
+    } else {
+      emoji = '👤';
+      label = 'Convidado';
+      color = Colors.grey;
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(ParticipantStatus status) {
+    switch (status) {
+      case ParticipantStatus.accepted:
+        return const Color(0xFF10B981);
+      case ParticipantStatus.pending:
+        return const Color(0xFFF59E0B);
+      case ParticipantStatus.rejected:
+        return Colors.red;
+      case ParticipantStatus.maybe:
+        return const Color(0xFF3B82F6);
+    }
+  }
+
+  String _getStatusLabel(ParticipantStatus status) {
+    switch (status) {
+      case ParticipantStatus.accepted:
+        return 'Confirmado';
+      case ParticipantStatus.pending:
+        return 'Pendente';
+      case ParticipantStatus.rejected:
+        return 'Recusou';
+      case ParticipantStatus.maybe:
+        return 'Talvez';
     }
   }
 

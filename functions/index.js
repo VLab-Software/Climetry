@@ -240,6 +240,53 @@ exports.notifyActivityUpdate = onDocumentCreated('activityUpdates/{updateId}', a
   return null;
 });
 
+// Notificar quando notificação genérica é criada
+exports.sendNotification = onDocumentCreated('notifications/{notificationId}', async (event) => {
+  const notification = event.data.data();
+  
+  // Verificar se já foi enviada
+  if (notification.status !== 'pending') return null;
+  
+  console.log('📬 Notification created:', {
+    notificationId: event.params.notificationId,
+    type: notification.type,
+    recipientId: notification.recipientId,
+  });
+  
+  const fcmToken = notification.fcmToken;
+  if (!fcmToken) {
+    console.log('⚠️ No FCM token in notification');
+    await event.data.ref.update({ 
+      status: 'failed', 
+      error: 'No FCM token',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return null;
+  }
+  
+  // Enviar notificação
+  await admin.firestore().collection('fcmMessages').add({
+    token: fcmToken,
+    notification: {
+      title: notification.title,
+      body: notification.body,
+    },
+    data: notification.data || {},
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    sent: false,
+  });
+  
+  // Atualizar status
+  await event.data.ref.update({ 
+    status: 'sent', 
+    sentAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  
+  console.log('✅ Notification queued successfully');
+  
+  return null;
+});
+
 // Notificar quando atividade é deletada
 exports.notifyActivityDeleted = onDocumentDeleted('activities/{activityId}', async (event) => {
   const deletedActivity = event.data.data();

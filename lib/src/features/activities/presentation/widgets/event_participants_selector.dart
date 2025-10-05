@@ -5,11 +5,13 @@ import '../../../friends/data/services/friends_service.dart';
 class EventParticipantsSelector extends StatefulWidget {
   final List<EventParticipant> selectedParticipants;
   final Function(List<EventParticipant>) onChanged;
+  final String? ownerId; // ID do owner para mostrar badge
 
   const EventParticipantsSelector({
     super.key,
     required this.selectedParticipants,
     required this.onChanged,
+    this.ownerId,
   });
 
   @override
@@ -215,14 +217,50 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                           )
                                         : null,
                                   ),
-                                  title: Text(
-                                    friend.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? Colors.white
-                                          : const Color(0xFF1F2937),
-                                    ),
+                                  title: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          friend.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF1F2937),
+                                          ),
+                                        ),
+                                      ),
+                                      // Badge para owner
+                                      if (widget.ownerId == friend.id)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFBBF24),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                '👑',
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Você',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   subtitle: isSelected && role != null
                                       ? Padding(

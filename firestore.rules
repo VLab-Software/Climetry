@@ -96,22 +96,50 @@ service cloud.firestore {
     
     // Activities (Eventos/Atividades)
     match /activities/{activityId} {
+      // Função helper para verificar se usuário é owner
+      function isActivityOwner() {
+        return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+      }
+      
+      // Função helper para verificar se usuário é participante
+      function isParticipant() {
+        return isAuthenticated() && 
+               (request.auth.uid == resource.data.ownerId || 
+                request.auth.uid in resource.data.participantIds);
+      }
+      
+      // Função para validar alteração de papéis
+      function isValidRoleChange() {
+        // Se não está alterando participantes, permitir
+        if (request.resource.data.participants == resource.data.participants) {
+          return true;
+        }
+        
+        // Apenas o owner pode promover/rebaixar admins
+        if (!isActivityOwner()) {
+          return false;
+        }
+        
+        // Verificar se algum participante teve papel alterado para/de admin
+        let oldParticipants = resource.data.participants;
+        let newParticipants = request.resource.data.participants;
+        
+        // Permitir apenas se usuário é o owner
+        return request.auth.uid == resource.data.ownerId;
+      }
+      
       // Qualquer usuário pode ler atividades onde ele é participante
-      allow read: if isAuthenticated() && 
-                     (request.auth.uid == resource.data.ownerId || 
-                      request.auth.uid in resource.data.participantIds);
+      allow read: if isParticipant();
       
       // Apenas o dono pode criar
       allow create: if isAuthenticated() && 
                        request.auth.uid == request.resource.data.ownerId;
       
-      // Dono pode atualizar
-      allow update: if isAuthenticated() && 
-                       request.auth.uid == resource.data.ownerId;
+      // Dono pode atualizar; validar mudanças de papel
+      allow update: if isActivityOwner() && isValidRoleChange();
       
       // Apenas o dono pode deletar
-      allow delete: if isAuthenticated() && 
-                       request.auth.uid == resource.data.ownerId;
+      allow delete: if isActivityOwner();
     }
     
     // Event Invitations (para Cloud Functions)
