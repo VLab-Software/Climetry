@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 /// Serviço de autenticação com Firebase
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Stream de estado de autenticação
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -52,39 +50,10 @@ class AuthService {
     }
   }
 
-  /// Login com Google
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        throw AuthException('Login cancelado pelo usuário');
-      }
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase with the Google credential
-      return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
-    } catch (e) {
-      throw AuthException('Erro ao fazer login com Google: $e');
-    }
-  }
-
   /// Logout
   Future<void> signOut() async {
     try {
-      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+      await _auth.signOut();
     } catch (e) {
       throw AuthException('Erro ao fazer logout: $e');
     }
@@ -150,7 +119,6 @@ class AuthService {
   Future<void> deleteAccount() async {
     try {
       await _auth.currentUser?.delete();
-      await _googleSignIn.signOut();
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     }
