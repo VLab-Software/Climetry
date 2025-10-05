@@ -228,12 +228,32 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with AutomaticKeepA
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          final result = await Navigator.push(
+          final result = await Navigator.push<Activity>(
             context,
             MaterialPageRoute(builder: (_) => const NewActivityScreen()),
           );
-          if (result == true) {
+          if (result != null) {
+            // Salvar no Firebase
+            await _userDataService.saveActivity(result);
+            // Recarregar lista
             _loadActivities();
+            // Mostrar sucesso
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text('✅ Evento "${result.title}" criado com sucesso!'),
+                    ],
+                  ),
+                  backgroundColor: Color(0xFF10B981),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            }
           }
         },
         backgroundColor: Color(0xFF3B82F6),
@@ -719,12 +739,32 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with AutomaticKeepA
             SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () async {
-                final result = await Navigator.push(
+                final result = await Navigator.push<Activity>(
                   context,
                   MaterialPageRoute(builder: (_) => const NewActivityScreen()),
                 );
-                if (result == true) {
+                if (result != null) {
+                  // Salvar no Firebase
+                  await _userDataService.saveActivity(result);
+                  // Recarregar lista
                   _loadActivities();
+                  // Mostrar sucesso
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('✅ Evento "${result.title}" criado!'),
+                          ],
+                        ),
+                        backgroundColor: Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  }
                 }
               },
               icon: Icon(Icons.add),
