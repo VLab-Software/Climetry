@@ -25,6 +25,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   final Set<Marker> _markers = {};
   bool _isLoadingAddress = false;
   final LocationService _locationService = LocationService();
+  bool _isMapMoving = false;
 
   @override
   void initState() {
@@ -61,45 +62,11 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       if (mounted) {
         setState(() {
           _nameController.text = cityName;
+          _isLoadingAddress = false;
         });
-
-        // Mostrar snackbar de confirmação
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green),
-                const SizedBox(width: 8),
-                Expanded(child: Text('Localização: $cityName')),
-              ],
-            ),
-            duration: const Duration(seconds: 2),
-            backgroundColor: const Color(0xFF2A3A4D),
-          ),
-        );
       }
     } catch (e) {
       debugPrint('Erro ao buscar endereço: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.warning, color: Colors.orange),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Não foi possível buscar o endereço automaticamente',
-                  ),
-                ),
-              ],
-            ),
-            duration: Duration(seconds: 2),
-            backgroundColor: Color(0xFF2A3A4D),
-          ),
-        );
-      }
-    } finally {
       if (mounted) {
         setState(() => _isLoadingAddress = false);
       }
@@ -125,6 +92,26 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       _updateMarker();
     });
     _getAddressFromCoordinates(position);
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    // Atualizar localização enquanto o mapa se move
+    if (!_isMapMoving) {
+      setState(() => _isMapMoving = true);
+    }
+    
+    setState(() {
+      _selectedLocation = position.target;
+      _updateMarker();
+    });
+  }
+
+  void _onCameraIdle() {
+    // Quando o usuário parar de mover o mapa, buscar o endereço
+    if (_isMapMoving) {
+      setState(() => _isMapMoving = false);
+      _getAddressFromCoordinates(_selectedLocation);
+    }
   }
 
   void _confirm() {
@@ -156,36 +143,66 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar tema
+    final brightness = MediaQuery.of(context).platformBrightness;
+    final isDark = brightness == Brightness.dark;
+    
+    // Cores adaptativas
+    final backgroundColor = isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5);
+    final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF1F2937);
+    final secondaryTextColor = isDark ? Colors.white70 : Colors.black54;
+    final inputBackgroundColor = isDark ? const Color(0xFF2A2A2A) : Colors.grey.withOpacity(0.1);
+    final accentColor = Colors.blue[700]!;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1E2A3A),
+      backgroundColor: backgroundColor,
+      resizeToAvoidBottomInset: false, // Impede que o layout suba com o teclado
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E2A3A),
+        backgroundColor: cardColor,
         elevation: 0,
-        title: const Text('Selecionar Localização'),
+        title: Text('Selecionar Localização', style: TextStyle(color: textColor)),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(Icons.close, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.green),
+            icon: Icon(Icons.check, color: Colors.green[600]),
             onPressed: _confirm,
+            tooltip: 'Confirmar',
           ),
         ],
       ),
       body: Column(
         children: [
+          // Header com busca e campos
           Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFF2A3A4D),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 8 : 16, // Menos padding quando teclado aberto
+            ),
+            decoration: BoxDecoration(
+              color: cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Buscar Localização',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: secondaryTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -193,7 +210,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 const SizedBox(height: 8),
                 LocationAutocompleteField(
                   controller: _searchController,
-                  hintText: 'Digite: Monte Carmelo, Monte Carlo...',
+                  hintText: 'Digite: São Paulo, Monte Carlo...',
                   prefixIcon: Icons.search,
                   onLocationSelected: (suggestion) {
                     setState(() {
@@ -208,32 +225,17 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                       CameraUpdate.newLatLngZoom(_selectedLocation, 13.0),
                     );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            const Icon(Icons.check_circle, color: Colors.green),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Localização encontrada: ${suggestion.displayName}',
-                              ),
-                            ),
-                          ],
-                        ),
-                        duration: const Duration(seconds: 2),
-                        backgroundColor: const Color(0xFF1E2A3A),
-                      ),
-                    );
+                    // Fechar o teclado
+                    FocusScope.of(context).unfocus();
                   },
-                  backgroundColor: const Color(0xFF1E2A3A),
-                  textColor: Colors.white,
+                  backgroundColor: inputBackgroundColor,
+                  textColor: textColor,
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Nome do Local (Opcional)',
+                const SizedBox(height: 12),
+                Text(
+                  'Nome do Local',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: secondaryTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -241,51 +243,57 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
-                    hintText: 'Ex: Minha Casa, Escritório...',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.3),
-                    ),
+                    hintText: 'Ex: São Paulo, SP',
+                    hintStyle: TextStyle(color: secondaryTextColor.withOpacity(0.5)),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A3A),
+                    fillColor: inputBackgroundColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: accentColor, width: 2),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
                     ),
                     suffixIcon: _isLoadingAddress
-                        ? const Padding(
-                            padding: EdgeInsets.all(12),
+                        ? Padding(
+                            padding: const EdgeInsets.all(12),
                             child: SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF4A9EFF),
-                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                               ),
                             ),
                           )
                         : null,
                   ),
+                  onTap: () {
+                    // Scroll para manter o campo visível
+                  },
                 ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E2A3A),
+                    color: inputBackgroundColor,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.1),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on,
-                        color: Color(0xFF4A9EFF),
+                        color: accentColor,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -293,19 +301,36 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         child: Text(
                           'Lat: ${_selectedLocation.latitude.toStringAsFixed(4)}, '
                           'Lng: ${_selectedLocation.longitude.toStringAsFixed(4)}',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: textColor,
                             fontSize: 12,
                             fontFamily: 'monospace',
                           ),
                         ),
                       ),
+                      if (_isMapMoving)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Movendo...',
+                            style: TextStyle(
+                              color: accentColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          // Mapa
           Expanded(
             child: Stack(
               children: [
@@ -316,68 +341,79 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                     zoom: 13.0,
                   ),
                   onTap: _onMapTap,
+                  onCameraMove: _onCameraMove,
+                  onCameraIdle: _onCameraIdle,
                   markers: _markers,
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   mapToolbarEnabled: false,
+                  compassEnabled: true,
                 ),
+                // Botões de controle do mapa
                 Positioned(
                   bottom: 16,
                   right: 16,
                   child: Column(
                     children: [
-                      FloatingActionButton(
-                        mini: true,
-                        heroTag: 'zoom_in_button',
-                        backgroundColor: const Color(0xFF2A3A4D),
+                      _buildMapControlButton(
+                        icon: Icons.add,
                         onPressed: _zoomIn,
-                        child: const Icon(Icons.add, color: Colors.white),
+                        isDark: isDark,
+                        heroTag: 'zoom_in',
                       ),
                       const SizedBox(height: 8),
-                      FloatingActionButton(
-                        mini: true,
-                        heroTag: 'zoom_out_button',
-                        backgroundColor: const Color(0xFF2A3A4D),
+                      _buildMapControlButton(
+                        icon: Icons.remove,
                         onPressed: _zoomOut,
-                        child: const Icon(Icons.remove, color: Colors.white),
+                        isDark: isDark,
+                        heroTag: 'zoom_out',
                       ),
                       const SizedBox(height: 8),
-                      FloatingActionButton(
-                        mini: true,
-                        heroTag: 'center_location_button',
-                        backgroundColor: const Color(0xFF4A9EFF),
+                      _buildMapControlButton(
+                        icon: Icons.my_location,
                         onPressed: _centerOnLocation,
-                        child: const Icon(
-                          Icons.my_location,
-                          color: Colors.white,
-                        ),
+                        isDark: isDark,
+                        heroTag: 'center',
+                        isAccent: true,
                       ),
                     ],
                   ),
                 ),
+                // Instruções no topo
                 Positioned(
                   top: 16,
                   left: 16,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2A3A4D).withValues(alpha: 0.95),
+                      color: cardColor.withOpacity(0.95),
                       borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(
                           Icons.touch_app,
-                          color: Color(0xFF4A9EFF),
+                          color: accentColor,
                           size: 20,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Busque acima ou toque no mapa para selecionar',
-                            style: TextStyle(color: Colors.white, fontSize: 13),
+                            'Arraste o mapa ou toque para selecionar',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -387,34 +423,71 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFF2A3A4D),
-            child: SafeArea(
+          // Botão de confirmar (SafeArea garante que não sobe com teclado)
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: cardColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: _confirm,
+                  icon: const Icon(Icons.check_circle, size: 20),
+                  label: const Text(
+                    'Confirmar Localização',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A9EFF),
+                    backgroundColor: accentColor,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  child: const Text(
-                    'Confirmar Localização',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    elevation: 2,
                   ),
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMapControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required bool isDark,
+    required String heroTag,
+    bool isAccent = false,
+  }) {
+    final bgColor = isAccent
+        ? Colors.blue[700]!
+        : (isDark ? const Color(0xFF2A2A2A) : Colors.white);
+    
+    return FloatingActionButton(
+      mini: true,
+      heroTag: heroTag,
+      backgroundColor: bgColor,
+      elevation: 4,
+      onPressed: onPressed,
+      child: Icon(
+        icon,
+        color: isAccent ? Colors.white : (isDark ? Colors.white : Colors.black87),
+        size: 20,
       ),
     );
   }
