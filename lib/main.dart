@@ -16,16 +16,16 @@ void main() async {
   // Inicializar Firebase
   try {
     if (kIsWeb) {
-      // Configuração Firebase para Web
+      // Configuração Firebase para Web (nasa-climetry)
       await Firebase.initializeApp(
         options: const FirebaseOptions(
-          apiKey: "AIzaSyDYHDKJUcQEOMpi-h8QQ7afHuZtMYopb6Q",
-          authDomain: "climetry-app.firebaseapp.com",
-          projectId: "climetry-app",
-          storageBucket: "climetry-app.firebasestorage.app",
-          messagingSenderId: "537476913348",
-          appId: "1:537476913348:web:bd37e5edc50b2e57c3b6ac",
-          measurementId: "G-5MQSWRYL5Q",
+          apiKey: "AIzaSyA4GGNIowmIZTF_MHaJPte0-TzSJ_xNmcs",
+          authDomain: "nasa-climetry.firebaseapp.com",
+          projectId: "nasa-climetry",
+          storageBucket: "nasa-climetry.firebasestorage.app",
+          messagingSenderId: "938150925319",
+          appId: "1:938150925319:web:d04390d1c8b343f55706a2",
+          measurementId: "G-H36QPYN3EY",
         ),
       );
     } else {
