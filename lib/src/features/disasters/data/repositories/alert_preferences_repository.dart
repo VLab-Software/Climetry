@@ -1,18 +1,28 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
 
 class AlertPreferencesRepository {
-  static const String _enabledAlertsKey = 'enabled_weather_alerts';
-  static const String _monitoringLocationKey = 'monitoring_location';
-  static const String _locationNameKey = 'location_name';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  String? get _userId => _auth.currentUser?.uid;
 
   Future<Set<WeatherAlertType>> getEnabledAlerts() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final enabledList = prefs.getStringList(_enabledAlertsKey);
+      if (_userId == null) return WeatherAlertType.values.toSet();
+      
+      final doc = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .get();
+          
+      if (!doc.exists) return WeatherAlertType.values.toSet();
+      
+      final preferences = doc.data()?['preferences'] as Map<String, dynamic>?;
+      final enabledList = preferences?['enabledAlerts'] as List?;
 
       if (enabledList == null || enabledList.isEmpty) {
-        // Por padrão, habilitar todos os alertas
         return WeatherAlertType.values.toSet();
       }
 
@@ -31,9 +41,16 @@ class AlertPreferencesRepository {
 
   Future<void> saveEnabledAlerts(Set<WeatherAlertType> alerts) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      if (_userId == null) return;
+      
       final enabledList = alerts.map((type) => type.name).toList();
-      await prefs.setStringList(_enabledAlertsKey, enabledList);
+      
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .update({
+        'preferences.enabledAlerts': enabledList,
+      });
     } catch (e) {
       throw Exception('Erro ao salvar preferências: $e');
     }
@@ -41,18 +58,24 @@ class AlertPreferencesRepository {
 
   Future<Map<String, dynamic>?> getMonitoringLocation() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final locationStr = prefs.getString(_monitoringLocationKey);
+      if (_userId == null) return null;
+      
+      final doc = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .get();
+          
+      if (!doc.exists) return null;
+      
+      final preferences = doc.data()?['preferences'] as Map<String, dynamic>?;
+      final monitoringLocation = preferences?['monitoringLocation'] as Map<String, dynamic>?;
 
-      if (locationStr == null) return null;
-
-      final parts = locationStr.split(',');
-      if (parts.length != 2) return null;
+      if (monitoringLocation == null) return null;
 
       return {
-        'latitude': double.parse(parts[0]),
-        'longitude': double.parse(parts[1]),
-        'name': prefs.getString(_locationNameKey) ?? 'Local Monitorado',
+        'latitude': monitoringLocation['latitude'] as double,
+        'longitude': monitoringLocation['longitude'] as double,
+        'name': monitoringLocation['name'] as String? ?? 'Local Monitorado',
       };
     } catch (e) {
       return null;
@@ -65,9 +88,18 @@ class AlertPreferencesRepository {
     String locationName,
   ) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_monitoringLocationKey, '$latitude,$longitude');
-      await prefs.setString(_locationNameKey, locationName);
+      if (_userId == null) return;
+      
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .update({
+        'preferences.monitoringLocation': {
+          'latitude': latitude,
+          'longitude': longitude,
+          'name': locationName,
+        },
+      });
     } catch (e) {
       throw Exception('Erro ao salvar localização: $e');
     }

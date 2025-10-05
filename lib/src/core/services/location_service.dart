@@ -1,13 +1,14 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationService {
-  static const String _keyUseCurrentLocation = 'use_current_location';
-  static const String _keySavedLatitude = 'saved_latitude';
-  static const String _keySavedLongitude = 'saved_longitude';
-  static const String _keySavedLocationName = 'saved_location_name';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  String? get _userId => _auth.currentUser?.uid;
 
   /// Verifica se o usuário tem permissão de localização
   Future<bool> checkPermission() async {
@@ -97,14 +98,29 @@ class LocationService {
 
   /// Salva a preferência de usar localização atual
   Future<void> setUseCurrentLocation(bool use) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyUseCurrentLocation, use);
+    if (_userId == null) return;
+    
+    await _firestore
+        .collection('users')
+        .doc(_userId)
+        .update({
+      'preferences.useCurrentLocation': use,
+    });
   }
 
   /// Verifica se deve usar localização atual
   Future<bool> shouldUseCurrentLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyUseCurrentLocation) ?? true; // Default: usar GPS
+    if (_userId == null) return true;
+    
+    final doc = await _firestore
+        .collection('users')
+        .doc(_userId)
+        .get();
+        
+    if (!doc.exists) return true;
+    
+    final preferences = doc.data()?['preferences'] as Map<String, dynamic>?;
+    return preferences?['useCurrentLocation'] as bool? ?? true;
   }
 
   /// Salva uma localização personalizada
@@ -113,27 +129,41 @@ class LocationService {
     required double longitude,
     required String name,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble(_keySavedLatitude, latitude);
-    await prefs.setDouble(_keySavedLongitude, longitude);
-    await prefs.setString(_keySavedLocationName, name);
-    await setUseCurrentLocation(false);
+    if (_userId == null) return;
+    
+    await _firestore
+        .collection('users')
+        .doc(_userId)
+        .update({
+      'preferences.savedLocation': {
+        'latitude': latitude,
+        'longitude': longitude,
+        'name': name,
+      },
+      'preferences.useCurrentLocation': false,
+    });
   }
 
   /// Obtém a localização salva
   Future<Map<String, dynamic>?> getSavedLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final latitude = prefs.getDouble(_keySavedLatitude);
-    final longitude = prefs.getDouble(_keySavedLongitude);
-    final name = prefs.getString(_keySavedLocationName);
-
-    if (latitude == null || longitude == null) return null;
-
+    if (_userId == null) return null;
+    
+    final doc = await _firestore
+        .collection('users')
+        .doc(_userId)
+        .get();
+        
+    if (!doc.exists) return null;
+    
+    final preferences = doc.data()?['preferences'] as Map<String, dynamic>?;
+    final savedLocation = preferences?['savedLocation'] as Map<String, dynamic>?;
+    
+    if (savedLocation == null) return null;
+    
     return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'name': name ?? await getCityName(latitude, longitude),
+      'latitude': savedLocation['latitude'] as double,
+      'longitude': savedLocation['longitude'] as double,
+      'name': savedLocation['name'] as String,
     };
   }
 
@@ -175,11 +205,15 @@ class LocationService {
 
   /// Limpa localização salva e volta para GPS
   Future<void> clearSavedLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keySavedLatitude);
-    await prefs.remove(_keySavedLongitude);
-    await prefs.remove(_keySavedLocationName);
-    await setUseCurrentLocation(true);
+    if (_userId == null) return;
+    
+    await _firestore
+        .collection('users')
+        .doc(_userId)
+        .update({
+      'preferences.savedLocation': FieldValue.delete(),
+      'preferences.useCurrentLocation': true,
+    });
   }
 
   /// Busca sugestões de locais pelo nome

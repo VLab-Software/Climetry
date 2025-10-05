@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  static const String _themeKey = 'theme_mode';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
   ThemeMode _themeMode = ThemeMode.dark;
 
   ThemeMode get themeMode => _themeMode;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
+  
+  String? get _userId => _auth.currentUser?.uid;
 
   ThemeProvider() {
     _loadTheme();
@@ -14,10 +19,26 @@ class ThemeProvider extends ChangeNotifier {
 
   Future<void> _loadTheme() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final isDark = prefs.getBool(_themeKey) ?? true; // Default is dark
-      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-      notifyListeners();
+      if (_userId == null) return;
+      
+      final doc = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .get();
+          
+      if (doc.exists) {
+        final preferences = doc.data()?['preferences'] as Map<String, dynamic>?;
+        final theme = preferences?['theme'] as String?;
+        
+        if (theme == 'light') {
+          _themeMode = ThemeMode.light;
+        } else if (theme == 'dark') {
+          _themeMode = ThemeMode.dark;
+        } else {
+          _themeMode = ThemeMode.system;
+        }
+        notifyListeners();
+      }
     } catch (e) {
       debugPrint('Erro ao carregar tema: $e');
     }
@@ -30,8 +51,14 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_themeKey, _themeMode == ThemeMode.dark);
+      if (_userId == null) return;
+      
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .update({
+        'preferences.theme': _themeMode == ThemeMode.dark ? 'dark' : 'light',
+      });
     } catch (e) {
       debugPrint('Erro ao salvar tema: $e');
     }
@@ -42,8 +69,23 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_themeKey, mode == ThemeMode.dark);
+      if (_userId == null) return;
+      
+      String themeValue;
+      if (mode == ThemeMode.light) {
+        themeValue = 'light';
+      } else if (mode == ThemeMode.dark) {
+        themeValue = 'dark';
+      } else {
+        themeValue = 'system';
+      }
+      
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .update({
+        'preferences.theme': themeValue,
+      });
     } catch (e) {
       debugPrint('Erro ao salvar tema: $e');
     }

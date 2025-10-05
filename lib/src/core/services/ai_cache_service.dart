@@ -1,16 +1,18 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-/// Serviço de cache para insights de IA
+/// Serviço de cache para insights de IA no Firestore
 /// Evita chamadas desnecessárias à API quando as condições climáticas não mudaram
 class AICacheService {
-  static const String _cachePrefix = 'ai_cache_';
-  static const Duration _cacheDuration = Duration(
-    hours: 6,
-  ); // Cache válido por 6 horas
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  static const Duration _cacheDuration = Duration(hours: 6);
 
-  /// Gera chave de cache baseada nas condições climáticas
-  String _generateCacheKey({
+  String? get _userId => _auth.currentUser?.uid;
+
+  /// Gera ID de cache baseado nas condições climáticas
+  String _generateCacheId({
     required String eventId,
     required double temperature,
     required double precipitation,
@@ -18,12 +20,11 @@ class AICacheService {
     required int uvIndex,
   }) {
     // Arredondar valores para criar chaves mais genéricas
-    final tempRounded = (temperature / 5).round() * 5; // Intervalos de 5°C
-    final precipRounded =
-        (precipitation / 10).round() * 10; // Intervalos de 10mm
-    final windRounded = (windSpeed / 10).round() * 10; // Intervalos de 10 km/h
+    final tempRounded = (temperature / 5).round() * 5;
+    final precipRounded = (precipitation / 10).round() * 10;
+    final windRounded = (windSpeed / 10).round() * 10;
 
-    return '${_cachePrefix}${eventId}_${tempRounded}_${precipRounded}_${windRounded}_$uvIndex';
+    return '${eventId}_${tempRounded}_${precipRounded}_${windRounded}_$uvIndex';
   }
 
   /// Verifica se existe cache válido para as condições atuais
@@ -35,8 +36,9 @@ class AICacheService {
     required int uvIndex,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final cacheKey = _generateCacheKey(
+      if (_userId == null) return null;
+
+      final cacheId = _generateCacheId(
         eventId: eventId,
         temperature: temperature,
         precipitation: precipitation,
@@ -44,16 +46,22 @@ class AICacheService {
         uvIndex: uvIndex,
       );
 
-      final cachedData = prefs.getString(cacheKey);
-      if (cachedData == null) return null;
+      final doc = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('ai_cache')
+          .doc(cacheId)
+          .get();
 
-      final data = json.decode(cachedData) as Map<String, dynamic>;
-      final timestamp = DateTime.parse(data['timestamp'] as String);
+      if (!doc.exists) return null;
+
+      final data = doc.data()!;
+      final timestamp = (data['timestamp'] as Timestamp).toDate();
 
       // Verificar se o cache ainda é válido
       if (DateTime.now().difference(timestamp) > _cacheDuration) {
         // Cache expirado, remover
-        await prefs.remove(cacheKey);
+        await doc.reference.delete();
         return null;
       }
 
@@ -73,8 +81,9 @@ class AICacheService {
     required String insight,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final cacheKey = _generateCacheKey(
+      if (_userId == null) return;
+
+      final cacheId = _generateCacheId(
         eventId: eventId,
         temperature: temperature,
         precipitation: precipitation,
@@ -82,12 +91,16 @@ class AICacheService {
         uvIndex: uvIndex,
       );
 
-      final data = {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('ai_cache')
+          .doc(cacheId)
+          .set({
         'insight': insight,
-        'timestamp': DateTime.now().toIso8601String(),
-      };
-
-      await prefs.setString(cacheKey, json.encode(data));
+        'timestamp': FieldValue.serverTimestamp(),
+        'eventId': eventId,
+      });
     } catch (e) {
       // Falha silenciosa no cache
     }
@@ -96,13 +109,16 @@ class AICacheService {
   /// Limpa todo o cache de insights
   Future<void> clearCache() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final keys = prefs.getKeys();
+      if (_userId == null) return;
 
-      for (final key in keys) {
-        if (key.startsWith(_cachePrefix)) {
-          await prefs.remove(key);
-        }
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('ai_cache')
+          .get();
+
+      for (final doc in snapshot.docs) {
+        await doc.reference.delete();
       }
     } catch (e) {
       // Falha silenciosa
@@ -112,13 +128,17 @@ class AICacheService {
   /// Limpa cache de um evento específico
   Future<void> clearEventCache(String eventId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final keys = prefs.getKeys();
+      if (_userId == null) return;
 
-      for (final key in keys) {
-        if (key.startsWith('${_cachePrefix}$eventId')) {
-          await prefs.remove(key);
-        }
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('ai_cache')
+          .where('eventId', isEqualTo: eventId)
+          .get();
+
+      for (final doc in snapshot.docs) {
+        await doc.reference.delete();
       }
     } catch (e) {
       // Falha silenciosa
