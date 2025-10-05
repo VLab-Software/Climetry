@@ -50,70 +50,56 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Telas principais
-          IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
-          
-          // Floating Tab Bar
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 20,
-            child: _buildFloatingTabBar(),
-          ),
-        ],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
       ),
-    );
-  }
-
-  Widget _buildFloatingTabBar() {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A3A4D),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildTabItem(
-              icon: Icons.home_outlined,
-              activeIcon: Icons.home,
-              label: 'Início',
-              index: 0,
-            ),
-            _buildTabItem(
-              icon: Icons.calendar_today_outlined,
-              activeIcon: Icons.calendar_today,
-              label: 'Agenda',
-              index: 1,
-            ),
-            _buildTabItem(
-              icon: Icons.warning_amber_outlined,
-              activeIcon: Icons.warning_amber,
-              label: 'Alertas',
-              index: 2,
-            ),
-            _buildTabItem(
-              icon: Icons.settings_outlined,
-              activeIcon: Icons.settings,
-              label: 'Ajustes',
-              index: 3,
+      // Floating Tab Bar sempre visível na parte inferior
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        height: 70,
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A3A4D),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildTabItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Início',
+                index: 0,
+              ),
+              _buildTabItem(
+                icon: Icons.calendar_today_outlined,
+                activeIcon: Icons.calendar_today,
+                label: 'Agenda',
+                index: 1,
+              ),
+              _buildTabItem(
+                icon: Icons.warning_amber_outlined,
+                activeIcon: Icons.warning_amber,
+                label: 'Alertas',
+                index: 2,
+              ),
+              _buildTabItem(
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings,
+                label: 'Ajustes',
+                index: 3,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -33,11 +33,13 @@ class _DisastersScreenState extends State<DisastersScreen> {
   }
 
   Future<void> _loadPreferences() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     try {
       final enabledAlerts = await _prefsRepo.getEnabledAlerts();
       final locationData = await _prefsRepo.getMonitoringLocation();
       
+      if (!mounted) return;
       setState(() {
         _enabledAlerts = enabledAlerts;
         if (locationData != null) {
@@ -51,6 +53,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
       
       await _loadAlerts();
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -61,6 +64,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
   }
 
   Future<void> _loadAlerts() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     try {
       final forecast = await _weatherService.getWeeklyForecast(_monitoringLocation);
@@ -69,12 +73,14 @@ class _DisastersScreenState extends State<DisastersScreen> {
       // Filtrar alertas pelos tipos habilitados
       final alerts = allAlerts.where((alert) => _enabledAlerts.contains(alert.type)).toList();
       
+      if (!mounted) return;
       setState(() {
         _alerts = alerts;
         _forecast = forecast;
         _loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,6 +103,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
     
     try {
       await _prefsRepo.saveEnabledAlerts(newEnabled);
+      if (!mounted) return;
       setState(() => _enabledAlerts = newEnabled);
       await _loadAlerts();
     } catch (e) {
@@ -127,6 +134,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
           result['name'],
         );
         
+        if (!mounted) return;
         setState(() {
           _monitoringLocation = result['location'];
           _locationName = result['name'];
