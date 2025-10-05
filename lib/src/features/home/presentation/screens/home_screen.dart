@@ -69,17 +69,21 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _loadEventsPredictions() async {
     if (!mounted) return;
-    setState(() => _loading = true);
-
+    
     try {
-      // Carregar eventos do ActivityRepository (Firebase) com timeout
+      // FASE 1: CARREGAR EVENTOS RAPIDAMENTE (SEM BLOQUEAR UI)
       debugPrint('🔄 Iniciando carregamento de eventos...');
+      
+      // Mostrar loading IMEDIATAMENTE
+      if (mounted) {
+        setState(() => _loading = true);
+      }
       
       final events = await _activityRepository.getAll()
           .timeout(
-            const Duration(seconds: 15),
+            const Duration(seconds: 5), // Reduzido para 5s
             onTimeout: () {
-              debugPrint('⚠️ Timeout ao carregar eventos (15s)');
+              debugPrint('⚠️ Timeout ao carregar eventos (5s)');
               return [];
             },
           );
@@ -99,8 +103,17 @@ class _HomeScreenState extends State<HomeScreen>
       // Ordenar por data
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
 
-      // Analisar clima para cada evento (até 10 eventos mais próximos)
+      // FASE 2: PARAR LOADING E MOSTRAR TELA (MESMO SEM ANÁLISES)
+      if (!mounted) return;
+      setState(() {
+        _analyses = []; // Vazio por enquanto
+        _filteredAnalyses = [];
+        _loading = false; // LIBERA A UI IMEDIATAMENTE
+      });
+
+      // FASE 3: ANALISAR CLIMA EM BACKGROUND (NÃO BLOQUEIA)
       final eventsToAnalyze = upcomingEvents.take(10).toList();
+      debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} eventos em background...');
 
       // Analisar cada evento individualmente com timeout por evento
       final analyses = <EventWeatherAnalysis>[];
@@ -109,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen>
           debugPrint('🌤️ Analisando clima para: ${event.title}');
           final analysis = await _predictionService.analyzeEvent(event)
               .timeout(
-                const Duration(seconds: 10),
+                const Duration(seconds: 8), // Timeout por evento
                 onTimeout: () {
                   debugPrint('⏱️ Timeout ao analisar ${event.title}');
                   throw TimeoutException('Análise timeout');
@@ -117,6 +130,15 @@ class _HomeScreenState extends State<HomeScreen>
               );
           analyses.add(analysis);
           debugPrint('✅ Análise concluída para: ${event.title}');
+          
+          // ATUALIZAR UI PROGRESSIVAMENTE (à medida que analisa)
+          if (mounted) {
+            setState(() {
+              _analyses = List.from(analyses);
+              _filteredAnalyses = List.from(analyses);
+              _applyFilter();
+            });
+          }
         } catch (e) {
           debugPrint('⚠️ Erro ao analisar evento ${event.title}: $e');
           // Continuar mesmo com erro em um evento específico
@@ -124,14 +146,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       debugPrint('✅ Análises completadas: ${analyses.length}');
-
-      if (!mounted) return;
-      setState(() {
-        _analyses = analyses;
-        _filteredAnalyses = analyses;
-        _loading = false;
-        _applyFilter();
-      });
+      
     } catch (e, stackTrace) {
       debugPrint('❌ Erro ao carregar previsões: $e');
       debugPrint('Stack trace: $stackTrace');
