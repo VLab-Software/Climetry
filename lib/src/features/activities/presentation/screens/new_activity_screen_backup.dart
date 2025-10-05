@@ -17,14 +17,12 @@ class NewActivityScreen extends StatefulWidget {
   State<NewActivityScreen> createState() => _NewActivityScreenState();
 }
 
-class _NewActivityScreenState extends State<NewActivityScreen> with SingleTickerProviderStateMixin {
+class _NewActivityScreenState extends State<NewActivityScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
-
-  late TabController _tabController;
 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay? _startTime;
@@ -41,18 +39,11 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   List<EventParticipant> _selectedParticipants = [];
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-  }
-
-  @override
   void dispose() {
     _titleController.dispose();
     _locationController.dispose();
     _descriptionController.dispose();
     _tagsController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -168,205 +159,94 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     }
   }
 
-  // ============ TABS ============
-
-  Widget _buildGeneralTab(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTextField(
-            controller: _titleController,
-            label: 'Nome da Atividade',
-            hint: 'Churrasco com Amigos',
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor, insira um nome';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          _buildLocationAutocompleteField(),
-          const SizedBox(height: 16),
-          _buildDateTimePicker(),
-          const SizedBox(height: 16),
-          _buildTypePicker(),
-          const SizedBox(height: 16),
-          _buildPriorityPicker(),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _descriptionController,
-            label: 'Descrição (Opcional)',
-            hint: 'Adicione mais detalhes...',
-            maxLines: 3,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildParticipantsTab(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Participantes do Evento',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Convide amigos para participar deste evento',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildParticipantsSelector(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlertsTab(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Alertas Climáticos',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Selecione as condições climáticas que você deseja monitorar',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildWeatherConditionsPicker(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdvancedTab(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildRecurrencePicker(),
-          const SizedBox(height: 20),
-          _buildTagsField(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSaveButton(bool isDark) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _saveActivity,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4A9EFF),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: const Text(
-          'Criar Evento',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============ HELPER WIDGETS ============
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF1E2A3A) : Colors.grey[50],
+      backgroundColor: const Color(0xFF1E2A3A),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1E2A3A) : Colors.white,
+        backgroundColor: const Color(0xFF1E2A3A),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black),
+          icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Nova Atividade',
-          style: TextStyle(color: isDark ? Colors.white : Colors.black),
-        ),
+        title: const Text('Nova Atividade'),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF4A9EFF),
-          unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
-          indicatorColor: const Color(0xFF4A9EFF),
-          tabs: const [
-            Tab(icon: Icon(Icons.info_outline), text: 'Geral'),
-            Tab(icon: Icon(Icons.group_outlined), text: 'Participantes'),
-            Tab(icon: Icon(Icons.notifications_outlined), text: 'Alertas'),
-            Tab(icon: Icon(Icons.settings_outlined), text: 'Avançado'),
-          ],
-        ),
       ),
       body: Form(
         key: _formKey,
-        child: Column(
-          children: [
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildGeneralTab(isDark),
-                  _buildParticipantsTab(isDark),
-                  _buildAlertsTab(isDark),
-                  _buildAdvancedTab(isDark),
-                ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildTextField(
+                controller: _titleController,
+                label: 'Nome da Atividade',
+                hint: 'Churrasco com Amigos',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira um nome';
+                  }
+                  return null;
+                },
               ),
-            ),
-            _buildSaveButton(isDark),
-          ],
+              const SizedBox(height: 16),
+
+              // Campo de localização com autocomplete
+              _buildLocationAutocompleteField(),
+              const SizedBox(height: 16),
+
+              _buildDateTimePicker(),
+              const SizedBox(height: 16),
+
+              _buildTypePicker(),
+              const SizedBox(height: 16),
+
+              _buildPriorityPicker(),
+              const SizedBox(height: 16),
+
+              _buildRecurrencePicker(),
+              const SizedBox(height: 16),
+
+              _buildWeatherConditionsPicker(),
+              const SizedBox(height: 16),
+
+              _buildTagsField(),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: _descriptionController,
+                label: 'Descrição (Opcional)',
+                hint: 'Adicione mais detalhes...',
+                maxLines: 3,
+              ),
+              const SizedBox(height: 24),
+
+              // Botão para selecionar participantes
+              _buildParticipantsSelector(),
+              const SizedBox(height: 16),
+
+              ElevatedButton(
+                onPressed: _saveActivity,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4A9EFF),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Salvar Atividade',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
