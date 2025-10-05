@@ -280,38 +280,36 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildSaveButton(bool isDark) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _saveActivity,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4A9EFF),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
-        child: const Text(
-          'Criar Evento',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+        child: ElevatedButton(
+          onPressed: _saveActivity,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A9EFF),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+          child: const Text(
+            'Criar Evento',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -324,6 +322,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: isDark ? const Color(0xFF1E2A3A) : Colors.grey[50],
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E2A3A) : Colors.white,
@@ -337,17 +336,21 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           style: TextStyle(color: isDark ? Colors.white : Colors.black),
         ),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF4A9EFF),
-          unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
-          indicatorColor: const Color(0xFF4A9EFF),
-          tabs: const [
-            Tab(icon: Icon(Icons.info_outline), text: 'Geral'),
-            Tab(icon: Icon(Icons.group_outlined), text: 'Participantes'),
-            Tab(icon: Icon(Icons.notifications_outlined), text: 'Alertas'),
-            Tab(icon: Icon(Icons.settings_outlined), text: 'Avançado'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: TabBar(
+            controller: _tabController,
+            labelColor: const Color(0xFF4A9EFF),
+            unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
+            indicatorColor: const Color(0xFF4A9EFF),
+            indicatorWeight: 3,
+            tabs: const [
+              Tab(icon: Icon(Icons.info_outline, size: 24)),
+              Tab(icon: Icon(Icons.group_outlined, size: 24)),
+              Tab(icon: Icon(Icons.notifications_outlined, size: 24)),
+              Tab(icon: Icon(Icons.settings_outlined, size: 24)),
+            ],
+          ),
         ),
       ),
       body: Form(
@@ -381,13 +384,15 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     String? Function(String?)? validator,
     int maxLines = 1,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -397,19 +402,29 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           controller: controller,
           validator: validator,
           maxLines: maxLines,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+            hintStyle: TextStyle(
+              color: isDark ? Colors.white.withOpacity(0.3) : Colors.grey[400],
+            ),
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: Colors.white60)
+                ? Icon(prefixIcon, color: isDark ? Colors.white60 : Colors.grey[600])
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: const Color(0xFF2A3A4D),
+            fillColor: isDark ? const Color(0xFF2A3A4D) : Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: const Color(0xFF4A9EFF), width: 2),
             ),
           ),
         ),
