@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/current_weather.dart';
 import '../../../weather/domain/entities/hourly_weather.dart';
@@ -10,12 +9,8 @@ import '../../../activities/domain/entities/activity.dart';
 import '../../../../core/services/openai_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
-import '../../../../core/theme/theme_provider.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/animated_widgets.dart';
 import '../../../disasters/presentation/widgets/location_picker_widget.dart';
 import 'dart:math' as math;
-import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
