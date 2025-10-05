@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
+import '../../../../core/services/location_service.dart';
 import '../../../auth/presentation/screens/welcome_screen.dart';
+import '../../../disasters/presentation/widgets/location_picker_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,11 +17,14 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _authService = AuthService();
   final _userDataService = UserDataService();
+  final _locationService = LocationService();
   String _appVersion = '1.0.0';
   
   Map<String, dynamic> _preferences = {};
   User? _currentUser;
   bool _isLoading = true;
+  bool _useCurrentLocation = true;
+  String? _savedLocationName;
 
   @override
   void initState() {
@@ -33,6 +39,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (_currentUser != null) {
         _preferences = await _userDataService.getPreferences();
       }
+      
+      // Carregar configurações de localização
+      _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
+      final savedLocation = await _locationService.getSavedLocation();
+      _savedLocationName = savedLocation?['name'];
     } catch (e) {
       debugPrint('Erro ao carregar dados: $e');
     } finally {
@@ -248,6 +259,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Perfil
             _buildSectionTitle('Perfil'),
             _buildProfileCard(),
+            const SizedBox(height: 24),
+
+            // Localização
+            _buildSectionTitle('Localização'),
+            _buildSwitchCard(
+              '📍',
+              'Usar Minha Localização',
+              _useCurrentLocation,
+              _toggleLocationMode,
+            ),
+            if (_savedLocationName != null)
+              _buildSettingCard(
+                '🏙️',
+                'Localização Salva',
+                _savedLocationName!,
+                _showLocationOptions,
+              )
+            else
+              _buildSettingCard(
+                '➕',
+                'Adicionar Localização',
+                'Escolha uma localização personalizada',
+                _pickLocation,
+              ),
             const SizedBox(height: 24),
 
             // Conta
