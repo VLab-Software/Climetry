@@ -33,7 +33,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     _nameController = TextEditingController(text: widget.initialLocationName);
     _searchController = TextEditingController();
     _updateMarker();
-    
+
     // Se não tiver nome inicial, buscar endereço
     if (widget.initialLocationName.isEmpty) {
       _getAddressFromCoordinates(_selectedLocation);
@@ -50,19 +50,19 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
   Future<void> _getAddressFromCoordinates(LatLng location) async {
     setState(() => _isLoadingAddress = true);
-    
+
     try {
       // Usar LocationService para obter apenas o nome da cidade principal
       final cityName = await _locationService.getCityName(
         location.latitude,
         location.longitude,
       );
-      
+
       if (mounted) {
         setState(() {
           _nameController.text = cityName;
         });
-        
+
         // Mostrar snackbar de confirmação
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -70,9 +70,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.green),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text('Localização: $cityName'),
-                ),
+                Expanded(child: Text('Localização: $cityName')),
               ],
             ),
             duration: const Duration(seconds: 2),
@@ -90,7 +88,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 Icon(Icons.warning, color: Colors.orange),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Text('Não foi possível buscar o endereço automaticamente'),
+                  child: Text(
+                    'Não foi possível buscar o endereço automaticamente',
+                  ),
                 ),
               ],
             ),
@@ -130,7 +130,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   void _confirm() {
     Navigator.pop(context, {
       'location': _selectedLocation,
-      'name': _nameController.text.isEmpty ? 'Local Selecionado' : _nameController.text,
+      'name': _nameController.text.isEmpty
+          ? 'Local Selecionado'
+          : _nameController.text,
     });
   }
 
@@ -200,12 +202,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                       _searchController.clear();
                       _updateMarker();
                     });
-                    
+
                     // Mover o mapa para a nova localização
                     _mapController?.animateCamera(
                       CameraUpdate.newLatLngZoom(_selectedLocation, 13.0),
                     );
-                    
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Row(
@@ -213,7 +215,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                             const Icon(Icons.check_circle, color: Colors.green),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text('Localização encontrada: ${suggestion.displayName}'),
+                              child: Text(
+                                'Localização encontrada: ${suggestion.displayName}',
+                              ),
                             ),
                           ],
                         ),
@@ -240,14 +244,19 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Ex: Minha Casa, Escritório...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
                     filled: true,
                     fillColor: const Color(0xFF1E2A3A),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     suffixIcon: _isLoadingAddress
                         ? const Padding(
                             padding: EdgeInsets.all(12),
@@ -256,7 +265,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4A9EFF)),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF4A9EFF),
+                                ),
                               ),
                             ),
                           )
@@ -272,7 +283,11 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.location_on, color: Color(0xFF4A9EFF), size: 20),
+                      const Icon(
+                        Icons.location_on,
+                        color: Color(0xFF4A9EFF),
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -333,7 +348,10 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         heroTag: 'center_location_button',
                         backgroundColor: const Color(0xFF4A9EFF),
                         onPressed: _centerOnLocation,
-                        child: const Icon(Icons.my_location, color: Colors.white),
+                        child: const Icon(
+                          Icons.my_location,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -350,7 +368,11 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.touch_app, color: Color(0xFF4A9EFF), size: 20),
+                        Icon(
+                          Icons.touch_app,
+                          color: Color(0xFF4A9EFF),
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(

@@ -30,7 +30,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
   Future<void> _loadWeatherData() async {
     if (!mounted) return;
-    
+
     setState(() {
       _loading = true;
       _error = null;
@@ -38,24 +38,27 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
     try {
       // Buscar previsão do tempo
-      final forecast = await _weatherService.getWeeklyForecast(widget.activity.coordinates);
-      
+      final forecast = await _weatherService.getWeeklyForecast(
+        widget.activity.coordinates,
+      );
+
       if (!mounted) return;
-      
+
       // Encontrar previsão para o dia da atividade
       final activityDate = widget.activity.date;
       final activityWeather = forecast.firstWhere(
         (w) => _isSameDay(w.date, activityDate),
-        orElse: () => forecast.isNotEmpty ? forecast.first : _createDefaultWeather(),
+        orElse: () =>
+            forecast.isNotEmpty ? forecast.first : _createDefaultWeather(),
       );
 
       // Calcular alertas para toda a previsão
       final allAlerts = _weatherService.calculateWeatherAlerts(forecast);
-      
+
       // Filtrar alertas para o dia da atividade
-      final activityAlerts = allAlerts.where((alert) => 
-        _isSameDay(alert.date, activityDate)
-      ).toList();
+      final activityAlerts = allAlerts
+          .where((alert) => _isSameDay(alert.date, activityDate))
+          .toList();
 
       if (!mounted) return;
 
@@ -66,7 +69,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _error = e.toString();
         _loading = false;
@@ -104,10 +107,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
       if (pastDays == 1) return 'Ontem';
       return 'Há $pastDays dias';
     }
-    
+
     final days = difference.inDays;
     final hours = difference.inHours % 24;
-    
+
     if (days == 0) {
       if (hours == 0) return 'Agora';
       return 'Em $hours horas';
@@ -162,39 +165,39 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
   String _getRecommendation() {
     if (_weatherForecast == null) return 'Carregando recomendações...';
-    
+
     final weather = _weatherForecast!;
     final recommendations = <String>[];
-    
+
     // Chuva
     if (weather.precipitationProbability > 70) {
       recommendations.add('☔ Leve guarda-chuva e capa de chuva');
     } else if (weather.precipitationProbability > 30) {
       recommendations.add('🌂 Risco de chuva - leve guarda-chuva');
     }
-    
+
     // Temperatura
     if (weather.maxTemp > 30) {
       recommendations.add('🌡️ Muito calor - use protetor solar e hidrate-se');
     } else if (weather.maxTemp < 15) {
       recommendations.add('🧥 Frio - leve casaco');
     }
-    
+
     // UV
     if (weather.uvIndex > 7) {
       recommendations.add('🕶️ UV alto - use protetor e óculos');
     }
-    
+
     // Vento
     if (weather.windSpeed > 40) {
       recommendations.add('💨 Vento forte - cuidado com objetos soltos');
     }
-    
+
     // Sem problemas
     if (recommendations.isEmpty) {
       recommendations.add('✅ Clima ideal para o evento!');
     }
-    
+
     return recommendations.join('\n');
   }
 
@@ -208,41 +211,38 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
         title: const Text('Detalhes da Atividade'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _shareActivity,
-          ),
+          IconButton(icon: const Icon(Icons.share), onPressed: _shareActivity),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? _buildErrorState()
-              : RefreshIndicator(
-                  onRefresh: _loadWeatherData,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 24),
-                        _buildWeatherCard(),
-                        const SizedBox(height: 16),
-                        if (_alerts.isNotEmpty) ...[
-                          _buildAlertsSection(),
-                          const SizedBox(height: 16),
-                        ],
-                        _buildRecommendationsCard(),
-                        const SizedBox(height: 16),
-                        _buildDetailsCard(),
-                        const SizedBox(height: 24),
-                        _buildActionButtons(),
-                      ],
-                    ),
-                  ),
+          ? _buildErrorState()
+          : RefreshIndicator(
+              onRefresh: _loadWeatherData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    _buildWeatherCard(),
+                    const SizedBox(height: 16),
+                    if (_alerts.isNotEmpty) ...[
+                      _buildAlertsSection(),
+                      const SizedBox(height: 16),
+                    ],
+                    _buildRecommendationsCard(),
+                    const SizedBox(height: 16),
+                    _buildDetailsCard(),
+                    const SizedBox(height: 24),
+                    _buildActionButtons(),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 
@@ -279,7 +279,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
               label: const Text('Tentar Novamente'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4A9EFF),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -357,7 +360,11 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.access_time, color: Color(0xFF4A9EFF), size: 18),
+                const Icon(
+                  Icons.access_time,
+                  color: Color(0xFF4A9EFF),
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   _getTimeUntilEvent(),
@@ -387,7 +394,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     }
 
     final weather = _weatherForecast!;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -399,10 +406,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
         children: [
           Row(
             children: [
-              const Text(
-                '🌤️',
-                style: TextStyle(fontSize: 40),
-              ),
+              const Text('🌤️', style: TextStyle(fontSize: 40)),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -417,7 +421,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                       ),
                     ),
                     Text(
-                      DateFormat('EEEE, d MMM', 'pt_BR').format(widget.activity.date),
+                      DateFormat(
+                        'EEEE, d MMM',
+                        'pt_BR',
+                      ).format(widget.activity.date),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 14,
@@ -519,71 +526,73 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        ..._alerts.map((alert) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _getAlertColor(alert.type).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _getAlertColor(alert.type).withValues(alpha: 0.4),
-                  width: 2,
-                ),
+        ..._alerts.map(
+          (alert) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _getAlertColor(alert.type).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _getAlertColor(alert.type).withValues(alpha: 0.4),
+                width: 2,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: _getAlertColor(alert.type),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        _getAlertIcon(alert.type),
-                        style: const TextStyle(fontSize: 24),
-                      ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: _getAlertColor(alert.type),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      _getAlertIcon(alert.type),
+                      style: const TextStyle(fontSize: 24),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          alert.type.label,
-                          style: TextStyle(
-                            color: _getAlertColor(alert.type),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        alert.type.label,
+                        style: TextStyle(
+                          color: _getAlertColor(alert.type),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        alert.type.description,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                      if (alert.value != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          alert.type.description,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
+                          '${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}',
+                          style: TextStyle(
+                            color: _getAlertColor(alert.type),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (alert.value != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            '${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}',
-                            style: TextStyle(
-                              color: _getAlertColor(alert.type),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -650,11 +659,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             ),
           ],
           const SizedBox(height: 12),
-          _buildDetailRow(
-            Icons.location_on,
-            'Local',
-            widget.activity.location,
-          ),
+          _buildDetailRow(Icons.location_on, 'Local', widget.activity.location),
           const SizedBox(height: 12),
           _buildDetailRow(
             Icons.pin_drop,
@@ -708,10 +713,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),
@@ -764,8 +766,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     final alertsText = _alerts.isNotEmpty
         ? '\n⚠️ Alertas: ${_alerts.map((a) => a.type.label).join(', ')}'
         : '';
-    
-    final message = '''
+
+    final message =
+        '''
 🌤️ ${widget.activity.title}
 
 📍 ${widget.activity.location}
@@ -779,7 +782,9 @@ ${_getRecommendation()}
 Vamos juntos? 😊
 ''';
 
-    final url = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(message)}');
+    final url = Uri.parse(
+      'https://wa.me/?text=${Uri.encodeComponent(message)}',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -788,8 +793,10 @@ Vamos juntos? 😊
   Future<void> _openMaps() async {
     final lat = widget.activity.coordinates.latitude;
     final lng = widget.activity.coordinates.longitude;
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    
+    final url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }

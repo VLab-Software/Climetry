@@ -99,11 +99,9 @@ class UserDataService {
   Stream<Map<String, dynamic>> getPreferencesStream() {
     if (_userId == null) return Stream.value(_defaultPreferences());
 
-    return _firestore
-        .collection('users')
-        .doc(_userId)
-        .snapshots()
-        .map((snapshot) {
+    return _firestore.collection('users').doc(_userId).snapshots().map((
+      snapshot,
+    ) {
       final data = snapshot.data();
       return data?['preferences'] ?? _defaultPreferences();
     });
@@ -131,23 +129,58 @@ class UserDataService {
           .collection('activities')
           .doc(activity.id)
           .set({
-        'id': activity.id,
-        'title': activity.title,
-        'description': activity.description,
-        'location': activity.location,
-        'coordinates': GeoPoint(
-          activity.coordinates.latitude,
-          activity.coordinates.longitude,
-        ),
-        'date': Timestamp.fromDate(activity.date),
-        'startTime': activity.startTime,
-        'endTime': activity.endTime,
-        'type': activity.type.name,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'id': activity.id,
+            'title': activity.title,
+            'description': activity.description,
+            'location': activity.location,
+            'coordinates': GeoPoint(
+              activity.coordinates.latitude,
+              activity.coordinates.longitude,
+            ),
+            'date': Timestamp.fromDate(activity.date),
+            'startTime': activity.startTime,
+            'endTime': activity.endTime,
+            'type': activity.type.name,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw FirestoreException('Erro ao salvar atividade: $e');
+    }
+  }
+
+  /// Atualizar atividade existente
+  Future<void> updateActivity(Activity activity) async {
+    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('activities')
+          .doc(activity.id)
+          .update({
+            'title': activity.title,
+            'description': activity.description,
+            'location': activity.location,
+            'coordinates': GeoPoint(
+              activity.coordinates.latitude,
+              activity.coordinates.longitude,
+            ),
+            'date': Timestamp.fromDate(activity.date),
+            'startTime': activity.startTime,
+            'endTime': activity.endTime,
+            'type': activity.type.name,
+            'priority': activity.priority.name,
+            'tags': activity.tags,
+            'recurrence': activity.recurrence.name,
+            'monitoredConditions': activity.monitoredConditions
+                .map((c) => c.name)
+                .toList(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw FirestoreException('Erro ao atualizar atividade: $e');
     }
   }
 
@@ -170,6 +203,7 @@ class UserDataService {
 
         return Activity(
           id: data['id'],
+          ownerId: data['ownerId'] as String? ?? _userId ?? '',
           title: data['title'],
           location: data['location'],
           coordinates: LatLng(geoPoint.latitude, geoPoint.longitude),
@@ -199,27 +233,28 @@ class UserDataService {
         .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        final geoPoint = data['coordinates'] as GeoPoint;
-        final timestamp = data['date'] as Timestamp;
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            final geoPoint = data['coordinates'] as GeoPoint;
+            final timestamp = data['date'] as Timestamp;
 
-        return Activity(
-          id: data['id'],
-          title: data['title'],
-          location: data['location'],
-          coordinates: LatLng(geoPoint.latitude, geoPoint.longitude),
-          date: timestamp.toDate(),
-          startTime: data['startTime'],
-          endTime: data['endTime'],
-          type: ActivityType.values.firstWhere(
-            (e) => e.name == data['type'],
-            orElse: () => ActivityType.other,
-          ),
-          description: data['description'],
-        );
-      }).toList();
-    });
+            return Activity(
+              id: data['id'],
+              ownerId: data['ownerId'] as String? ?? _userId ?? '',
+              title: data['title'],
+              location: data['location'],
+              coordinates: LatLng(geoPoint.latitude, geoPoint.longitude),
+              date: timestamp.toDate(),
+              startTime: data['startTime'],
+              endTime: data['endTime'],
+              type: ActivityType.values.firstWhere(
+                (e) => e.name == data['type'],
+                orElse: () => ActivityType.other,
+              ),
+              description: data['description'],
+            );
+          }).toList();
+        });
   }
 
   /// Deletar atividade

@@ -10,17 +10,19 @@ class AlertPreferencesRepository {
     try {
       final prefs = await SharedPreferences.getInstance();
       final enabledList = prefs.getStringList(_enabledAlertsKey);
-      
+
       if (enabledList == null || enabledList.isEmpty) {
         // Por padrão, habilitar todos os alertas
         return WeatherAlertType.values.toSet();
       }
-      
+
       return enabledList
-          .map((name) => WeatherAlertType.values.firstWhere(
-                (type) => type.name == name,
-                orElse: () => WeatherAlertType.heatWave,
-              ))
+          .map(
+            (name) => WeatherAlertType.values.firstWhere(
+              (type) => type.name == name,
+              orElse: () => WeatherAlertType.heatWave,
+            ),
+          )
           .toSet();
     } catch (e) {
       return WeatherAlertType.values.toSet();
@@ -41,12 +43,12 @@ class AlertPreferencesRepository {
     try {
       final prefs = await SharedPreferences.getInstance();
       final locationStr = prefs.getString(_monitoringLocationKey);
-      
+
       if (locationStr == null) return null;
-      
+
       final parts = locationStr.split(',');
       if (parts.length != 2) return null;
-      
+
       return {
         'latitude': double.parse(parts[0]),
         'longitude': double.parse(parts[1]),
@@ -64,10 +66,7 @@ class AlertPreferencesRepository {
   ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        _monitoringLocationKey,
-        '$latitude,$longitude',
-      );
+      await prefs.setString(_monitoringLocationKey, '$latitude,$longitude');
       await prefs.setString(_locationNameKey, locationName);
     } catch (e) {
       throw Exception('Erro ao salvar localização: $e');

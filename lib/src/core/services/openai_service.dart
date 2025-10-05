@@ -14,6 +14,9 @@ class OpenAIService {
   );
   static const String _baseUrl = 'https://api.openai.com/v1/chat/completions';
 
+  // Usar GPT-4o-mini - modelo mais barato e eficiente
+  static const String _model = 'gpt-4o-mini';
+
   /// Gera dicas personalizadas para uma atividade baseada no clima
   Future<String> generateActivityTips({
     required Activity activity,
@@ -25,30 +28,33 @@ class OpenAIService {
         : 'Sem alertas climáticos';
 
     final prompt = '''
-Você é um assistente climático inteligente. Analise as seguintes informações e forneça dicas práticas e concisas (máximo 3 dicas):
+Você é um assistente climático inteligente. Analise as seguintes informações e forneça dicas práticas e concisas (máximo 3-5 dicas):
 
 **Atividade:** ${activity.title}
 **Tipo:** ${activity.type.label}
 **Data:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
 **Local:** ${activity.location}
+${activity.description != null ? '**Descrição:** ${activity.description}' : ''}
 
 **Condições Climáticas Previstas:**
-- Temperatura: ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C
+- Temperatura: ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C (média: ${weather.meanTemp.toInt()}°C)
 - Chuva: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}% de chance)
 - Vento: ${weather.windSpeed.toInt()} km/h
 - Umidade: ${weather.humidity.toInt()}%
 - UV: ${weather.uvIndex.toInt()}
 - $alertsText
 
-Forneça dicas específicas e práticas no formato:
-• [dica curta e objetiva]
-• [dica curta e objetiva]
-• [dica curta e objetiva]
+Forneça recomendações específicas e práticas no formato:
+• [dica curta e objetiva sobre o que levar]
+• [dica sobre roupas apropriadas]
+• [dica sobre horário ideal]
+• [cuidado com a saúde se necessário]
+• [alternativa em caso de mudança climática]
 
-Seja direto e focado no que a pessoa precisa saber para aproveitar o evento.
+Seja direto, útil e focado no que a pessoa precisa saber para aproveitar melhor o evento.
 ''';
 
-    return await _makeRequest(prompt, maxTokens: 200);
+    return await _makeRequest(prompt, maxTokens: 300);
   }
 
   /// Sugere locais alternativos cobertos quando o clima ameaça evento ao ar livre
@@ -58,7 +64,8 @@ Seja direto e focado no que a pessoa precisa saber para aproveitar o evento.
     required DailyWeather weather,
     required List<WeatherAlert> alerts,
   }) async {
-    final prompt = '''
+    final prompt =
+        '''
 Você é um assistente de planejamento de eventos. O usuário tem o seguinte evento ao ar livre:
 
 **Atividade:** ${activity.title}
@@ -91,7 +98,7 @@ Responda APENAS em JSON válido:
 ''';
 
     final response = await _makeRequest(prompt, maxTokens: 400);
-    
+
     try {
       // Extrai JSON da resposta
       final jsonStart = response.indexOf('{');
@@ -103,7 +110,7 @@ Responda APENAS em JSON válido:
     } catch (e) {
       // Fallback se JSON parsing falhar
     }
-    
+
     return {
       'reason': 'Condições climáticas desfavoráveis detectadas',
       'alternatives': [],
@@ -116,7 +123,8 @@ Responda APENAS em JSON válido:
     required DailyWeather weather,
     required String location,
   }) async {
-    final prompt = '''
+    final prompt =
+        '''
 Você é um meteorologista especialista. Analise este alerta climático e forneça insights práticos:
 
 **Alerta:** ${alert.type.label}
@@ -150,7 +158,8 @@ Seja técnico mas acessível. Máximo 150 palavras.
     required double precipitation,
     required String location,
   }) async {
-    final prompt = '''
+    final prompt =
+        '''
 Você é um assistente climático. Analise as condições atuais e crie 3 dicas práticas:
 
 **Local:** $location
@@ -176,7 +185,7 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
 ''';
 
     final response = await _makeRequest(prompt, maxTokens: 250);
-    
+
     try {
       final jsonStart = response.indexOf('{');
       final jsonEnd = response.lastIndexOf('}') + 1;
@@ -185,11 +194,13 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
         final data = jsonDecode(jsonStr);
         if (data['cards'] != null && data['cards'] is List) {
           return List<Map<String, String>>.from(
-            (data['cards'] as List).map((card) => {
-              'icon': card['icon']?.toString() ?? '💡',
-              'title': card['title']?.toString() ?? 'Dica',
-              'tip': card['tip']?.toString() ?? '',
-            })
+            (data['cards'] as List).map(
+              (card) => {
+                'icon': card['icon']?.toString() ?? '💡',
+                'title': card['title']?.toString() ?? 'Dica',
+                'tip': card['tip']?.toString() ?? '',
+              },
+            ),
           );
         }
       }
@@ -225,10 +236,15 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
     if (forecast.isEmpty) return 'Sem dados de previsão disponíveis.';
 
     final next3Days = forecast.take(3).toList();
-    final temps = next3Days.map((w) => '${w.minTemp.toInt()}-${w.maxTemp.toInt()}°C').join(', ');
-    final rains = next3Days.map((w) => '${w.precipitationProbability.toInt()}%').join(', ');
+    final temps = next3Days
+        .map((w) => '${w.minTemp.toInt()}-${w.maxTemp.toInt()}°C')
+        .join(', ');
+    final rains = next3Days
+        .map((w) => '${w.precipitationProbability.toInt()}%')
+        .join(', ');
 
-    final prompt = '''
+    final prompt =
+        '''
 Você é um meteorologista. Analise a previsão de 3 dias e crie uma narrativa curta e natural:
 
 **Local:** $location
@@ -245,7 +261,10 @@ Seja conversacional e amigável.
   }
 
   /// Gera análise específica para um evento
-  Future<String> generateEventAnalysis(String prompt, {int maxTokens = 600}) async {
+  Future<String> generateEventAnalysis(
+    String prompt, {
+    int maxTokens = 600,
+  }) async {
     return await _makeRequest(prompt, maxTokens: maxTokens);
   }
 
@@ -264,16 +283,14 @@ Seja conversacional e amigável.
           'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': 'gpt-3.5-turbo',
+          'model': _model, // gpt-4o-mini - mais barato e eficiente
           'messages': [
             {
               'role': 'system',
-              'content': 'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, com insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
+              'content':
+                  'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, com insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
             },
-            {
-              'role': 'user',
-              'content': prompt,
-            },
+            {'role': 'user', 'content': prompt},
           ],
           'max_tokens': maxTokens,
           'temperature': 0.7,
@@ -288,7 +305,9 @@ Seja conversacional e amigável.
       } else if (response.statusCode == 429) {
         return '⏱️ **Limite de Requisições**\n\nMuitas requisições. Aguarde alguns instantes e tente novamente.';
       } else {
-        throw Exception('OpenAI API error: ${response.statusCode} - ${response.body}');
+        throw Exception(
+          'OpenAI API error: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       // Em caso de erro, retorna mensagem informativa

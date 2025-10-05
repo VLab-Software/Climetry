@@ -6,6 +6,8 @@ import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/presentation/screens/welcome_screen.dart';
+import '../../../friends/presentation/screens/friends_management_screen.dart';
+import 'edit_profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,11 +16,12 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAliveClientMixin {
+class _SettingsScreenState extends State<SettingsScreen>
+    with AutomaticKeepAliveClientMixin {
   final _authService = AuthService();
   final _userDataService = UserDataService();
   final _locationService = LocationService();
-  
+
   User? _currentUser;
   bool _isLoading = true;
   String _temperatureUnit = 'celsius'; // celsius, fahrenheit
@@ -39,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
   Future<void> _loadData() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-    
+
     try {
       _currentUser = _authService.currentUser;
       if (_currentUser != null) {
@@ -48,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
         _windUnit = prefs['windUnit'] ?? 'kmh';
         _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
       }
-      
+
       _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
       final savedLocation = await _locationService.getSavedLocation();
       _savedLocationName = savedLocation?['name'];
@@ -85,10 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -114,7 +114,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF3B82F6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text('Sair'),
           ),
@@ -134,10 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -170,7 +169,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text('Excluir Conta'),
           ),
@@ -191,10 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -210,7 +208,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
     if (_isLoading) {
       return Scaffold(
         backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF3B82F6))),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+        ),
       );
     }
 
@@ -219,14 +219,10 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
       body: CustomScrollView(
         slivers: [
           // Header
-          SliverToBoxAdapter(
-            child: _buildHeader(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildHeader(isDark)),
 
           // Perfil
-          SliverToBoxAdapter(
-            child: _buildProfileSection(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildProfileSection(isDark)),
 
           // Aparência
           SliverToBoxAdapter(
@@ -234,24 +230,19 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
           ),
 
           // Unidades de Medida
-          SliverToBoxAdapter(
-            child: _buildUnitsSection(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildUnitsSection(isDark)),
 
           // Localização
-          SliverToBoxAdapter(
-            child: _buildLocationSection(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildLocationSection(isDark)),
+
+          // Amigos
+          SliverToBoxAdapter(child: _buildFriendsSection(isDark)),
 
           // Conta
-          SliverToBoxAdapter(
-            child: _buildAccountSection(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildAccountSection(isDark)),
 
           // Sobre
-          SliverToBoxAdapter(
-            child: _buildAboutSection(isDark),
-          ),
+          SliverToBoxAdapter(child: _buildAboutSection(isDark)),
 
           SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
@@ -285,11 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
               color: Color(0xFF3B82F6).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              Icons.settings,
-              color: Color(0xFF3B82F6),
-              size: 24,
-            ),
+            child: Icon(Icons.settings, color: Color(0xFF3B82F6), size: 24),
           ),
           SizedBox(width: 12),
           Text(
@@ -322,27 +309,27 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
       ),
       child: Row(
         children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                _currentUser?.displayName?.substring(0, 1).toUpperCase() ??
-                    _currentUser?.email?.substring(0, 1).toUpperCase() ??
-                    'U',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+          // Avatar com foto ou inicial
+          CircleAvatar(
+            radius: 30,
+            backgroundImage: _currentUser?.photoURL != null
+                ? NetworkImage(_currentUser!.photoURL!)
+                : null,
+            backgroundColor: _currentUser?.photoURL != null
+                ? Colors.transparent
+                : Color(0xFF3B82F6),
+            child: _currentUser?.photoURL == null
+                ? Text(
+                    _currentUser?.displayName?.substring(0, 1).toUpperCase() ??
+                        _currentUser?.email?.substring(0, 1).toUpperCase() ??
+                        'U',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  )
+                : null,
           ),
           SizedBox(width: 16),
           Expanded(
@@ -360,13 +347,26 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
                 SizedBox(height: 4),
                 Text(
                   _currentUser?.email ?? '',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Color(0xFF3B82F6),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditProfileScreen(),
+                ),
+              ).then((_) {
+                _loadData();
+              });
+            },
           ),
         ],
       ),
@@ -406,7 +406,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
           isDark,
           icon: Icons.thermostat,
           title: 'Temperatura',
-          subtitle: _temperatureUnit == 'celsius' ? 'Celsius (°C)' : 'Fahrenheit (°F)',
+          subtitle: _temperatureUnit == 'celsius'
+              ? 'Celsius (°C)'
+              : 'Fahrenheit (°F)',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: () => _showUnitPicker(
             'Temperatura',
@@ -427,7 +429,10 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
           onTap: () => _showUnitPicker(
             'Vento',
             _windUnit,
-            {'kmh': 'Quilômetros por hora (km/h)', 'mph': 'Milhas por hora (mph)'},
+            {
+              'kmh': 'Quilômetros por hora (km/h)',
+              'mph': 'Milhas por hora (mph)',
+            },
             (value) {
               setState(() => _windUnit = value);
               _savePreferences();
@@ -438,7 +443,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
           isDark,
           icon: Icons.water_drop,
           title: 'Precipitação',
-          subtitle: _precipitationUnit == 'mm' ? 'Milímetros (mm)' : 'Polegadas (in)',
+          subtitle: _precipitationUnit == 'mm'
+              ? 'Milímetros (mm)'
+              : 'Polegadas (in)',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: () => _showUnitPicker(
             'Precipitação',
@@ -480,8 +487,41 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
             icon: Icons.location_city,
             title: 'Localização Salva',
             subtitle: _savedLocationName!,
-            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildFriendsSection(bool isDark) {
+    return _buildSection(
+      isDark,
+      title: 'Amigos',
+      icon: Icons.people_outline,
+      children: [
+        _buildSettingTile(
+          isDark,
+          icon: Icons.group,
+          title: 'Gerenciar Amigos',
+          subtitle: 'Ver, adicionar e remover amigos',
+          trailing: const Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: Colors.grey,
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FriendsManagementScreen(),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
@@ -535,7 +575,12 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
     );
   }
 
-  Widget _buildSection(bool isDark, {required String title, required IconData icon, required List<Widget> children}) {
+  Widget _buildSection(
+    bool isDark, {
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
       decoration: BoxDecoration(
@@ -617,17 +662,16 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: textColor ?? (isDark ? Colors.white : Color(0xFF1F2937)),
+                        color:
+                            textColor ??
+                            (isDark ? Colors.white : Color(0xFF1F2937)),
                       ),
                     ),
                     if (subtitle != null) ...[
                       SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ],
@@ -641,7 +685,12 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
     );
   }
 
-  void _showUnitPicker(String title, String currentValue, Map<String, String> options, Function(String) onChanged) {
+  void _showUnitPicker(
+    String title,
+    String currentValue,
+    Map<String, String> options,
+    Function(String) onChanged,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -690,7 +739,9 @@ class _SettingsScreenState extends State<SettingsScreen> with AutomaticKeepAlive
                       color: isSelected
                           ? Color(0xFF3B82F6)
                           : (isDark ? Colors.white : Color(0xFF1F2937)),
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 );

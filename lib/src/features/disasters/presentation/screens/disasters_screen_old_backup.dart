@@ -18,7 +18,7 @@ class DisastersScreen extends StatefulWidget {
 class _DisastersScreenState extends State<DisastersScreen> {
   final MeteomaticsService _weatherService = MeteomaticsService();
   final AlertPreferencesRepository _prefsRepo = AlertPreferencesRepository();
-  
+
   List<WeatherAlert> _alerts = [];
   List<DailyWeather> _forecast = [];
   Set<WeatherAlertType> _enabledAlerts = {};
@@ -38,7 +38,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
     try {
       final enabledAlerts = await _prefsRepo.getEnabledAlerts();
       final locationData = await _prefsRepo.getMonitoringLocation();
-      
+
       if (!mounted) return;
       setState(() {
         _enabledAlerts = enabledAlerts;
@@ -50,15 +50,15 @@ class _DisastersScreenState extends State<DisastersScreen> {
           _locationName = locationData['name'];
         }
       });
-      
+
       await _loadAlerts();
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: $e')));
       }
     }
   }
@@ -67,12 +67,16 @@ class _DisastersScreenState extends State<DisastersScreen> {
     if (!mounted) return;
     setState(() => _loading = true);
     try {
-      final forecast = await _weatherService.getWeeklyForecast(_monitoringLocation);
+      final forecast = await _weatherService.getWeeklyForecast(
+        _monitoringLocation,
+      );
       final allAlerts = _weatherService.calculateWeatherAlerts(forecast);
-      
+
       // Filtrar alertas pelos tipos habilitados
-      final alerts = allAlerts.where((alert) => _enabledAlerts.contains(alert.type)).toList();
-      
+      final alerts = allAlerts
+          .where((alert) => _enabledAlerts.contains(alert.type))
+          .toList();
+
       if (!mounted) return;
       setState(() {
         _alerts = alerts;
@@ -86,7 +90,10 @@ class _DisastersScreenState extends State<DisastersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao carregar: $e'),
-            action: SnackBarAction(label: 'Tentar Novamente', onPressed: _loadAlerts),
+            action: SnackBarAction(
+              label: 'Tentar Novamente',
+              onPressed: _loadAlerts,
+            ),
           ),
         );
       }
@@ -100,7 +107,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
     } else {
       newEnabled.remove(type);
     }
-    
+
     try {
       await _prefsRepo.saveEnabledAlerts(newEnabled);
       if (!mounted) return;
@@ -108,9 +115,9 @@ class _DisastersScreenState extends State<DisastersScreen> {
       await _loadAlerts();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: $e')));
       }
     }
   }
@@ -125,7 +132,7 @@ class _DisastersScreenState extends State<DisastersScreen> {
         ),
       ),
     );
-    
+
     if (result != null) {
       try {
         await _prefsRepo.saveMonitoringLocation(
@@ -133,19 +140,19 @@ class _DisastersScreenState extends State<DisastersScreen> {
           result['location'].longitude,
           result['name'],
         );
-        
+
         if (!mounted) return;
         setState(() {
           _monitoringLocation = result['location'];
           _locationName = result['name'];
         });
-        
+
         await _loadAlerts();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Erro: $e')));
         }
       }
     }
@@ -212,7 +219,12 @@ class _DisastersScreenState extends State<DisastersScreen> {
               onRefresh: _loadAlerts,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Padding para floating tab bar
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  16,
+                  16,
+                  100,
+                ), // Padding para floating tab bar
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -245,7 +257,11 @@ class _DisastersScreenState extends State<DisastersScreen> {
               shape: BoxShape.circle,
             ),
             child: const Center(
-              child: Icon(Icons.location_on, color: Color(0xFF4A9EFF), size: 28),
+              child: Icon(
+                Icons.location_on,
+                color: Color(0xFF4A9EFF),
+                size: 28,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -253,11 +269,18 @@ class _DisastersScreenState extends State<DisastersScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Monitorando', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                const Text(
+                  'Monitorando',
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   _locationName,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -272,18 +295,24 @@ class _DisastersScreenState extends State<DisastersScreen> {
   }
 
   Widget _buildStatsCards() {
-    final critical = _alerts.where((a) => 
-      a.type == WeatherAlertType.floodRisk || 
-      a.type == WeatherAlertType.heatWave ||
-      a.type == WeatherAlertType.severeStorm
-    ).length;
-    
-    final warning = _alerts.where((a) => 
-      a.type == WeatherAlertType.heavyRain ||
-      a.type == WeatherAlertType.strongWind ||
-      a.type == WeatherAlertType.hailRisk
-    ).length;
-    
+    final critical = _alerts
+        .where(
+          (a) =>
+              a.type == WeatherAlertType.floodRisk ||
+              a.type == WeatherAlertType.heatWave ||
+              a.type == WeatherAlertType.severeStorm,
+        )
+        .length;
+
+    final warning = _alerts
+        .where(
+          (a) =>
+              a.type == WeatherAlertType.heavyRain ||
+              a.type == WeatherAlertType.strongWind ||
+              a.type == WeatherAlertType.hailRisk,
+        )
+        .length;
+
     final info = _alerts.length - critical - warning;
 
     return Row(
@@ -306,9 +335,19 @@ class _DisastersScreenState extends State<DisastersScreen> {
       ),
       child: Column(
         children: [
-          Text(count.toString(), style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(
+            count.toString(),
+            style: TextStyle(
+              color: color,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white60, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -320,13 +359,27 @@ class _DisastersScreenState extends State<DisastersScreen> {
         child: Column(
           children: [
             const SizedBox(height: 40),
-            const Icon(Icons.check_circle_outline, size: 80, color: Colors.green),
+            const Icon(
+              Icons.check_circle_outline,
+              size: 80,
+              color: Colors.green,
+            ),
             const SizedBox(height: 16),
-            const Text('Sem Alertas', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text(
+              'Sem Alertas',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               'Não há alertas para $_locationName',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 16),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 16,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -337,7 +390,14 @@ class _DisastersScreenState extends State<DisastersScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Alertas Ativos (${_alerts.length})', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          'Alertas Ativos (${_alerts.length})',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 12),
         ..._alerts.map(_buildAlertCard),
       ],
@@ -361,10 +421,8 @@ class _DisastersScreenState extends State<DisastersScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AlertDetailsScreen(
-                alert: alert,
-                forecast: _forecast,
-              ),
+              builder: (context) =>
+                  AlertDetailsScreen(alert: alert, forecast: _forecast),
             ),
           );
         },
@@ -378,17 +436,35 @@ class _DisastersScreenState extends State<DisastersScreen> {
                   Container(
                     width: 50,
                     height: 50,
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                    child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(icon, style: const TextStyle(fontSize: 24)),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(alert.type.label, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text(
+                          alert.type.label,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text(alert.type.description, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                        Text(
+                          alert.type.description,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 16,
@@ -396,9 +472,20 @@ class _DisastersScreenState extends State<DisastersScreen> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.calendar_today, size: 14, color: color),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: color,
+                                ),
                                 const SizedBox(width: 6),
-                                Text(dateFormat.format(alert.date), style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                                Text(
+                                  dateFormat.format(alert.date),
+                                  style: TextStyle(
+                                    color: color,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ],
                             ),
                             if (alert.value != null)
@@ -407,7 +494,14 @@ class _DisastersScreenState extends State<DisastersScreen> {
                                 children: [
                                   Icon(Icons.speed, size: 14, color: color),
                                   const SizedBox(width: 6),
-                                  Text('${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    '${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}',
+                                    style: TextStyle(
+                                      color: color,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                           ],
@@ -430,7 +524,9 @@ class _DisastersScreenState extends State<DisastersScreen> {
       context: context,
       backgroundColor: const Color(0xFF2A3A4D),
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
@@ -442,11 +538,21 @@ class _DisastersScreenState extends State<DisastersScreen> {
               margin: const EdgeInsets.symmetric(vertical: 12),
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: Colors.white30, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: Colors.white30,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('Selecione os Alertas', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                'Selecione os Alertas',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             Expanded(
               child: ListView(
@@ -456,13 +562,18 @@ class _DisastersScreenState extends State<DisastersScreen> {
                   final isEnabled = _enabledAlerts.contains(type);
                   final color = _getAlertColor(type);
                   final icon = _getAlertIcon(type);
-                  
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E2A3A),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: isEnabled ? color.withValues(alpha: 0.5) : Colors.white10, width: 2),
+                      border: Border.all(
+                        color: isEnabled
+                            ? color.withValues(alpha: 0.5)
+                            : Colors.white10,
+                        width: 2,
+                      ),
                     ),
                     child: CheckboxListTile(
                       value: isEnabled,
@@ -471,12 +582,26 @@ class _DisastersScreenState extends State<DisastersScreen> {
                         children: [
                           Text(icon, style: const TextStyle(fontSize: 20)),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(type.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
+                          Expanded(
+                            child: Text(
+                              type.label,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(left: 32, top: 4),
-                        child: Text(type.description, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                        child: Text(
+                          type.description,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                       activeColor: color,
                       checkColor: Colors.white,

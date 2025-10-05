@@ -49,7 +49,10 @@ class TimeframeSelector extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(vm.userFriendlyDateRange, style: const TextStyle(fontSize: 16)),
+                  Text(
+                    vm.userFriendlyDateRange,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const Icon(Icons.calendar_today),
                 ],
               ),
@@ -65,10 +68,16 @@ class TimeframeSelector extends StatelessWidget {
           fillColor: Theme.of(context).primaryColor,
           color: Colors.white,
           children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('Single')),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('Range')),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text('Single'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text('Range'),
+            ),
           ],
-        )
+        ),
       ],
     );
   }

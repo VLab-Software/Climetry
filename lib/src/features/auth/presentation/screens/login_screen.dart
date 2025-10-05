@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import 'register_screen.dart';
-import '../../../home/presentation/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   final _userDataService = UserDataService();
-  
+
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -41,14 +40,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      // Navegar para home
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (route) => false,
-      );
+      // Desativar loading antes que o AuthWrapper navegue
+      setState(() => _isLoading = false);
+      
+      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
@@ -56,10 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+
+      setState(() => _isLoading = false);
     }
   }
 
@@ -68,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final userCredential = await _authService.signInWithGoogle();
-      
+
       // Criar perfil no Firestore se for novo usuário
       if (userCredential.user != null) {
         await _userDataService.createUserProfile(userCredential.user!);
@@ -76,14 +72,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      // Navegar para home
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (route) => false,
-      );
+      // Desativar loading antes que o AuthWrapper navegue
+      setState(() => _isLoading = false);
+      
+      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
@@ -91,10 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+
+      setState(() => _isLoading = false);
     }
   }
 
@@ -119,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                
+
                 // Título
                 const Text(
                   'Bem-vindo de volta!',
@@ -129,9 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 Text(
                   'Entre para continuar',
                   style: TextStyle(
@@ -139,9 +132,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white.withOpacity(0.7),
                   ),
                 ),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Email
                 TextFormField(
                   controller: _emailController,
@@ -150,7 +143,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.white60),
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: Colors.white60,
+                    ),
                     filled: true,
                     fillColor: const Color(0xFF2A3A4D),
                     border: OutlineInputBorder(
@@ -168,9 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Senha
                 TextFormField(
                   controller: _passwordController,
@@ -179,10 +175,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Senha',
                     labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.white60),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.white60,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: Colors.white60,
                       ),
                       onPressed: () {
@@ -203,9 +204,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Esqueceu a senha
                 Align(
                   alignment: Alignment.centerRight,
@@ -220,9 +221,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Botão de Login
                 SizedBox(
                   height: 56,
@@ -241,7 +242,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -254,13 +257,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Divider
                 Row(
                   children: [
-                    Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                    Expanded(
+                      child: Divider(color: Colors.white.withOpacity(0.2)),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
@@ -268,12 +273,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.white.withOpacity(0.5)),
                       ),
                     ),
-                    Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                    Expanded(
+                      child: Divider(color: Colors.white.withOpacity(0.2)),
+                    ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Google Sign-In
                 SizedBox(
                   height: 56,
@@ -290,7 +297,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 24,
                       width: 24,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.g_mobiledata, color: Colors.white, size: 24);
+                        return const Icon(
+                          Icons.g_mobiledata,
+                          color: Colors.white,
+                          size: 24,
+                        );
                       },
                     ),
                     label: const Text(
@@ -303,9 +314,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Link para registro
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +331,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           : () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) => const RegisterScreen(),
+                                ),
                               );
                             },
                       child: const Text(
@@ -343,12 +356,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Recuperar Senha', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Recuperar Senha',
+          style: TextStyle(color: Colors.white),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -382,7 +398,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ElevatedButton(
             onPressed: () async {
               if (emailController.text.isEmpty) return;
-              
+
               try {
                 await _authService.sendPasswordResetEmail(emailController.text);
                 if (!mounted) return;

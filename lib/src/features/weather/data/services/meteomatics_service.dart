@@ -14,9 +14,9 @@ class MeteomaticsService {
   String get _credentials => base64Encode(utf8.encode('$_username:$_password'));
 
   Map<String, String> get _headers => {
-        'Authorization': 'Basic $_credentials',
-        'Content-Type': 'application/json',
-      };
+    'Authorization': 'Basic $_credentials',
+    'Content-Type': 'application/json',
+  };
 
   /// Chamada 1: Condições Atuais Completas (10 parâmetros)
   /// https://api.meteomatics.com/now/t_2m:C,t_2m:F,t_apparent:C,t_min_2m_24h:C,t_max_2m_24h:C,uv:idx,relative_humidity_2m:p,wind_speed_10m:kmh,wind_dir_10m:d,wind_gusts_10m_1h:kmh/-18.7333,-47.5000/json
@@ -58,10 +58,10 @@ class MeteomaticsService {
   Future<List<HourlyWeather>> getHourlyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final past24h = now.subtract(const Duration(hours: 24));
-    
+
     final startStr = past24h.toIso8601String().split('.')[0] + 'Z';
     final endStr = now.toIso8601String().split('.')[0] + 'Z';
-    
+
     final params = [
       't_2m:C',
       't_apparent:C',
@@ -95,10 +95,10 @@ class MeteomaticsService {
   Future<List<DailyWeather>> getWeeklyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 7));
-    
+
     final startStr = now.toIso8601String().split('.')[0] + 'Z';
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
-    
+
     final params = [
       't_max_2m_24h:C',
       't_min_2m_24h:C',
@@ -135,10 +135,10 @@ class MeteomaticsService {
   Future<List<DailyWeather>> getMonthlyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 30));
-    
+
     final startStr = now.toIso8601String().split('.')[0] + 'Z';
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
-    
+
     final params = [
       't_max_2m_24h:C',
       't_min_2m_24h:C',
@@ -175,10 +175,10 @@ class MeteomaticsService {
   Future<List<DailyWeather>> getSixMonthsForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 180));
-    
+
     final startStr = now.toIso8601String().split('.')[0] + 'Z';
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
-    
+
     final params = [
       't_max_2m_24h:C',
       't_min_2m_24h:C',
@@ -231,12 +231,20 @@ class MeteomaticsService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final dataList = data['data'] as List;
-        
+
         double getParam(String paramName) {
           try {
             final paramData = dataList.firstWhere(
               (d) => d['parameter'] == paramName,
-              orElse: () => {'coordinates': [{'dates': [{'value': 0}]}]},
+              orElse: () => {
+                'coordinates': [
+                  {
+                    'dates': [
+                      {'value': 0},
+                    ],
+                  },
+                ],
+              },
             );
             final dates = paramData['coordinates'][0]['dates'] as List;
             return (dates[0]['value'] as num?)?.toDouble() ?? 0;
@@ -279,12 +287,20 @@ class MeteomaticsService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final dataList = data['data'] as List;
-        
+
         dynamic getParam(String paramName) {
           try {
             final paramData = dataList.firstWhere(
               (d) => d['parameter'] == paramName,
-              orElse: () => {'coordinates': [{'dates': [{'value': null}]}]},
+              orElse: () => {
+                'coordinates': [
+                  {
+                    'dates': [
+                      {'value': null},
+                    ],
+                  },
+                ],
+              },
             );
             final dates = paramData['coordinates'][0]['dates'] as List;
             return dates[0]['value'];
@@ -297,7 +313,8 @@ class MeteomaticsService {
           'sunrise': getParam('sunrise:sql'),
           'sunset': getParam('sunset:sql'),
           'precipitation': (getParam('precip_1h:mm') as num?)?.toDouble() ?? 0,
-          'precipitation_probability': (getParam('prob_precip_1h:p') as num?)?.toDouble() ?? 0,
+          'precipitation_probability':
+              (getParam('prob_precip_1h:p') as num?)?.toDouble() ?? 0,
         };
       } else {
         throw Exception('Erro ${response.statusCode}: ${response.body}');
@@ -310,7 +327,7 @@ class MeteomaticsService {
   /// Cálculo de Alertas Climáticos
   List<WeatherAlert> calculateWeatherAlerts(List<DailyWeather> forecast) {
     final alerts = <WeatherAlert>[];
-    
+
     // Alerta 1: Onda de Calor (3+ dias com temp >= 35°C)
     int heatWaveDays = 0;
     for (var i = 0; i < forecast.length; i++) {
@@ -318,13 +335,15 @@ class MeteomaticsService {
       if (day.maxTemp >= 35) {
         heatWaveDays++;
         if (heatWaveDays >= 3) {
-          alerts.add(WeatherAlert(
-            type: WeatherAlertType.heatWave,
-            date: day.date,
-            value: day.maxTemp,
-            unit: '°C',
-            daysInSequence: heatWaveDays,
-          ));
+          alerts.add(
+            WeatherAlert(
+              type: WeatherAlertType.heatWave,
+              date: day.date,
+              value: day.maxTemp,
+              unit: '°C',
+              daysInSequence: heatWaveDays,
+            ),
+          );
           break;
         }
       } else {
@@ -335,82 +354,98 @@ class MeteomaticsService {
     for (var day in forecast) {
       // Alerta 2: Desconforto Térmico Elevado
       if (day.maxTemp >= 30 && day.humidity >= 60) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.thermalDiscomfort,
-          date: day.date,
-          value: day.maxTemp,
-          unit: '°C',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.thermalDiscomfort,
+            date: day.date,
+            value: day.maxTemp,
+            unit: '°C',
+          ),
+        );
       }
 
       // Alerta 3: Frio Intenso
       if (day.minTemp <= 5) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.intenseCold,
-          date: day.date,
-          value: day.minTemp,
-          unit: '°C',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.intenseCold,
+            date: day.date,
+            value: day.minTemp,
+            unit: '°C',
+          ),
+        );
       }
 
       // Alerta 4: Risco de Geada
       if (day.minTemp <= 3) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.frostRisk,
-          date: day.date,
-          value: day.minTemp,
-          unit: '°C',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.frostRisk,
+            date: day.date,
+            value: day.minTemp,
+            unit: '°C',
+          ),
+        );
       }
 
       // Alerta 5: Chuva Intensa
       if (day.precipitation > 30) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.heavyRain,
-          date: day.date,
-          value: day.precipitation,
-          unit: 'mm',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.heavyRain,
+            date: day.date,
+            value: day.precipitation,
+            unit: 'mm',
+          ),
+        );
       }
 
       // Alerta 6: Risco de Enchente
       if (day.precipitation > 50) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.floodRisk,
-          date: day.date,
-          value: day.precipitation,
-          unit: 'mm',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.floodRisk,
+            date: day.date,
+            value: day.precipitation,
+            unit: 'mm',
+          ),
+        );
       }
 
       // Alerta 7: Potencial para Tempestades Severas
       if (day.cape != null && day.cape! > 2000) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.severeStorm,
-          date: day.date,
-          value: day.cape,
-          unit: 'J/kg',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.severeStorm,
+            date: day.date,
+            value: day.cape,
+            unit: 'J/kg',
+          ),
+        );
       }
 
       // Alerta 8: Risco de Granizo
       if (day.hail != null && day.hail! > 0) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.hailRisk,
-          date: day.date,
-          value: day.hail,
-          unit: 'cm',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.hailRisk,
+            date: day.date,
+            value: day.hail,
+            unit: 'cm',
+          ),
+        );
       }
 
       // Alerta 9: Ventania Forte
       if (day.windGust != null && day.windGust! >= 60) {
-        alerts.add(WeatherAlert(
-          type: WeatherAlertType.strongWind,
-          date: day.date,
-          value: day.windGust,
-          unit: 'km/h',
-        ));
+        alerts.add(
+          WeatherAlert(
+            type: WeatherAlertType.strongWind,
+            date: day.date,
+            value: day.windGust,
+            unit: 'km/h',
+          ),
+        );
       }
     }
 
@@ -418,15 +453,26 @@ class MeteomaticsService {
   }
 
   // Parsing methods
-  
-  CurrentWeather _parseCurrentWeather(Map<String, dynamic> json, LatLng location) {
+
+  CurrentWeather _parseCurrentWeather(
+    Map<String, dynamic> json,
+    LatLng location,
+  ) {
     final dataList = json['data'] as List;
-    
+
     double getParam(String paramName) {
       try {
         final paramData = dataList.firstWhere(
           (d) => d['parameter'] == paramName,
-          orElse: () => {'coordinates': [{'dates': [{'value': 0}]}]},
+          orElse: () => {
+            'coordinates': [
+              {
+                'dates': [
+                  {'value': 0},
+                ],
+              },
+            ],
+          },
         );
         // A API retorna: coordinates[0].dates[0].value
         final dates = paramData['coordinates'][0]['dates'] as List;
@@ -470,7 +516,11 @@ class MeteomaticsService {
         try {
           final paramData = dataList.firstWhere(
             (d) => d['parameter'] == paramName,
-            orElse: () => {'coordinates': [{'dates': []}]},
+            orElse: () => {
+              'coordinates': [
+                {'dates': []},
+              ],
+            },
           );
           final value = paramData['coordinates'][0]['dates'][i]['value'];
           return (value as num?)?.toDouble() ?? 0;
@@ -479,16 +529,18 @@ class MeteomaticsService {
         }
       }
 
-      hourlyData.add(HourlyWeather(
-        time: timestamp,
-        temperature: getParamValue('t_2m:C'),
-        feelsLike: getParamValue('t_apparent:C'),
-        uvIndex: getParamValue('uv:idx'),
-        windSpeed: getParamValue('wind_speed_10m:kmh'),
-        humidity: getParamValue('relative_humidity_2m:p'),
-        precipitation: getParamValue('precip_1h:mm'),
-        precipitationProbability: 0,
-      ));
+      hourlyData.add(
+        HourlyWeather(
+          time: timestamp,
+          temperature: getParamValue('t_2m:C'),
+          feelsLike: getParamValue('t_apparent:C'),
+          uvIndex: getParamValue('uv:idx'),
+          windSpeed: getParamValue('wind_speed_10m:kmh'),
+          humidity: getParamValue('relative_humidity_2m:p'),
+          precipitation: getParamValue('precip_1h:mm'),
+          precipitationProbability: 0,
+        ),
+      );
     }
 
     return hourlyData;
@@ -507,7 +559,11 @@ class MeteomaticsService {
         try {
           final paramData = dataList.firstWhere(
             (d) => d['parameter'] == paramName,
-            orElse: () => {'coordinates': [{'dates': []}]},
+            orElse: () => {
+              'coordinates': [
+                {'dates': []},
+              ],
+            },
           );
           final value = paramData['coordinates'][0]['dates'][i]['value'];
           return (value as num?)?.toDouble() ?? 0;
@@ -519,20 +575,22 @@ class MeteomaticsService {
       final minTemp = getParamValue('t_min_2m_24h:C');
       final maxTemp = getParamValue('t_max_2m_24h:C');
 
-      dailyData.add(DailyWeather(
-        date: DateTime.parse(coordinates[i]['date'] as String),
-        minTemp: minTemp,
-        maxTemp: maxTemp,
-        meanTemp: (minTemp + maxTemp) / 2,
-        precipitation: getParamValue('precip_24h:mm'),
-        windSpeed: getParamValue('wind_speed_10m:kmh'),
-        windGust: getParamValue('wind_gusts_10m_24h:kmh'),
-        humidity: getParamValue('relative_humidity_2m:p'),
-        uvIndex: getParamValue('uv:idx'),
-        cape: getParamValue('cape:Jkg'),
-        precipitationProbability: getParamValue('prob_precip_1h:p'),
-        hail: getParamValue('hail:cm'),
-      ));
+      dailyData.add(
+        DailyWeather(
+          date: DateTime.parse(coordinates[i]['date'] as String),
+          minTemp: minTemp,
+          maxTemp: maxTemp,
+          meanTemp: (minTemp + maxTemp) / 2,
+          precipitation: getParamValue('precip_24h:mm'),
+          windSpeed: getParamValue('wind_speed_10m:kmh'),
+          windGust: getParamValue('wind_gusts_10m_24h:kmh'),
+          humidity: getParamValue('relative_humidity_2m:p'),
+          uvIndex: getParamValue('uv:idx'),
+          cape: getParamValue('cape:Jkg'),
+          precipitationProbability: getParamValue('prob_precip_1h:p'),
+          hail: getParamValue('hail:cm'),
+        ),
+      );
     }
 
     return dailyData;

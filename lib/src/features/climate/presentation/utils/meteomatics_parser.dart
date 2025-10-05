@@ -36,45 +36,53 @@ class MeteomaticsParser {
       final unit = _unit(parameter);
       final icon = _icon(parameter);
 
-      variables.add(VariableData(
-        name: name,
-        parameter: parameter,
-        unit: unit,
-        icon: icon,
-        currentValue: values.last,
-        minValue: values.reduce(math.min),
-        maxValue: values.reduce(math.max),
-        avgValue: values.reduce((a, b) => a + b) / values.length,
-        change: values.length > 1 && values.first != 0
-            ? ((values.last - values.first) / values.first * 100)
-            : 0,
-        timeSeriesData: ts,
-      ));
+      variables.add(
+        VariableData(
+          name: name,
+          parameter: parameter,
+          unit: unit,
+          icon: icon,
+          currentValue: values.last,
+          minValue: values.reduce(math.min),
+          maxValue: values.reduce(math.max),
+          avgValue: values.reduce((a, b) => a + b) / values.length,
+          change: values.length > 1 && values.first != 0
+              ? ((values.last - values.first) / values.first * 100)
+              : 0,
+          timeSeriesData: ts,
+        ),
+      );
     }
     return variables;
   }
 
   static AlertInfo buildAlert(List<VariableData> vars) {
     if (vars.isEmpty) return AlertInfo.analyzing;
-    final temp = vars.firstWhere((v) => v.parameter.contains('t_2m'), orElse: () => vars.first);
+    final temp = vars.firstWhere(
+      (v) => v.parameter.contains('t_2m'),
+      orElse: () => vars.first,
+    );
     if (temp.maxValue > 32) {
       final p = math.min((temp.maxValue - 32) * 10 + 50, 100);
       return AlertInfo(
         title: 'Alerta de Calor Extremo',
-        message: 'Temperaturas podem exceder 32°C. Mantenha-se hidratado e evite exposição prolongada ao sol.',
+        message:
+            'Temperaturas podem exceder 32°C. Mantenha-se hidratado e evite exposição prolongada ao sol.',
         probability: p.toDouble(),
       );
     } else if (temp.minValue < 10) {
       final p = math.min((10 - temp.minValue) * 8 + 40, 100);
       return AlertInfo(
         title: 'Alerta de Frio Intenso',
-        message: 'Temperaturas baixas detectadas. Use roupas adequadas e mantenha-se aquecido.',
+        message:
+            'Temperaturas baixas detectadas. Use roupas adequadas e mantenha-se aquecido.',
         probability: p.toDouble(),
       );
     } else {
       return const AlertInfo(
         title: 'Condições Favoráveis',
-        message: 'As condições climáticas estão dentro do esperado para esta região no período selecionado.',
+        message:
+            'As condições climáticas estão dentro do esperado para esta região no período selecionado.',
         probability: 0,
       );
     }

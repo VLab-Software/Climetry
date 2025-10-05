@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final OpenAIService _aiService = OpenAIService();
   final UserDataService _userDataService = UserDataService();
   final LocationService _locationService = LocationService();
-  
+
   CurrentWeather? _currentWeather;
   List<HourlyWeather> _hourlyForecast = [];
   Activity? _nextActivity;
@@ -47,17 +47,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadLocation() async {
     setState(() => _loadingLocation = true);
-    
+
     try {
       final locationData = await _locationService.getActiveLocation();
-      
+
       if (mounted) {
         setState(() {
           _location = locationData['coordinates'] as LatLng;
           _locationName = locationData['name'] as String;
           _loadingLocation = false;
         });
-        
+
         // Carregar dados do tempo após obter localização
         _loadWeather();
         _loadNextActivity();
@@ -89,23 +89,23 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result != null && mounted) {
       final newLocation = result['location'] as LatLng;
       final newName = result['name'] as String;
-      
+
       // Salvar nova localização
       await _locationService.saveCustomLocation(
         latitude: newLocation.latitude,
         longitude: newLocation.longitude,
         name: newName,
       );
-      
+
       setState(() {
         _location = newLocation;
         _locationName = newName;
       });
-      
+
       // Recarregar dados do tempo
       _loadWeather();
       _loadNextActivity();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -113,9 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.green),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Text('Localização alterada para $newName'),
-                ),
+                Expanded(child: Text('Localização alterada para $newName')),
               ],
             ),
             backgroundColor: const Color(0xFF2A3A4D),
@@ -128,14 +126,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _useCurrentLocation() async {
     setState(() => _loadingLocation = true);
-    
+
     try {
       // Ativar uso de GPS
       await _locationService.setUseCurrentLocation(true);
-      
+
       // Recarregar localização
       await _loadLocation();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -162,9 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Icon(Icons.error, color: Colors.red),
                 SizedBox(width: 12),
-                Expanded(
-                  child: Text('Não foi possível obter sua localização'),
-                ),
+                Expanded(child: Text('Não foi possível obter sua localização')),
               ],
             ),
             backgroundColor: Color(0xFF2A3A4D),
@@ -180,11 +176,11 @@ class _HomeScreenState extends State<HomeScreen> {
       _loading = true;
       _error = null;
     });
-    
+
     try {
       final current = await _weatherService.getCurrentWeather(_location);
       final hourly = await _weatherService.getHourlyForecast(_location);
-      
+
       setState(() {
         _currentWeather = current;
         _hourlyForecast = hourly;
@@ -198,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _loading = false;
         _error = e.toString();
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -217,31 +213,35 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadNextActivity() async {
     try {
       final activities = await _userDataService.getActivities();
-      
+
       if (activities.isEmpty) return;
 
       // Filtrar atividades futuras e ordenar por data
-      final futureActivities = activities.where(
-        (a) => a.date.isAfter(DateTime.now())
-      ).toList()..sort((a, b) => a.date.compareTo(b.date));
+      final futureActivities =
+          activities.where((a) => a.date.isAfter(DateTime.now())).toList()
+            ..sort((a, b) => a.date.compareTo(b.date));
 
       if (futureActivities.isEmpty) return;
 
       final next = futureActivities.first;
-      
+
       // Buscar previsão do tempo para o dia da atividade
-      final forecast = await _weatherService.getWeeklyForecast(next.coordinates);
+      final forecast = await _weatherService.getWeeklyForecast(
+        next.coordinates,
+      );
       final activityWeather = forecast.firstWhere(
-        (w) => w.date.day == next.date.day && 
-               w.date.month == next.date.month &&
-               w.date.year == next.date.year,
+        (w) =>
+            w.date.day == next.date.day &&
+            w.date.month == next.date.month &&
+            w.date.year == next.date.year,
         orElse: () => forecast.first,
       );
 
       // Buscar alertas
-      final alerts = _weatherService.calculateWeatherAlerts(forecast)
-        .where((alert) => alert.date.day == next.date.day)
-        .toList();
+      final alerts = _weatherService
+          .calculateWeatherAlerts(forecast)
+          .where((alert) => alert.date.day == next.date.day)
+          .toList();
 
       // Gerar dicas da IA
       final tips = await _aiService.generateActivityTips(
@@ -252,10 +252,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Verificar se evento é ao ar livre e clima está ruim
       Map<String, dynamic>? alternatives;
-      final isOutdoorActivity = next.type == ActivityType.outdoor || 
-                                 next.type == ActivityType.sport;
-      
-      if (isOutdoorActivity && _shouldSuggestAlternatives(activityWeather, alerts)) {
+      final isOutdoorActivity =
+          next.type == ActivityType.outdoor || next.type == ActivityType.sport;
+
+      if (isOutdoorActivity &&
+          _shouldSuggestAlternatives(activityWeather, alerts)) {
         alternatives = await _aiService.suggestAlternativeLocations(
           activity: next,
           cityName: _locationName,
@@ -324,49 +325,54 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-                ? _buildErrorState()
-                : RefreshIndicator(
-                    onRefresh: () async {
-                      await _loadWeather();
-                      await _loadNextActivity();
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Adiciona padding bottom para floating tab bar
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(dayOfWeek, date),
-                          const SizedBox(height: 24),
-                          
-                          // Card do Próximo Evento
-                          if (_nextActivity != null) ...[
-                            _buildNextEventCard(),
-                            const SizedBox(height: 24),
-                          ],
-                          
-                          if (_currentWeather != null) ...[
-                            _buildMainWeatherCard(),
-                            const SizedBox(height: 24),
-                            _buildWeatherDetails(),
-                            const SizedBox(height: 24),
-                          ],
-                          
-                          // Cards de Insights da IA
-                          if (_insightCards.isNotEmpty) ...[
-                            _buildAIInsightsSection(),
-                            const SizedBox(height: 24),
-                          ],
-                          
-                          if (_hourlyForecast.isNotEmpty) ...[
-                            _buildHourlyForecastSection(),
-                            const SizedBox(height: 24),
-                            _buildTemperatureChart(),
-                          ],
-                        ],
-                      ),
-                    ),
+            ? _buildErrorState()
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await _loadWeather();
+                  await _loadNextActivity();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    100,
+                  ), // Adiciona padding bottom para floating tab bar
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(dayOfWeek, date),
+                      const SizedBox(height: 24),
+
+                      // Card do Próximo Evento
+                      if (_nextActivity != null) ...[
+                        _buildNextEventCard(),
+                        const SizedBox(height: 24),
+                      ],
+
+                      if (_currentWeather != null) ...[
+                        _buildMainWeatherCard(),
+                        const SizedBox(height: 24),
+                        _buildWeatherDetails(),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Cards de Insights da IA
+                      if (_insightCards.isNotEmpty) ...[
+                        _buildAIInsightsSection(),
+                        const SizedBox(height: 24),
+                      ],
+
+                      if (_hourlyForecast.isNotEmpty) ...[
+                        _buildHourlyForecastSection(),
+                        const SizedBox(height: 24),
+                        _buildTemperatureChart(),
+                      ],
+                    ],
                   ),
+                ),
+              ),
       ),
     );
   }
@@ -404,7 +410,10 @@ class _HomeScreenState extends State<HomeScreen> {
               label: const Text('Tentar Novamente'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4A9EFF),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -476,10 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white54,
-              ),
+              icon: const Icon(Icons.settings, color: Colors.white54),
               tooltip: 'Configurações',
             ),
           ],
@@ -490,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMainWeatherCard() {
     final weather = _currentWeather!;
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -506,10 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            weather.weatherIcon,
-            style: const TextStyle(fontSize: 80),
-          ),
+          Text(weather.weatherIcon, style: const TextStyle(fontSize: 80)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -592,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWeatherDetails() {
     final weather = _currentWeather!;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -698,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHourlyCard(HourlyWeather forecast) {
     final time = DateFormat.Hm('pt_BR').format(forecast.time);
-    
+
     return Container(
       width: 80,
       margin: const EdgeInsets.only(right: 12),
@@ -712,10 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             time,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
           ),
           Text(
             forecast.precipitation > 0 ? '🌧️' : '☀️',
@@ -732,10 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (forecast.precipitationProbability > 20)
             Text(
               '${forecast.precipitationProbability.round()}%',
-              style: TextStyle(
-                color: Colors.blue.shade300,
-                fontSize: 11,
-              ),
+              style: TextStyle(color: Colors.blue.shade300, fontSize: 11),
             ),
         ],
       ),
@@ -744,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTemperatureChart() {
     if (_hourlyForecast.length < 2) return const SizedBox.shrink();
-    
+
     // Simplificado - remover gráfico complexo temporariamente
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -784,7 +781,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final activity = _nextActivity!;
     final weather = _nextActivityWeather!;
     final daysUntil = activity.date.difference(DateTime.now()).inDays;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -851,8 +848,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         daysUntil == 0
                             ? 'Hoje'
                             : daysUntil == 1
-                                ? 'Amanhã'
-                                : 'Em $daysUntil dias',
+                            ? 'Amanhã'
+                            : 'Em $daysUntil dias',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 13,
@@ -864,7 +861,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          
+
           // Previsão do Tempo
           Container(
             padding: const EdgeInsets.all(16),
@@ -894,7 +891,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                
+
                 if (_activityTips != null) ...[
                   const SizedBox(height: 16),
                   const Divider(color: Colors.white24, height: 1),
@@ -902,10 +899,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '🤖',
-                        style: TextStyle(fontSize: 20),
-                      ),
+                      const Text('🤖', style: TextStyle(fontSize: 20)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -934,7 +928,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ],
-                
+
                 if (_alternativeLocations != null) ...[
                   const SizedBox(height: 16),
                   const Divider(color: Colors.white24, height: 1),
@@ -956,10 +950,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFD93D).withValues(alpha: 0.2),
+                              color: const Color(
+                                0xFFFFD93D,
+                              ).withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('⚠️', style: TextStyle(fontSize: 18)),
+                            child: const Text(
+                              '⚠️',
+                              style: TextStyle(fontSize: 18),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -1059,7 +1058,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        
+
         if (_loadingInsights)
           const Center(
             child: Padding(
@@ -1117,10 +1116,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
-              Text(
-                icon,
-                style: const TextStyle(fontSize: 32),
-              ),
+              Text(icon, style: const TextStyle(fontSize: 32)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -1156,8 +1152,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_alternativeLocations == null) return;
 
     final alternatives = _alternativeLocations!['alternatives'] as List? ?? [];
-    final reason = _alternativeLocations!['reason'] as String? ?? 
-                   'Condições climáticas desfavoráveis detectadas';
+    final reason =
+        _alternativeLocations!['reason'] as String? ??
+        'Condições climáticas desfavoráveis detectadas';
 
     showModalBottomSheet(
       context: context,

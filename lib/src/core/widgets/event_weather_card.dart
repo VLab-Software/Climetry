@@ -69,11 +69,7 @@ class EventWeatherCard extends StatelessWidget {
               color: analysis.riskColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              analysis.riskIcon,
-              color: analysis.riskColor,
-              size: 20,
-            ),
+            child: Icon(analysis.riskIcon, color: analysis.riskColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -125,10 +121,7 @@ class EventWeatherCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary,
-                theme.colorScheme.secondary,
-              ],
+              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -172,8 +165,8 @@ class EventWeatherCard extends StatelessWidget {
                     analysis.daysUntilEvent == 0
                         ? 'Hoje'
                         : analysis.daysUntilEvent == 1
-                            ? 'Amanhã'
-                            : 'Em ${analysis.daysUntilEvent} dias',
+                        ? 'Amanhã'
+                        : 'Em ${analysis.daysUntilEvent} dias',
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],
@@ -198,11 +191,7 @@ class EventWeatherCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            analysis.riskIcon,
-            color: analysis.riskColor,
-            size: 32,
-          ),
+          Icon(analysis.riskIcon, color: analysis.riskColor, size: 32),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -341,10 +330,7 @@ class EventWeatherCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  suggestion.description,
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text(suggestion.description, style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -359,11 +345,7 @@ class EventsWeatherList extends StatelessWidget {
   final List<EventWeatherAnalysis> analyses;
   final Function(EventWeatherAnalysis)? onTap;
 
-  const EventsWeatherList({
-    super.key,
-    required this.analyses,
-    this.onTap,
-  });
+  const EventsWeatherList({super.key, required this.analyses, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +355,7 @@ class EventsWeatherList extends StatelessWidget {
         // Primeiro por nível de risco
         final riskCompare = _riskValue(b.risk).compareTo(_riskValue(a.risk));
         if (riskCompare != 0) return riskCompare;
-        
+
         // Depois por proximidade da data
         return a.daysUntilEvent.compareTo(b.daysUntilEvent);
       });

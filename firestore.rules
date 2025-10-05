@@ -1,0 +1,143 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Qualquer um autenticado pode ler perfis públicos
+      allow read: if isAuthenticated();
+      
+      // Apenas o dono pode criar/atualizar seu próprio perfil
+      allow create, update: if isOwner(userId);
+      
+      // Subcoleção de atividades
+      match /activities/{activityId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Subcoleção de amigos - REGRA CRÍTICA
+      match /friends/{friendId} {
+        // Usuário pode ler seus próprios amigos
+        allow read: if isOwner(userId);
+        
+        // Usuário pode adicionar amigos à sua própria lista
+        allow create, update, delete: if isOwner(userId);
+        
+        // IMPORTANTE: Permitir que outro usuário adicione ESTE userId como amigo
+        // Quando aceita friend request, precisa adicionar em ambas as listas
+        allow create: if isAuthenticated();
+      }
+    }
+    
+    // Friend Requests collection
+    match /friendRequests/{requestId} {
+      // Qualquer autenticado pode criar solicitações
+      allow create: if isAuthenticated();
+      
+      // Apenas destinatário ou remetente podem ler
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == resource.data.toUserId || 
+                      request.auth.uid == resource.data.fromUserId);
+      
+      // Apenas destinatário pode atualizar (aceitar/rejeitar)
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == resource.data.toUserId;
+      
+      // Apenas remetente pode deletar
+      allow delete: if isAuthenticated() && 
+                       request.auth.uid == resource.data.fromUserId;
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Apenas o dono pode ler suas notificações
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == resource.data.userId;
+      
+      // Sistema pode criar notificações para qualquer usuário
+      allow create: if isAuthenticated();
+      
+      // Apenas o dono pode atualizar (marcar como lida)
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == resource.data.userId;
+      
+      // Apenas o dono pode deletar
+      allow delete: if isAuthenticated() && 
+                       request.auth.uid == resource.data.userId;
+    }
+    
+    // FCM Messages (para Cloud Functions)
+    match /fcmMessages/{messageId} {
+      // Apenas sistema pode criar
+      allow create: if isAuthenticated();
+      
+      // Cloud Functions podem atualizar
+      allow update: if true;
+      
+      // Ninguém pode ler (só Cloud Functions)
+      allow read: if false;
+    }
+    
+    // Desastres/Alertas (público)
+    match /disasters/{disasterId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+    }
+    
+    // Activities (Eventos/Atividades)
+    match /activities/{activityId} {
+      // Qualquer usuário pode ler atividades onde ele é participante
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == resource.data.ownerId || 
+                      request.auth.uid in resource.data.participantIds);
+      
+      // Apenas o dono pode criar
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == request.resource.data.ownerId;
+      
+      // Dono pode atualizar
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == resource.data.ownerId;
+      
+      // Apenas o dono pode deletar
+      allow delete: if isAuthenticated() && 
+                       request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Event Invitations (para Cloud Functions)
+    match /eventInvitations/{invitationId} {
+      // Apenas sistema pode criar convites
+      allow create: if isAuthenticated();
+      
+      // Cloud Functions podem atualizar (marcar como processado)
+      allow update: if true;
+      
+      // Apenas o participante pode ler seu próprio convite
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == resource.data.participantUserId;
+    }
+    
+    // Activity Updates (para Cloud Functions)
+    match /activityUpdates/{updateId} {
+      // Apenas sistema pode criar atualizações
+      allow create: if isAuthenticated();
+      
+      // Cloud Functions podem atualizar (marcar como processado)
+      allow update: if true;
+      
+      // Apenas o participante pode ler sua própria atualização
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == resource.data.participantUserId;
+    }
+  }
+}

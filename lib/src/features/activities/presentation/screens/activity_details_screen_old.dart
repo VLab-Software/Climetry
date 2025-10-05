@@ -28,10 +28,13 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   Future<void> _loadWeather() async {
     setState(() => _loading = true);
     try {
-      final forecast = await _weatherService.getWeeklyForecast(widget.activity.coordinates);
+      final forecast = await _weatherService.getWeeklyForecast(
+        widget.activity.coordinates,
+      );
       // Encontrar previsão para o dia da atividade
       final activityWeather = forecast.firstWhere(
-        (w) => w.date.day == widget.activity.date.day &&
+        (w) =>
+            w.date.day == widget.activity.date.day &&
             w.date.month == widget.activity.date.month &&
             w.date.year == widget.activity.date.year,
         orElse: () => forecast.first,
@@ -50,10 +53,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     final difference = widget.activity.date.difference(now);
 
     if (difference.isNegative) return 'Evento passou';
-    
+
     final days = difference.inDays;
     final hours = difference.inHours % 24;
-    
+
     if (days > 0) {
       return '${days}d ${hours}h';
     } else {
@@ -75,7 +78,8 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   }
 
   Future<void> _shareOnWhatsApp() async {
-    final message = '''
+    final message =
+        '''
 🌤️ ${widget.activity.title}
 
 📍 ${widget.activity.location}
@@ -87,7 +91,9 @@ ${_weatherForecast != null ? '🌡️ Temperatura: ${_weatherForecast!.tempMin.t
 Vamos juntos? 😊
 ''';
 
-    final url = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(message)}');
+    final url = Uri.parse(
+      'https://wa.me/?text=${Uri.encodeComponent(message)}',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -97,17 +103,19 @@ Vamos juntos? 😊
     final startDate = widget.activity.date;
     final title = Uri.encodeComponent(widget.activity.title);
     final location = Uri.encodeComponent(widget.activity.location);
-    final details = Uri.encodeComponent('${widget.activity.description ?? ''}\n\nPrevisão: ${_weatherForecast?.mainCondition ?? 'N/A'}');
-    
+    final details = Uri.encodeComponent(
+      '${widget.activity.description ?? ''}\n\nPrevisão: ${_weatherForecast?.mainCondition ?? 'N/A'}',
+    );
+
     // Google Calendar URL
     final dateFormat = DateFormat('yyyyMMddTHHmmss');
     final startStr = dateFormat.format(startDate);
     final endStr = dateFormat.format(startDate.add(const Duration(hours: 2)));
-    
+
     final url = Uri.parse(
       'https://calendar.google.com/calendar/render?action=TEMPLATE&text=$title&dates=${startStr}Z/${endStr}Z&details=$details&location=$location',
     );
-    
+
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -156,34 +164,55 @@ Vamos juntos? 😊
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.white60, size: 16),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: Colors.white60,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         dateFormat.format(widget.activity.date),
-                        style: const TextStyle(color: Colors.white60, fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.access_time, color: Colors.white60, size: 16),
+                      const Icon(
+                        Icons.access_time,
+                        color: Colors.white60,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '${widget.activity.startTime ?? '--:--'} - ${widget.activity.endTime ?? '9:00'}',
-                        style: const TextStyle(color: Colors.white60, fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white60, size: 16),
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.white60,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           widget.activity.location,
-                          style: const TextStyle(color: Colors.white60, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -258,10 +287,7 @@ Vamos juntos? 😊
         children: [
           const Text(
             'Tempo para o evento',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white60, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
@@ -292,10 +318,7 @@ Vamos juntos? 😊
         children: [
           const Text(
             'Chance de chuva',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white60, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
@@ -309,10 +332,7 @@ Vamos juntos? 😊
           const SizedBox(height: 8),
           const Text(
             'A previsão pode mudar. Verifique novamente mais perto do evento.',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.white38, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -411,7 +431,8 @@ Vamos juntos? 😊
     if (recommendations.isEmpty) {
       recommendations.add({
         'icon': '✅',
-        'text': 'O tempo estará agradável. Leve um agasalho leve para o final da tarde.',
+        'text':
+            'O tempo estará agradável. Leve um agasalho leve para o final da tarde.',
         'color': const Color(0xFFF1F8E9),
       });
     }
@@ -424,9 +445,7 @@ Vamos juntos? 😊
           decoration: BoxDecoration(
             color: (rec['color'] as Color).withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: (rec['color'] as Color).withOpacity(0.5),
-            ),
+            border: Border.all(color: (rec['color'] as Color).withOpacity(0.5)),
           ),
           child: Row(
             children: [
@@ -448,10 +467,7 @@ Vamos juntos? 😊
               Expanded(
                 child: Text(
                   rec['text'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ],
@@ -484,10 +500,7 @@ Vamos juntos? 😊
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -507,7 +520,10 @@ Vamos juntos? 😊
             children: [
               ListTile(
                 leading: const Icon(Icons.edit, color: Colors.white),
-                title: const Text('Editar', style: TextStyle(color: Colors.white)),
+                title: const Text(
+                  'Editar',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Navegar para edição
@@ -515,7 +531,10 @@ Vamos juntos? 😊
               ),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Excluir', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Excluir',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.pop(context);

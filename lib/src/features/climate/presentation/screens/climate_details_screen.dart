@@ -7,7 +7,13 @@ class ClimateDetailsScreen extends StatelessWidget {
   final LatLng coordinates;
   final Map<String, dynamic> weatherData;
 
-  const ClimateDetailsScreen({super.key, required this.location, required this.date, required this.coordinates, required this.weatherData});
+  const ClimateDetailsScreen({
+    super.key,
+    required this.location,
+    required this.date,
+    required this.coordinates,
+    required this.weatherData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +29,14 @@ class ClimateDetailsScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(date),
               const SizedBox(height: 16),
-              Text('Lat: ${coordinates.latitude}, Lon: ${coordinates.longitude}'),
+              Text(
+                'Lat: ${coordinates.latitude}, Lon: ${coordinates.longitude}',
+              ),
               const SizedBox(height: 24),
-              Text('Raw payload:', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Raw payload:',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
               Text(weatherData.toString()),
             ],

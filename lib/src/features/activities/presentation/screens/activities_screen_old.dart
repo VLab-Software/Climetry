@@ -95,17 +95,22 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : activities.isEmpty
-              ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: _loadActivities,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Padding para floating tab bar
-                    itemCount: activities.length,
-                    itemBuilder: (context, index) {
-                      return _buildActivityCard(activities[index]);
-                    },
-                  ),
-                ),
+          ? _buildEmptyState()
+          : RefreshIndicator(
+              onRefresh: _loadActivities,
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  16,
+                  16,
+                  100,
+                ), // Padding para floating tab bar
+                itemCount: activities.length,
+                itemBuilder: (context, index) {
+                  return _buildActivityCard(activities[index]);
+                },
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
@@ -206,7 +211,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                     Navigator.pop(context);
                     _deleteActivity(activity);
                   },
-                  child: const Text('Remover', style: TextStyle(color: Colors.red)),
+                  child: const Text(
+                    'Remover',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ],
             ),
@@ -286,10 +294,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: Colors.white38,
-              ),
+              const Icon(Icons.chevron_right, color: Colors.white38),
             ],
           ),
         ),

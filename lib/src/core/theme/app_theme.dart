@@ -13,7 +13,7 @@ class AppTheme {
   static const lightError = Color(0xFFEF4444);
   static const lightSuccess = Color(0xFF10B981);
   static const lightWarning = Color(0xFFF59E0B);
-  
+
   // ========== DARK THEME COLORS ==========
   static const darkPrimary = Color(0xFF5DADE2);
   static const darkSecondary = Color(0xFF8B7FFF);
@@ -34,7 +34,7 @@ class AppTheme {
     primaryColor: lightPrimary,
     scaffoldBackgroundColor: lightBackground,
     cardColor: lightCardBackground,
-    
+
     colorScheme: const ColorScheme.light(
       primary: lightPrimary,
       secondary: lightSecondary,
@@ -45,32 +45,60 @@ class AppTheme {
       onSurface: lightTextPrimary,
       onError: Colors.white,
     ),
-    
+
     appBarTheme: const AppBarTheme(
       backgroundColor: lightBackground,
       foregroundColor: lightTextPrimary,
       elevation: 0,
       centerTitle: true,
     ),
-    
+
     cardTheme: CardThemeData(
       color: lightCardBackground,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
-    
+
     textTheme: const TextTheme(
-      displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: lightTextPrimary),
-      displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: lightTextPrimary),
-      displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: lightTextPrimary),
-      headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: lightTextPrimary),
-      titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: lightTextPrimary),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: lightTextPrimary),
+      displayLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: lightTextPrimary,
+      ),
+      displayMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: lightTextPrimary,
+      ),
+      displaySmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: lightTextPrimary,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: lightTextPrimary,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: lightTextPrimary,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: lightTextPrimary,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: lightTextPrimary),
       bodyMedium: TextStyle(fontSize: 14, color: lightTextSecondary),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: lightTextPrimary),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: lightTextPrimary,
+      ),
     ),
-    
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: lightPrimary,
@@ -80,7 +108,7 @@ class AppTheme {
         elevation: 0,
       ),
     ),
-    
+
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
   );
 
@@ -90,7 +118,7 @@ class AppTheme {
     primaryColor: darkPrimary,
     scaffoldBackgroundColor: darkBackground,
     cardColor: darkCardBackground,
-    
+
     colorScheme: const ColorScheme.dark(
       primary: darkPrimary,
       secondary: darkSecondary,
@@ -101,32 +129,60 @@ class AppTheme {
       onSurface: darkTextPrimary,
       onError: darkTextPrimary,
     ),
-    
+
     appBarTheme: const AppBarTheme(
       backgroundColor: darkBackground,
       foregroundColor: darkTextPrimary,
       elevation: 0,
       centerTitle: true,
     ),
-    
+
     cardTheme: CardThemeData(
       color: darkCardBackground,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
-    
+
     textTheme: const TextTheme(
-      displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: darkTextPrimary),
-      displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: darkTextPrimary),
-      displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: darkTextPrimary),
-      headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkTextPrimary),
-      titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkTextPrimary),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: darkTextPrimary),
+      displayLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: darkTextPrimary,
+      ),
+      displayMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: darkTextPrimary,
+      ),
+      displaySmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: darkTextPrimary,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: darkTextPrimary,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: darkTextPrimary,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: darkTextPrimary,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: darkTextPrimary),
       bodyMedium: TextStyle(fontSize: 14, color: darkTextSecondary),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: darkTextPrimary),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: darkTextPrimary,
+      ),
     ),
-    
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: darkPrimary,
@@ -136,14 +192,16 @@ class AppTheme {
         elevation: 0,
       ),
     ),
-    
+
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
   );
 
   // ========== HELPER METHODS ==========
   static BoxShadow cardShadow(bool isDark) {
     return BoxShadow(
-      color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.08),
+      color: isDark
+          ? Colors.black.withValues(alpha: 0.3)
+          : Colors.black.withValues(alpha: 0.08),
       blurRadius: 20,
       offset: const Offset(0, 4),
     );
@@ -153,15 +211,23 @@ class AppTheme {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
-        color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.black.withValues(alpha: 0.05),
         width: 1,
       ),
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: isDark
-            ? [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)]
-            : [Colors.white.withValues(alpha: 0.9), Colors.white.withValues(alpha: 0.7)],
+            ? [
+                Colors.white.withValues(alpha: 0.05),
+                Colors.white.withValues(alpha: 0.02),
+              ]
+            : [
+                Colors.white.withValues(alpha: 0.9),
+                Colors.white.withValues(alpha: 0.7),
+              ],
       ),
       boxShadow: [cardShadow(isDark)],
     );

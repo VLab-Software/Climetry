@@ -42,26 +42,19 @@ class _AnimatedGlassCardState extends State<AnimatedGlassCard>
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-    _opacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-    ));
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
       if (mounted) {
@@ -186,11 +179,7 @@ class PulseBadge extends StatefulWidget {
   final String text;
   final Color color;
 
-  const PulseBadge({
-    super.key,
-    required this.text,
-    required this.color,
-  });
+  const PulseBadge({super.key, required this.text, required this.color});
 
   @override
   State<PulseBadge> createState() => _PulseBadgeState();
@@ -209,9 +198,10 @@ class _PulseBadgeState extends State<PulseBadge>
       vsync: this,
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -295,7 +285,8 @@ class _ShimmerButtonState extends State<ShimmerButton>
         return ElevatedButton(
           onPressed: widget.onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.primary,
+            backgroundColor:
+                widget.backgroundColor ?? Theme.of(context).colorScheme.primary,
             foregroundColor: widget.textColor ?? Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             shape: RoundedRectangleBorder(
@@ -392,11 +383,7 @@ class _RotatingIconState extends State<RotatingIcon>
       builder: (context, child) {
         return Transform.rotate(
           angle: _controller.value * 2 * math.pi,
-          child: Icon(
-            widget.icon,
-            color: widget.color,
-            size: widget.size,
-          ),
+          child: Icon(widget.icon, color: widget.color, size: widget.size),
         );
       },
     );

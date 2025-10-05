@@ -11,13 +11,14 @@ class NotificationSettings {
     this.smsNotifications = false,
     Map<String, bool>? disasterTypes,
     this.monitoringRadius = 30.0,
-  }) : disasterTypes = disasterTypes ??
-            {
-              'flood': false,
-              'severeStorm': false,
-              'frost': false,
-              'wildfire': false,
-            };
+  }) : disasterTypes =
+           disasterTypes ??
+           {
+             'flood': false,
+             'severeStorm': false,
+             'frost': false,
+             'wildfire': false,
+           };
 
   NotificationSettings copyWith({
     bool? pushNotifications,

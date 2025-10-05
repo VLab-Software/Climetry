@@ -31,21 +31,22 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
   Future<void> _loadAIInsights() async {
     setState(() => _loadingInsights = true);
-    
+
     try {
       // Encontrar o clima do dia do alerta
       final alertWeather = widget.forecast.firstWhere(
-        (w) => w.date.day == widget.alert.date.day &&
-               w.date.month == widget.alert.date.month,
+        (w) =>
+            w.date.day == widget.alert.date.day &&
+            w.date.month == widget.alert.date.month,
         orElse: () => widget.forecast.first,
       );
-      
+
       final insights = await _aiService.generateAlertInsights(
         alert: widget.alert,
         weather: alertWeather,
         location: 'São Paulo, SP', // TODO: pegar localização real
       );
-      
+
       setState(() {
         _aiInsights = insights;
         _loadingInsights = false;
@@ -98,11 +99,11 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
   List<FlSpot> _getChartData() {
     final data = <FlSpot>[];
-    
+
     for (int i = 0; i < widget.forecast.length && i < 7; i++) {
       final day = widget.forecast[i];
       double value = 0;
-      
+
       switch (widget.alert.type) {
         case WeatherAlertType.heatWave:
         case WeatherAlertType.thermalDiscomfort:
@@ -122,10 +123,10 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
         default:
           value = day.maxTemp;
       }
-      
+
       data.add(FlSpot(i.toDouble(), value));
     }
-    
+
     return data;
   }
 
@@ -150,7 +151,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final alertColor = _getAlertColor();
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF1E2A3A),
       appBar: AppBar(
@@ -257,9 +258,9 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Gráfico de Evolução
             const Text(
               'Evolução nos Próximos Dias',
@@ -278,7 +279,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             Container(
               height: 250,
               padding: const EdgeInsets.all(20),
@@ -321,7 +322,9 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
-                          if (index >= 0 && index < widget.forecast.length && index < 7) {
+                          if (index >= 0 &&
+                              index < widget.forecast.length &&
+                              index < 7) {
                             final date = widget.forecast[index].date;
                             return Padding(
                               padding: const EdgeInsets.only(top: 8),
@@ -350,11 +353,11 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                         show: true,
                         getDotPainter: (spot, percent, barData, index) =>
                             FlDotCirclePainter(
-                          radius: 5,
-                          color: alertColor,
-                          strokeWidth: 2,
-                          strokeColor: const Color(0xFF2A3A4D),
-                        ),
+                              radius: 5,
+                              color: alertColor,
+                              strokeWidth: 2,
+                              strokeColor: const Color(0xFF2A3A4D),
+                            ),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
@@ -388,9 +391,9 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Insights da IA
             Row(
               children: [
@@ -404,7 +407,10 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF4A9EFF).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -427,7 +433,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -462,9 +468,9 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Recomendações
             const Text(
               'Recomendações',
@@ -475,7 +481,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             ..._buildRecommendations(),
           ],
         ),
@@ -485,12 +491,15 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
   List<Widget> _buildRecommendations() {
     final recommendations = <Map<String, String>>[];
-    
+
     switch (widget.alert.type) {
       case WeatherAlertType.heatWave:
       case WeatherAlertType.thermalDiscomfort:
         recommendations.addAll([
-          {'icon': '💧', 'text': 'Mantenha-se hidratado, beba água regularmente'},
+          {
+            'icon': '💧',
+            'text': 'Mantenha-se hidratado, beba água regularmente',
+          },
           {'icon': '🌳', 'text': 'Evite exposição ao sol entre 10h e 16h'},
           {'icon': '👕', 'text': 'Use roupas leves e de cores claras'},
           {'icon': '🧴', 'text': 'Aplique protetor solar com FPS 30 ou maior'},
@@ -502,7 +511,10 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
           {'icon': '🧥', 'text': 'Vista-se em camadas para manter o calor'},
           {'icon': '🏠', 'text': 'Proteja plantas sensíveis ao frio'},
           {'icon': '🚗', 'text': 'Cuidado com gelo nas estradas pela manhã'},
-          {'icon': '☕', 'text': 'Consuma bebidas quentes para manter a temperatura'},
+          {
+            'icon': '☕',
+            'text': 'Consuma bebidas quentes para manter a temperatura',
+          },
         ]);
         break;
       case WeatherAlertType.heavyRain:
@@ -532,36 +544,34 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
         ]);
         break;
     }
-    
-    return recommendations.map((rec) => Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A3A4D),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            rec['icon']!,
-            style: const TextStyle(fontSize: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              rec['text']!,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+
+    return recommendations
+        .map(
+          (rec) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A3A4D),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 1,
               ),
             ),
+            child: Row(
+              children: [
+                Text(rec['icon']!, style: const TextStyle(fontSize: 24)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    rec['text']!,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
-    )).toList();
+        )
+        .toList();
   }
 }

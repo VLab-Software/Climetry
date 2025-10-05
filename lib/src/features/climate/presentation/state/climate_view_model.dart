@@ -22,11 +22,26 @@ class ClimateViewModel extends ChangeNotifier {
     // variáveis default
     _apiVariables = [
       ClimateVariable('Temperature', 't_2m:C', Icons.thermostat_outlined, true),
-      ClimateVariable('Precipitation', 'precip_1h:mm', Icons.water_drop_outlined, false),
+      ClimateVariable(
+        'Precipitation',
+        'precip_1h:mm',
+        Icons.water_drop_outlined,
+        false,
+      ),
       ClimateVariable('Wind Speed', 'wind_speed_10m:ms', Icons.waves, false),
-      ClimateVariable('Humidity', 'relative_humidity_2m:p', Icons.water_outlined, false),
+      ClimateVariable(
+        'Humidity',
+        'relative_humidity_2m:p',
+        Icons.water_outlined,
+        false,
+      ),
       ClimateVariable('Pressure', 'msl_pressure:hPa', Icons.speed, false),
-      ClimateVariable('Cloud Cover', 'total_cloud_cover:p', Icons.cloud_outlined, false),
+      ClimateVariable(
+        'Cloud Cover',
+        'total_cloud_cover:p',
+        Icons.cloud_outlined,
+        false,
+      ),
       ClimateVariable('UV Index', 'uv:idx', Icons.wb_sunny_outlined, false),
       ClimateVariable('Visibility', 'visibility:m', Icons.visibility, false),
       ClimateVariable('Dew Point', 'dew_point_2m:C', Icons.opacity, false),

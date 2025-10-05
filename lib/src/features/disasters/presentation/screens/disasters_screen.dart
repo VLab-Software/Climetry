@@ -17,10 +17,11 @@ class DisastersScreen extends StatefulWidget {
   State<DisastersScreen> createState() => _DisastersScreenState();
 }
 
-class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAliveClientMixin {
+class _DisastersScreenState extends State<DisastersScreen>
+    with AutomaticKeepAliveClientMixin {
   final MeteomaticsService _weatherService = MeteomaticsService();
   final AlertPreferencesRepository _prefsRepo = AlertPreferencesRepository();
-  
+
   List<WeatherAlert> _alerts = [];
   List<DailyWeather> _forecast = [];
   Set<WeatherAlertType> _enabledAlerts = {};
@@ -43,7 +44,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
     try {
       final enabledAlerts = await _prefsRepo.getEnabledAlerts();
       final locationData = await _prefsRepo.getMonitoringLocation();
-      
+
       if (!mounted) return;
       setState(() {
         _enabledAlerts = enabledAlerts;
@@ -55,7 +56,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
           _locationName = locationData['name'];
         }
       });
-      
+
       await _loadAlerts();
     } catch (e) {
       if (!mounted) return;
@@ -67,11 +68,15 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
     if (!mounted) return;
     setState(() => _loading = true);
     try {
-      final forecast = await _weatherService.getWeeklyForecast(_monitoringLocation);
+      final forecast = await _weatherService.getWeeklyForecast(
+        _monitoringLocation,
+      );
       final allAlerts = _weatherService.calculateWeatherAlerts(forecast);
-      
-      final alerts = allAlerts.where((alert) => _enabledAlerts.contains(alert.type)).toList();
-      
+
+      final alerts = allAlerts
+          .where((alert) => _enabledAlerts.contains(alert.type))
+          .toList();
+
       if (!mounted) return;
       setState(() {
         _alerts = alerts;
@@ -91,7 +96,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
     } else {
       newEnabled.remove(type);
     }
-    
+
     try {
       await _prefsRepo.saveEnabledAlerts(newEnabled);
       if (!mounted) return;
@@ -104,7 +109,9 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
             content: Text('Erro: $e'),
             backgroundColor: Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -124,7 +131,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
         ),
       ),
     );
-    
+
     if (result != null) {
       try {
         await _prefsRepo.saveMonitoringLocation(
@@ -132,30 +139,32 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
           result['location'].longitude,
           result['name'],
         );
-        
+
         if (!mounted) return;
         setState(() {
           _monitoringLocation = result['location'];
           _locationName = result['name'];
         });
-        
+
         await _loadAlerts();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('📍 Localização alterada para $_locationName'),
               backgroundColor: Color(0xFF3B82F6),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Erro: $e')));
         }
       }
     }
@@ -200,10 +209,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                   },
                   title: Row(
                     children: [
-                      Text(
-                        _getAlertIcon(type),
-                        style: TextStyle(fontSize: 20),
-                      ),
+                      Text(_getAlertIcon(type), style: TextStyle(fontSize: 20)),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -235,10 +241,14 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
 
   Color _getAlertColor(WeatherAlertType type) {
     return switch (type) {
-      WeatherAlertType.heatWave || WeatherAlertType.thermalDiscomfort => Color(0xFFF59E0B),
-      WeatherAlertType.intenseCold || WeatherAlertType.frostRisk => Color(0xFF3B82F6),
-      WeatherAlertType.heavyRain || WeatherAlertType.floodRisk => Color(0xFFEF4444),
-      WeatherAlertType.severeStorm || WeatherAlertType.hailRisk => Color(0xFF8B5CF6),
+      WeatherAlertType.heatWave ||
+      WeatherAlertType.thermalDiscomfort => Color(0xFFF59E0B),
+      WeatherAlertType.intenseCold ||
+      WeatherAlertType.frostRisk => Color(0xFF3B82F6),
+      WeatherAlertType.heavyRain ||
+      WeatherAlertType.floodRisk => Color(0xFFEF4444),
+      WeatherAlertType.severeStorm ||
+      WeatherAlertType.hailRisk => Color(0xFF8B5CF6),
       WeatherAlertType.strongWind => Color(0xFF06B6D4),
     };
   }
@@ -257,9 +267,10 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.themeMode == ThemeMode.dark ||
+    final isDark =
+        themeProvider.themeMode == ThemeMode.dark ||
         (themeProvider.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
@@ -277,9 +288,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
 
             // Stats cards
             if (!_loading && _alerts.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildStatsCards(isDark),
-              ),
+              SliverToBoxAdapter(child: _buildStatsCards(isDark)),
 
             // Lista de alertas
             if (_loading)
@@ -302,19 +311,17 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                 ),
               )
             else if (_alerts.isEmpty)
-              SliverFillRemaining(
-                child: _buildEmptyState(isDark),
-              )
+              SliverFillRemaining(child: _buildEmptyState(isDark))
             else
               SliverPadding(
                 padding: EdgeInsets.all(20),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return _buildModernAlertCard(_filteredAlerts[index], isDark);
-                    },
-                    childCount: _filteredAlerts.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return _buildModernAlertCard(
+                      _filteredAlerts[index],
+                      isDark,
+                    );
+                  }, childCount: _filteredAlerts.length),
                 ),
               ),
 
@@ -384,10 +391,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                       if (_alerts.isNotEmpty)
                         Text(
                           '$criticalCount alertas ativos',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                     ],
                   ),
@@ -419,7 +423,9 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                     ),
                     child: IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                        isDark
+                            ? Icons.light_mode_outlined
+                            : Icons.dark_mode_outlined,
                         color: isDark ? Colors.white : Color(0xFF1F2937),
                         size: 20,
                       ),
@@ -447,11 +453,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 20,
-                    color: Color(0xFF3B82F6),
-                  ),
+                  Icon(Icons.location_on, size: 20, color: Color(0xFF3B82F6)),
                   SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -491,20 +493,32 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
   }
 
   Widget _buildStatsCards(bool isDark) {
-    final critical = _alerts.where((a) =>
-        a.type == WeatherAlertType.floodRisk ||
-        a.type == WeatherAlertType.severeStorm ||
-        a.type == WeatherAlertType.hailRisk).length;
+    final critical = _alerts
+        .where(
+          (a) =>
+              a.type == WeatherAlertType.floodRisk ||
+              a.type == WeatherAlertType.severeStorm ||
+              a.type == WeatherAlertType.hailRisk,
+        )
+        .length;
 
-    final warning = _alerts.where((a) =>
-        a.type == WeatherAlertType.heavyRain ||
-        a.type == WeatherAlertType.heatWave ||
-        a.type == WeatherAlertType.strongWind).length;
+    final warning = _alerts
+        .where(
+          (a) =>
+              a.type == WeatherAlertType.heavyRain ||
+              a.type == WeatherAlertType.heatWave ||
+              a.type == WeatherAlertType.strongWind,
+        )
+        .length;
 
-    final info = _alerts.where((a) =>
-        a.type == WeatherAlertType.thermalDiscomfort ||
-        a.type == WeatherAlertType.intenseCold ||
-        a.type == WeatherAlertType.frostRisk).length;
+    final info = _alerts
+        .where(
+          (a) =>
+              a.type == WeatherAlertType.thermalDiscomfort ||
+              a.type == WeatherAlertType.intenseCold ||
+              a.type == WeatherAlertType.frostRisk,
+        )
+        .length;
 
     return Container(
       margin: EdgeInsets.all(20),
@@ -520,17 +534,20 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
     );
   }
 
-  Widget _buildStatCard(String emoji, int count, String label, Color color, bool isDark) {
+  Widget _buildStatCard(
+    String emoji,
+    int count,
+    String label,
+    Color color,
+    bool isDark,
+  ) {
     return Expanded(
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1,
-          ),
+          border: Border.all(color: color.withOpacity(0.2), width: 1),
         ),
         child: Column(
           children: [
@@ -584,10 +601,8 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => AlertDetailsScreen(
-                  alert: alert,
-                  forecast: _forecast,
-                ),
+                builder: (_) =>
+                    AlertDetailsScreen(alert: alert, forecast: _forecast),
               ),
             );
           },
@@ -605,10 +620,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                         color: color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        icon,
-                        style: TextStyle(fontSize: 24),
-                      ),
+                      child: Text(icon, style: TextStyle(fontSize: 24)),
                     ),
                     SizedBox(width: 12),
                     Expanded(
@@ -626,19 +638,12 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                           SizedBox(height: 4),
                           Text(
                             dateFormat.format(alert.date),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                   ],
                 ),
                 SizedBox(height: 12),
@@ -650,11 +655,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: color,
-                      ),
+                      Icon(Icons.info_outline, size: 16, color: color),
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -674,7 +675,10 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                   Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
                           borderRadius: BorderRadius.circular(8),
@@ -682,11 +686,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.speed,
-                              size: 14,
-                              color: color,
-                            ),
+                            Icon(Icons.speed, size: 14, color: color),
                             SizedBox(width: 6),
                             Text(
                               '${alert.value!.toStringAsFixed(1)} ${alert.unit ?? ''}',
@@ -702,9 +702,14 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
                       if (alert.daysInSequence > 1) ...[
                         SizedBox(width: 8),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
+                            color: isDark
+                                ? Color(0xFF374151)
+                                : Color(0xFFF3F4F6),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -757,10 +762,7 @@ class _DisastersScreenState extends State<DisastersScreen> with AutomaticKeepAli
           SizedBox(height: 8),
           Text(
             'Clima está favorável em $_locationName',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 24),

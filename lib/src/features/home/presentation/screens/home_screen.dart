@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/user_data_service.dart';
-import '../../../../core/services/location_service.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/theme_provider.dart';
-import '../../../disasters/presentation/widgets/location_picker_widget.dart';
+import '../../../../core/providers/event_refresh_notifier.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
+import '../../../weather/domain/entities/daily_weather.dart';
+import '../../../activities/domain/entities/activity.dart';
+import '../../../activities/presentation/widgets/participants_avatars.dart';
+import '../widgets/notifications_sheet.dart';
 import 'event_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,17 +19,19 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   final UserDataService _userDataService = UserDataService();
-  final LocationService _locationService = LocationService();
-  final EventWeatherPredictionService _predictionService = EventWeatherPredictionService();
-  
+  final EventWeatherPredictionService _predictionService =
+      EventWeatherPredictionService();
+
   List<EventWeatherAnalysis> _analyses = [];
+  List<EventWeatherAnalysis> _filteredAnalyses = [];
   bool _loading = true;
-  bool _loadingLocation = false;
-  String _locationName = 'Carregando...';
-  LatLng _location = const LatLng(-23.5505, -46.6333);
-  
+
+  // Filtros
+  String _selectedFilter = 'time'; // 'time', 'distance', 'priority'
+
   // Manter estado ao trocar de tab
   @override
   bool get wantKeepAlive => true;
@@ -34,57 +39,55 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   @override
   void initState() {
     super.initState();
-    _loadLocation();
+    _loadEventsPredictions();
+
+    // Escutar mudanças nos eventos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final eventRefreshNotifier = Provider.of<EventRefreshNotifier>(
+        context,
+        listen: false,
+      );
+      eventRefreshNotifier.addListener(_onEventsChanged);
+    });
   }
 
-  Future<void> _loadLocation() async {
-    if (!mounted) return;
-    setState(() => _loadingLocation = true);
-    
-    try {
-      final locationData = await _locationService.getActiveLocation();
-      
-      if (!mounted) return;
-      setState(() {
-        _location = locationData['coordinates'] as LatLng;
-        _locationName = locationData['name'] as String;
-        _loadingLocation = false;
-      });
-      
-      await _loadEventsPredictions();
-    } catch (e) {
-      debugPrint('Erro ao carregar localização: $e');
-      if (!mounted) return;
-      setState(() {
-        _locationName = 'São Paulo';
-        _loadingLocation = false;
-      });
-      await _loadEventsPredictions();
-    }
+  @override
+  void dispose() {
+    final eventRefreshNotifier = Provider.of<EventRefreshNotifier>(
+      context,
+      listen: false,
+    );
+    eventRefreshNotifier.removeListener(_onEventsChanged);
+    super.dispose();
+  }
+
+  void _onEventsChanged() {
+    // Recarregar eventos quando notificado
+    _loadEventsPredictions();
   }
 
   Future<void> _loadEventsPredictions() async {
     if (!mounted) return;
     setState(() => _loading = true);
-    
+
     try {
       // Carregar eventos dos próximos 6 meses
       final events = await _userDataService.getActivities();
-      
+
       // Filtrar eventos futuros (até 6 meses)
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
-      
+
       final upcomingEvents = events.where((event) {
         return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
       }).toList();
-      
+
       // Ordenar por data
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
-      
+
       // Analisar clima para cada evento (até 10 eventos mais próximos)
       final eventsToAnalyze = upcomingEvents.take(10).toList();
-      
+
       // Analisar cada evento individualmente
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
@@ -95,11 +98,13 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           debugPrint('Erro ao analisar evento ${event.title}: $e');
         }
       }
-      
+
       if (!mounted) return;
       setState(() {
         _analyses = analyses;
+        _filteredAnalyses = analyses;
         _loading = false;
+        _applyFilter();
       });
     } catch (e) {
       debugPrint('Erro ao carregar previsões: $e');
@@ -108,59 +113,53 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     }
   }
 
-  Future<void> _changeLocation() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LocationPickerWidget(
-          initialLocation: _location,
-          initialLocationName: _locationName,
-        ),
-      ),
-    );
+  void _applyFilter() {
+    List<EventWeatherAnalysis> filtered = List.from(_analyses);
 
-    if (result != null && mounted) {
-      final newLocation = result['location'] as LatLng;
-      final newName = result['name'] as String;
-      
-      await _locationService.saveCustomLocation(
-        latitude: newLocation.latitude,
-        longitude: newLocation.longitude,
-        name: newName,
-      );
-      
-      if (!mounted) return;
-      setState(() {
-        _location = newLocation;
-        _locationName = newName;
-      });
-      
-      await _loadEventsPredictions();
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('📍 Localização alterada para $newName'),
-            backgroundColor: const Color(0xFF3B82F6),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
+    switch (_selectedFilter) {
+      case 'time':
+        // Ordenar por proximidade de tempo (já está ordenado por data)
+        filtered.sort((a, b) => a.activity.date.compareTo(b.activity.date));
+        break;
+      case 'distance':
+        // TODO: Ordenar por proximidade geográfica (requer localização do usuário)
+        // Por enquanto, manter ordem atual
+        break;
+      case 'priority':
+        // Ordenar por prioridade (Crítica > Alta > Média > Baixa)
+        filtered.sort((a, b) {
+          final priorityOrder = {
+            ActivityPriority.urgent: 0,
+            ActivityPriority.high: 1,
+            ActivityPriority.medium: 2,
+            ActivityPriority.low: 3,
+          };
+          return (priorityOrder[a.activity.priority] ?? 999).compareTo(
+            priorityOrder[b.activity.priority] ?? 999,
+          );
+        });
+        break;
     }
+
+    setState(() {
+      _filteredAnalyses = filtered;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context); // Necessário para AutomaticKeepAliveClientMixin
-    
+
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.themeMode == ThemeMode.dark ||
+    final isDark =
+        themeProvider.themeMode == ThemeMode.dark ||
         (themeProvider.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF111827) : const Color(0xFFF9FAFB),
+      backgroundColor: isDark
+          ? const Color(0xFF111827)
+          : const Color(0xFFF9FAFB),
       body: RefreshIndicator(
         onRefresh: _loadEventsPredictions,
         color: const Color(0xFF3B82F6),
@@ -220,11 +219,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Adicione eventos na aba Agenda',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                        'Adicione eventos na aba Eventos',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -234,12 +230,12 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               SliverPadding(
                 padding: const EdgeInsets.all(20.0),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return _buildModernEventCard(_analyses[index], isDark);
-                    },
-                    childCount: _analyses.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return _buildModernEventCard(
+                      _filteredAnalyses[index],
+                      isDark,
+                    );
+                  }, childCount: _filteredAnalyses.length),
                 ),
               ),
 
@@ -252,10 +248,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildModernHeader(bool isDark, ThemeProvider themeProvider) {
-    final criticalCount = _analyses.where((a) => a.risk == EventWeatherRisk.critical).length;
-    final warningCount = _analyses.where((a) => a.risk == EventWeatherRisk.warning).length;
-    final safeCount = _analyses.where((a) => a.risk == EventWeatherRisk.safe).length;
-    
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 20,
@@ -276,179 +268,286 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header clean e minimalista
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Color(0xFF3B82F6).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.home,
-                      color: Color(0xFF3B82F6),
-                      size: 24,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Climetry',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Color(0xFF1F2937),
-                        ),
-                      ),
-                      Text(
-                        'Gestão Inteligente de Eventos',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xFF3B82F6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.home, color: Color(0xFF3B82F6), size: 24),
               ),
-              Row(
-                children: [
-                  // Tema
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Início',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : Color(0xFF1F2937),
-                        size: 20,
                       ),
-                      onPressed: () => themeProvider.toggleTheme(),
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  // Localização
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
+                    Text(
+                      'Clima sob controle',
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
-                    child: IconButton(
-                      icon: _loadingLocation
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: isDark ? Colors.white : Color(0xFF1F2937),
-                              ),
-                            )
-                          : Icon(
-                              Icons.location_on_outlined,
-                              color: isDark ? Colors.white : Color(0xFF1F2937),
-                              size: 20,
+                  ],
+                ),
+              ),
+              // Botão de notificações
+              StreamBuilder<int>(
+                stream: NotificationService().getUnreadCountStream(),
+                builder: (context, snapshot) {
+                  final unreadCount = snapshot.data ?? 0;
+
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.notifications_outlined,
+                          color: isDark ? Colors.white : Color(0xFF1F2937),
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => const NotificationsSheet(),
+                          );
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
                             ),
-                      onPressed: _loadingLocation ? null : _changeLocation,
-                    ),
-                  ),
-                ],
+                            constraints: BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Center(
+                              child: Text(
+                                unreadCount > 9 ? '9+' : '$unreadCount',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
-          SizedBox(height: 16),
-          // Localização atual
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Color(0xFF3B82F6).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.location_on,
-                  size: 16,
-                  color: Color(0xFF3B82F6),
+
+          // Espaçamento
+          SizedBox(height: 20),
+
+          // Título "Seus Eventos" com contador e botão de filtro
+          Row(
+            children: [
+              Text(
+                'Seus Eventos',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Color(0xFF1F2937),
                 ),
-                SizedBox(width: 6),
-                Text(
-                  _locationName,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF3B82F6),
+              ),
+              SizedBox(width: 8),
+              Text(
+                '${_analyses.length}',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              Spacer(),
+              // Botão de filtro
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showFilterSheet(isDark),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF3B82F6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.filter_list,
+                          size: 18,
+                          color: Color(0xFF3B82F6),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          _getFilterLabel(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF3B82F6),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          // Resumo inline (sem card separado)
-          if (_analyses.isNotEmpty) ...[
-            SizedBox(height: 16),
-            Row(
-              children: [
-                _buildInlineStat('✅', safeCount, 'Seguros', Color(0xFF10B981)),
-                SizedBox(width: 12),
-                _buildInlineStat('⚠️', warningCount, 'Atenção', Color(0xFFF59E0B)),
-                SizedBox(width: 12),
-                _buildInlineStat('🚨', criticalCount, 'Críticos', Color(0xFFEF4444)),
-              ],
-            ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _buildInlineStat(String emoji, int count, String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(12),
+  String _getFilterLabel() {
+    switch (_selectedFilter) {
+      case 'time':
+        return 'Tempo';
+      case 'distance':
+        return 'Distância';
+      case 'priority':
+        return 'Prioridade';
+      default:
+        return 'Filtro';
+    }
+  }
+
+  void _showFilterSheet(bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1,
-          ),
+          color: isDark ? Color(0xFF1F2937) : Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(emoji, style: TextStyle(fontSize: 16)),
-                SizedBox(width: 4),
-                Text(
-                  count.toString(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ],
+            // Handle
+            Container(
+              margin: EdgeInsets.only(top: 12, bottom: 16),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: color,
+            
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ordenar eventos',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Color(0xFF1F2937),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  
+                  _buildFilterOption(
+                    icon: Icons.access_time,
+                    title: 'Proximidade de tempo',
+                    subtitle: 'Eventos mais próximos primeiro',
+                    value: 'time',
+                    isDark: isDark,
+                  ),
+                  
+                  _buildFilterOption(
+                    icon: Icons.location_on,
+                    title: 'Proximidade de distância',
+                    subtitle: 'Eventos mais perto de você',
+                    value: 'distance',
+                    isDark: isDark,
+                  ),
+                  
+                  _buildFilterOption(
+                    icon: Icons.priority_high,
+                    title: 'Por prioridade',
+                    subtitle: 'Eventos urgentes primeiro',
+                    value: 'priority',
+                    isDark: isDark,
+                  ),
+                  
+                  SizedBox(height: 20),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String value,
+    required bool isDark,
+  }) {
+    final isSelected = _selectedFilter == value;
+    
+    return ListTile(
+      leading: Container(
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Color(0xFF3B82F6).withOpacity(0.1)
+              : Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? Color(0xFF3B82F6) : Colors.grey,
+        ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isDark ? Colors.white : Color(0xFF1F2937),
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey,
+        ),
+      ),
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: Color(0xFF3B82F6))
+          : null,
+      onTap: () {
+        setState(() {
+          _selectedFilter = value;
+          _applyFilter();
+        });
+        Navigator.pop(context);
+      },
     );
   }
 
@@ -507,7 +606,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: riskColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -541,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Data e hora
                   Row(
                     children: [
@@ -576,7 +678,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       ],
                     ],
                   ),
-                  
+
                   if (event.location.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Row(
@@ -601,34 +703,26 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                   ],
 
-                  // Previsão do clima
+                  // Previsão do clima (customizada baseada em monitoredConditions)
                   if (analysis.weather != null) ...[
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6),
+                        color: isDark
+                            ? const Color(0xFF374151)
+                            : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildWeatherMetric(
-                            Icons.thermostat,
-                            '${analysis.weather!.meanTemp.toStringAsFixed(0)}°C',
-                            isDark,
-                          ),
-                          _buildWeatherMetric(
-                            Icons.water_drop,
-                            '${analysis.weather!.precipitation.toStringAsFixed(0)}mm',
-                            isDark,
-                          ),
-                          _buildWeatherMetric(
-                            Icons.air,
-                            '${analysis.weather!.windSpeed.toStringAsFixed(0)} km/h',
-                            isDark,
-                          ),
-                        ],
+                      child: Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.spaceAround,
+                        children: _buildCustomWeatherMetrics(
+                          event,
+                          analysis.weather!,
+                          isDark,
+                        ),
                       ),
                     ),
                   ],
@@ -641,7 +735,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       runSpacing: 6,
                       children: analysis.alerts.take(2).map((alert) {
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: riskColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -673,6 +770,14 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       }).toList(),
                     ),
                   ],
+
+                  // Participantes
+                  const SizedBox(height: 12),
+                  ParticipantsAvatars(
+                    activity: event,
+                    maxAvatars: 3,
+                    avatarSize: 28,
+                  ),
                 ],
               ),
             ),
@@ -682,15 +787,90 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     );
   }
 
+  List<Widget> _buildCustomWeatherMetrics(
+    Activity event,
+    DailyWeather weather,
+    bool isDark,
+  ) {
+    final List<Widget> metrics = [];
+
+    // Verificar quais condições o usuário quer monitorar
+    for (final condition in event.monitoredConditions) {
+      switch (condition) {
+        case WeatherCondition.temperature:
+          metrics.add(
+            _buildWeatherMetric(
+              Icons.thermostat,
+              '${weather.meanTemp.toStringAsFixed(0)}°C',
+              isDark,
+            ),
+          );
+          break;
+        case WeatherCondition.rain:
+          metrics.add(
+            _buildWeatherMetric(
+              Icons.water_drop,
+              '${weather.precipitation.toStringAsFixed(0)}mm',
+              isDark,
+            ),
+          );
+          break;
+        case WeatherCondition.wind:
+          metrics.add(
+            _buildWeatherMetric(
+              Icons.air,
+              '${weather.windSpeed.toStringAsFixed(0)} km/h',
+              isDark,
+            ),
+          );
+          break;
+        case WeatherCondition.humidity:
+          metrics.add(
+            _buildWeatherMetric(
+              Icons.water,
+              '${weather.humidity.toStringAsFixed(0)}%',
+              isDark,
+            ),
+          );
+          break;
+        case WeatherCondition.uv:
+          metrics.add(
+            _buildWeatherMetric(
+              Icons.wb_sunny,
+              'UV ${weather.uvIndex.toStringAsFixed(0)}',
+              isDark,
+            ),
+          );
+          break;
+      }
+    }
+
+    // Se nenhuma condição foi selecionada, mostrar temperatura e chuva por padrão
+    if (metrics.isEmpty) {
+      metrics.add(
+        _buildWeatherMetric(
+          Icons.thermostat,
+          '${weather.meanTemp.toStringAsFixed(0)}°C',
+          isDark,
+        ),
+      );
+      metrics.add(
+        _buildWeatherMetric(
+          Icons.water_drop,
+          '${weather.precipitation.toStringAsFixed(0)}mm',
+          isDark,
+        ),
+      );
+    }
+
+    return metrics;
+  }
+
   Widget _buildWeatherMetric(IconData icon, String value, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: isDark ? Colors.white70 : Colors.black54,
-        ),
+        Icon(icon, size: 16, color: isDark ? Colors.white70 : Colors.black54),
         const SizedBox(width: 4),
         Text(
           value,
@@ -705,14 +885,27 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   }
 
   String _formatDate(DateTime date) {
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const months = [
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
+    ];
     return '${date.day} de ${months[date.month - 1]} de ${date.year}';
   }
 
   String _formatDaysUntil(DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
-    
+
     if (difference == 0) return 'Hoje';
     if (difference == 1) return 'Amanhã';
     if (difference < 7) return 'Em $difference dias';
@@ -747,4 +940,5 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       WeatherAlertType.hailRisk => 'Granizo',
     };
   }
+
 }

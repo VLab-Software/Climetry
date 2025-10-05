@@ -19,7 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _userDataService = UserDataService();
   final _locationService = LocationService();
   String _appVersion = '1.0.0';
-  
+
   Map<String, dynamic> _preferences = {};
   User? _currentUser;
   bool _isLoading = true;
@@ -39,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (_currentUser != null) {
         _preferences = await _userDataService.getPreferences();
       }
-      
+
       // Carregar configurações de localização
       _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
       final savedLocation = await _locationService.getSavedLocation();
@@ -127,7 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Excluir Conta', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Excluir Conta',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Esta ação é permanente! Todos os seus dados serão excluídos. Deseja continuar?',
           style: TextStyle(color: Colors.white70),
@@ -152,7 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await _userDataService.deleteAllUserData();
         // Deletar conta do Firebase Auth
         await _authService.deleteAccount();
-        
+
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const WelcomeScreen()),
@@ -162,10 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -187,7 +187,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Localização Salva', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Localização Salva',
+          style: TextStyle(color: Colors.white),
+        ),
         content: Text(
           _savedLocationName ?? 'Nenhuma localização salva',
           style: const TextStyle(color: Colors.white70),
@@ -222,12 +225,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // TODO: Implementar seleção de localização com Google Maps
     // Por enquanto, mostrar um diálogo simples
     final controller = TextEditingController();
-    
+
     final locationName = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A3A4D),
-        title: const Text('Adicionar Localização', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Adicionar Localização',
+          style: TextStyle(color: Colors.white),
+        ),
         content: TextField(
           controller: controller,
           style: const TextStyle(color: Colors.white),
@@ -264,7 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _changePassword() async {
     final controller = TextEditingController();
-    
+
     final newPassword = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -312,10 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -342,7 +345,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Padding para floating tab bar
+        padding: const EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          100,
+        ), // Padding para floating tab bar
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -391,19 +399,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               '🌡️',
               'Temperatura',
               _preferences['temperatureUnit'] ?? 'Celsius (°C)',
-              () => _showUnitDialog('Temperatura', 'temperatureUnit', ['Celsius (°C)', 'Fahrenheit (°F)']),
+              () => _showUnitDialog('Temperatura', 'temperatureUnit', [
+                'Celsius (°C)',
+                'Fahrenheit (°F)',
+              ]),
             ),
             _buildSettingCard(
               '💨',
               'Velocidade do Vento',
               _preferences['windSpeedUnit'] ?? 'km/h',
-              () => _showUnitDialog('Velocidade do Vento', 'windSpeedUnit', ['km/h', 'm/s', 'mph']),
+              () => _showUnitDialog('Velocidade do Vento', 'windSpeedUnit', [
+                'km/h',
+                'm/s',
+                'mph',
+              ]),
             ),
             _buildSettingCard(
               '☔',
               'Precipitação',
               _preferences['precipitationUnit'] ?? 'milímetros (mm)',
-              () => _showUnitDialog('Precipitação', 'precipitationUnit', ['milímetros (mm)', 'polegadas (in)']),
+              () => _showUnitDialog('Precipitação', 'precipitationUnit', [
+                'milímetros (mm)',
+                'polegadas (in)',
+              ]),
             ),
             const SizedBox(height: 24),
 
@@ -420,17 +438,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _savePreferences();
               },
             ),
-            _buildSwitchCard(
-              '�',
-              'Som',
-              _preferences['soundEnabled'] == true,
-              (value) {
-                setState(() {
-                  _preferences['soundEnabled'] = value;
-                });
-                _savePreferences();
-              },
-            ),
+            _buildSwitchCard('�', 'Som', _preferences['soundEnabled'] == true, (
+              value,
+            ) {
+              setState(() {
+                _preferences['soundEnabled'] = value;
+              });
+              _savePreferences();
+            }),
             _buildSwitchCard(
               '�',
               'Vibração',
@@ -446,12 +461,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Sobre
             _buildSectionTitle('Sobre'),
-            _buildSettingCard(
-              '📱',
-              'Versão do App',
-              _appVersion,
-              null,
-            ),
+            _buildSettingCard('📱', 'Versão do App', _appVersion, null),
             const SizedBox(height: 24),
 
             // Botões de ação
@@ -462,7 +472,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _logout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4A9EFF),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -477,10 +490,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _deleteAccount,
                     child: const Text(
                       'Excluir Conta',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.red, fontSize: 16),
                     ),
                   ),
                 ],
@@ -615,10 +625,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 if (onTap != null)
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Colors.white38,
-                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white38),
               ],
             ),
           ),
@@ -657,10 +664,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
           Switch(
@@ -673,16 +677,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showUnitDialog(String title, String preferenceKey, List<String> options) {
+  void _showUnitDialog(
+    String title,
+    String preferenceKey,
+    List<String> options,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF2A3A4D),
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.white),
-          ),
+          title: Text(title, style: const TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: options.map((option) {

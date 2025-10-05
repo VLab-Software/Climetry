@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../friends/domain/entities/friend.dart';
 
 enum ActivityType {
   sport,
@@ -43,6 +44,110 @@ enum ActivityType {
   }
 }
 
+enum ActivityPriority {
+  low,
+  medium,
+  high,
+  urgent;
+
+  String get label {
+    switch (this) {
+      case ActivityPriority.low:
+        return 'Baixa';
+      case ActivityPriority.medium:
+        return 'Média';
+      case ActivityPriority.high:
+        return 'Alta';
+      case ActivityPriority.urgent:
+        return 'Crítica';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case ActivityPriority.low:
+        return '🔵';
+      case ActivityPriority.medium:
+        return '🟢';
+      case ActivityPriority.high:
+        return '🟡';
+      case ActivityPriority.urgent:
+        return '🔴';
+    }
+  }
+}
+
+enum RecurrenceType {
+  none,
+  weekly,
+  monthly,
+  yearly;
+
+  String get label {
+    switch (this) {
+      case RecurrenceType.none:
+        return 'Não se repete';
+      case RecurrenceType.weekly:
+        return 'Toda semana';
+      case RecurrenceType.monthly:
+        return 'Todo mês';
+      case RecurrenceType.yearly:
+        return 'Todo ano';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case RecurrenceType.none:
+        return '📅';
+      case RecurrenceType.weekly:
+        return '🔄';
+      case RecurrenceType.monthly:
+        return '📆';
+      case RecurrenceType.yearly:
+        return '🎂';
+    }
+  }
+}
+
+enum WeatherCondition {
+  temperature,
+  rain,
+  wind,
+  humidity,
+  uv;
+
+  String get label {
+    switch (this) {
+      case WeatherCondition.temperature:
+        return 'Temperatura';
+      case WeatherCondition.rain:
+        return 'Chuva';
+      case WeatherCondition.wind:
+        return 'Vento';
+      case WeatherCondition.humidity:
+        return 'Umidade';
+      case WeatherCondition.uv:
+        return 'Índice UV';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case WeatherCondition.temperature:
+        return '🌡️';
+      case WeatherCondition.rain:
+        return '🌧️';
+      case WeatherCondition.wind:
+        return '💨';
+      case WeatherCondition.humidity:
+        return '💧';
+      case WeatherCondition.uv:
+        return '☀️';
+    }
+  }
+}
+
 class Activity {
   final String id;
   final String title;
@@ -56,6 +161,16 @@ class Activity {
   final bool notificationsEnabled;
   final DateTime createdAt;
 
+  // Novos campos
+  final ActivityPriority priority;
+  final List<String> tags;
+  final RecurrenceType recurrence;
+  final List<WeatherCondition> monitoredConditions;
+
+  // Participantes e permissões
+  final String ownerId; // ID do criador do evento
+  final List<EventParticipant> participants;
+
   Activity({
     required this.id,
     required this.title,
@@ -68,6 +183,15 @@ class Activity {
     this.description,
     this.notificationsEnabled = true,
     DateTime? createdAt,
+    this.priority = ActivityPriority.low,
+    this.tags = const [],
+    this.recurrence = RecurrenceType.none,
+    this.monitoredConditions = const [
+      WeatherCondition.temperature,
+      WeatherCondition.rain,
+    ],
+    required this.ownerId,
+    this.participants = const [],
   }) : createdAt = createdAt ?? DateTime.now();
 
   Activity copyWith({
@@ -82,6 +206,12 @@ class Activity {
     String? description,
     bool? notificationsEnabled,
     DateTime? createdAt,
+    ActivityPriority? priority,
+    List<String>? tags,
+    RecurrenceType? recurrence,
+    List<WeatherCondition>? monitoredConditions,
+    String? ownerId,
+    List<EventParticipant>? participants,
   }) {
     return Activity(
       id: id ?? this.id,
@@ -95,6 +225,12 @@ class Activity {
       description: description ?? this.description,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       createdAt: createdAt ?? this.createdAt,
+      priority: priority ?? this.priority,
+      tags: tags ?? this.tags,
+      recurrence: recurrence ?? this.recurrence,
+      monitoredConditions: monitoredConditions ?? this.monitoredConditions,
+      ownerId: ownerId ?? this.ownerId,
+      participants: participants ?? this.participants,
     );
   }
 
@@ -114,6 +250,12 @@ class Activity {
       'description': description,
       'notificationsEnabled': notificationsEnabled,
       'createdAt': createdAt.toIso8601String(),
+      'priority': priority.name,
+      'tags': tags,
+      'recurrence': recurrence.name,
+      'monitoredConditions': monitoredConditions.map((c) => c.name).toList(),
+      'ownerId': ownerId,
+      'participants': participants.map((p) => p.toMap()).toList(),
     };
   }
 
@@ -135,7 +277,129 @@ class Activity {
       ),
       description: json['description'] as String?,
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      priority: json['priority'] != null
+          ? ActivityPriority.values.firstWhere(
+              (e) => e.name == json['priority'],
+              orElse: () => ActivityPriority.low,
+            )
+          : ActivityPriority.low,
+      tags: json['tags'] != null ? List<String>.from(json['tags'] as List) : [],
+      recurrence: json['recurrence'] != null
+          ? RecurrenceType.values.firstWhere(
+              (e) => e.name == json['recurrence'],
+              orElse: () => RecurrenceType.none,
+            )
+          : RecurrenceType.none,
+      monitoredConditions: json['monitoredConditions'] != null
+          ? (json['monitoredConditions'] as List)
+                .map(
+                  (c) => WeatherCondition.values.firstWhere(
+                    (e) => e.name == c,
+                    orElse: () => WeatherCondition.temperature,
+                  ),
+                )
+                .toList()
+          : [WeatherCondition.temperature, WeatherCondition.rain],
+      ownerId: json['ownerId'] as String? ?? '',
+      participants: json['participants'] != null
+          ? (json['participants'] as List)
+                .map((p) => EventParticipant.fromMap(p as Map<String, dynamic>))
+                .toList()
+          : [],
     );
+  }
+
+  /// Verifica se um usuário é o dono do evento
+  bool isOwner(String userId) => ownerId == userId;
+
+  /// Verifica se um usuário pode editar o evento
+  bool canEdit(String userId) {
+    if (isOwner(userId)) return true;
+    final participant = participants.firstWhere(
+      (p) => p.userId == userId,
+      orElse: () => EventParticipant(
+        userId: '',
+        name: '',
+        role: EventRole.participant,
+        joinedAt: DateTime.now(),
+        status: ParticipantStatus.pending,
+      ),
+    );
+    return participant.role.canEdit;
+  }
+
+  /// Verifica se um usuário pode convidar outros
+  bool canInvite(String userId) {
+    if (isOwner(userId)) return true;
+    final participant = participants.firstWhere(
+      (p) => p.userId == userId,
+      orElse: () => EventParticipant(
+        userId: '',
+        name: '',
+        role: EventRole.participant,
+        joinedAt: DateTime.now(),
+        status: ParticipantStatus.pending,
+      ),
+    );
+    return participant.role.canInvite;
+  }
+
+  /// Adiciona um participante ao evento
+  Activity addParticipant(EventParticipant participant) {
+    final updatedParticipants = List<EventParticipant>.from(participants);
+    updatedParticipants.add(participant);
+    return copyWith(participants: updatedParticipants);
+  }
+
+  /// Remove um participante do evento
+  Activity removeParticipant(String userId) {
+    final updatedParticipants = participants
+        .where((p) => p.userId != userId)
+        .toList();
+    return copyWith(participants: updatedParticipants);
+  }
+
+  /// Atualiza o status de um participante
+  Activity updateParticipantStatus(String userId, ParticipantStatus status) {
+    final updatedParticipants = participants.map((p) {
+      if (p.userId == userId) {
+        return p.copyWith(status: status);
+      }
+      return p;
+    }).toList();
+    return copyWith(participants: updatedParticipants);
+  }
+
+  /// Atualiza o role de um participante
+  Activity updateParticipantRole(String userId, EventRole role) {
+    final updatedParticipants = participants.map((p) {
+      if (p.userId == userId) {
+        return p.copyWith(role: role);
+      }
+      return p;
+    }).toList();
+    return copyWith(participants: updatedParticipants);
+  }
+  
+  /// Atualiza as configurações de alerta de um participante
+  Activity updateParticipantAlertSettings(String userId, Map<String, dynamic> settings) {
+    final updatedParticipants = participants.map((p) {
+      if (p.userId == userId) {
+        return p.copyWith(customAlertSettings: settings);
+      }
+      return p;
+    }).toList();
+    return copyWith(participants: updatedParticipants);
+  }
+
+  /// Conta participantes confirmados
+  int get confirmedParticipantsCount {
+    return participants
+            .where((p) => p.status == ParticipantStatus.accepted)
+            .length +
+        1; // +1 pelo dono
   }
 }

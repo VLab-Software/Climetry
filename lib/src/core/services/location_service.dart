@@ -50,14 +50,17 @@ class LocationService {
   Future<String> getCityName(double latitude, double longitude) async {
     try {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
-      
+
       if (placemarks.isEmpty) return 'Localização desconhecida';
-      
+
       final place = placemarks.first;
-      
+
       // Retorna apenas o nome principal da cidade (sem estado/país)
-      final city = place.locality ?? place.subAdministrativeArea ?? place.administrativeArea;
-      
+      final city =
+          place.locality ??
+          place.subAdministrativeArea ??
+          place.administrativeArea;
+
       return city ?? 'Localização desconhecida';
     } catch (e) {
       print('Erro ao obter nome da cidade: $e');
@@ -69,14 +72,14 @@ class LocationService {
   Future<String> getFullLocationName(double latitude, double longitude) async {
     try {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
-      
+
       if (placemarks.isEmpty) return 'Localização desconhecida';
-      
+
       final place = placemarks.first;
-      
+
       final city = place.locality ?? place.subAdministrativeArea;
       final state = place.administrativeArea;
-      
+
       if (city != null && state != null) {
         return '$city, $state';
       } else if (city != null) {
@@ -84,7 +87,7 @@ class LocationService {
       } else if (state != null) {
         return state;
       }
-      
+
       return 'Localização desconhecida';
     } catch (e) {
       print('Erro ao obter nome completo: $e');
@@ -120,13 +123,13 @@ class LocationService {
   /// Obtém a localização salva
   Future<Map<String, dynamic>?> getSavedLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     final latitude = prefs.getDouble(_keySavedLatitude);
     final longitude = prefs.getDouble(_keySavedLongitude);
     final name = prefs.getString(_keySavedLocationName);
-    
+
     if (latitude == null || longitude == null) return null;
-    
+
     return {
       'latitude': latitude,
       'longitude': longitude,
@@ -137,10 +140,10 @@ class LocationService {
   /// Obtém a localização ativa (atual ou salva)
   Future<Map<String, dynamic>> getActiveLocation() async {
     final useCurrentLocation = await shouldUseCurrentLocation();
-    
+
     if (useCurrentLocation) {
       final position = await getCurrentPosition();
-      
+
       if (position != null) {
         final name = await getCityName(position.latitude, position.longitude);
         return {
@@ -151,7 +154,7 @@ class LocationService {
         };
       }
     }
-    
+
     // Fallback para localização salva ou padrão
     final saved = await getSavedLocation();
     if (saved != null) {
@@ -160,7 +163,7 @@ class LocationService {
         'coordinates': LatLng(saved['latitude'], saved['longitude']),
       };
     }
-    
+
     // Fallback final: São Paulo
     return {
       'latitude': -23.5505,
@@ -218,8 +221,9 @@ class LocationService {
       distanceFilter: 10, // Atualiza a cada 10 metros
     );
 
-    return Geolocator.getPositionStream(locationSettings: locationSettings)
-        .map((position) => LatLng(position.latitude, position.longitude));
+    return Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).map((position) => LatLng(position.latitude, position.longitude));
   }
 
   /// Obtém a última localização conhecida

@@ -31,7 +31,7 @@ class LocationAutocompleteService {
   Timer? _debounceTimer;
 
   LocationAutocompleteService({ApiClient? client})
-      : _client = client ?? ApiClient();
+    : _client = client ?? ApiClient();
 
   /// Busca sugestões de localização baseado na query
   /// Retorna até 10 resultados
@@ -59,9 +59,7 @@ class LocationAutocompleteService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data
-            .map((json) => LocationSuggestion.fromJson(json))
-            .toList();
+        return data.map((json) => LocationSuggestion.fromJson(json)).toList();
       } else {
         return [];
       }

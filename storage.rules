@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Função auxiliar para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Função para verificar se é o próprio usuário
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Função para validar tamanho do arquivo (máx 5MB)
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+    
+    // Função para validar tipo de imagem
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // FOTOS DE PERFIL - profile_photos/userId.jpg
+    match /profile_photos/{userFile} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() 
+                   && isOwner(userFile.replace('.jpg', ''))
+                   && isValidSize()
+                   && isImage();
+      allow delete: if isAuthenticated() 
+                    && isOwner(userFile.replace('.jpg', ''));
+    }
+    
+    // FOTOS DE EVENTOS - activity_photos/activityId/fileName
+    match /activity_photos/{activityId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidSize() && isImage();
+      allow delete: if isAuthenticated();
+    }
+    
+    // FOTOS DE DESASTRES - disaster_photos/disasterId/fileName
+    match /disaster_photos/{disasterId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isValidSize() && isImage();
+    }
+    
+    // UPLOADS TEMPORÁRIOS - temp_uploads/userId/fileName
+    match /temp_uploads/{userId}/{fileName} {
+      allow read, write, delete: if isAuthenticated() 
+                                 && isOwner(userId)
+                                 && isValidSize()
+                                 && isImage();
+    }
+    
+    // BLOQUEAR TODO O RESTO
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -84,10 +84,7 @@ class AuthService {
   /// Logout
   Future<void> signOut() async {
     try {
-      await Future.wait([
-        _auth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       throw AuthException('Erro ao fazer logout: $e');
     }
@@ -198,8 +195,7 @@ class AuthService {
         message = 'Credenciais inválidas.';
         break;
       case 'too-many-requests':
-        message =
-            'Muitas tentativas. Tente novamente mais tarde.';
+        message = 'Muitas tentativas. Tente novamente mais tarde.';
         break;
       case 'requires-recent-login':
         message =

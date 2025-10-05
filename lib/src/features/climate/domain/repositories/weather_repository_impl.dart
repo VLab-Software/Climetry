@@ -11,5 +11,9 @@ class WeatherRepositoryImpl implements WeatherRepository {
     required String timeRange,
     required String variables,
     required String location,
-  }) => remote.fetch(timeRange: timeRange, variables: variables, location: location);
+  }) => remote.fetch(
+    timeRange: timeRange,
+    variables: variables,
+    location: location,
+  );
 }

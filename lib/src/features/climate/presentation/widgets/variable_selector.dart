@@ -46,7 +46,12 @@ class _Tile extends StatelessWidget {
   final VoidCallback onTap;
   final bool selected;
   final bool disabled;
-  const _Tile({required this.variable, required this.onTap, required this.selected, required this.disabled});
+  const _Tile({
+    required this.variable,
+    required this.onTap,
+    required this.selected,
+    required this.disabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,9 @@ class _Tile extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.15),
+          color: selected
+              ? Theme.of(context).primaryColor
+              : Colors.black.withOpacity(0.15),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.white.withOpacity(0.05)),
         ),
@@ -63,7 +70,13 @@ class _Tile extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(variable.icon, size: 18, color: selected ? Colors.black : Colors.white.withOpacity(disabled ? 0.3 : 1)),
+            Icon(
+              variable.icon,
+              size: 18,
+              color: selected
+                  ? Colors.black
+                  : Colors.white.withOpacity(disabled ? 0.3 : 1),
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -73,7 +86,9 @@ class _Tile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
-                  color: selected ? Colors.black : Colors.white.withOpacity(disabled ? 0.3 : 1),
+                  color: selected
+                      ? Colors.black
+                      : Colors.white.withOpacity(disabled ? 0.3 : 1),
                 ),
               ),
             ),

@@ -20,7 +20,10 @@ class ClimateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Earth Data Analysis'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Earth Data Analysis'),
+        centerTitle: true,
+      ),
       body: const SafeArea(child: _ResponsiveBody()),
     );
   }
@@ -39,10 +42,14 @@ class _ResponsiveBody extends StatelessWidget {
           child: Center(
             child: SingleChildScrollView(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: ClimateScreen.kMaxWidth),
+                constraints: const BoxConstraints(
+                  maxWidth: ClimateScreen.kMaxWidth,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: isDesktop ? const _DesktopLayout() : const _StackedLayout(),
+                  child: isDesktop
+                      ? const _DesktopLayout()
+                      : const _StackedLayout(),
                 ),
               ),
             ),
@@ -149,7 +156,8 @@ class _StackedLayout extends StatelessWidget {
             selector: (_, m) => m.locationMenuOpen,
             builder: (_, menuOpen, __) {
               return AbsorbPointer(
-                absorbing: menuOpen, // 🔒 congela tudo atrás enquanto o menu está aberto
+                absorbing:
+                    menuOpen, // 🔒 congela tudo atrás enquanto o menu está aberto
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -211,7 +219,10 @@ Widget _locationSection(BuildContext context, ClimateViewModel vm) {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Location', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+          const Text(
+            'Location',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 10),
           LocationField(vm: vm),
         ],
@@ -221,13 +232,15 @@ Widget _locationSection(BuildContext context, ClimateViewModel vm) {
 }
 
 Widget _section(
-    BuildContext context,
-    String title,
-    Widget child, {
-      bool allowOverflow = false, // Novo parâmetro
-    }) {
+  BuildContext context,
+  String title,
+  Widget child, {
+  bool allowOverflow = false, // Novo parâmetro
+}) {
   return Container(
-    clipBehavior: allowOverflow ? Clip.none : Clip.hardEdge, // Controla o overflow
+    clipBehavior: allowOverflow
+        ? Clip.none
+        : Clip.hardEdge, // Controla o overflow
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(12),
@@ -237,7 +250,10 @@ Widget _section(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 10),
         child,
       ],
@@ -245,7 +261,11 @@ Widget _section(
   );
 }
 
-Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedLeft = false}) {
+Widget _analysisButton(
+  BuildContext context,
+  ClimateViewModel vm, {
+  bool alignedLeft = false,
+}) {
   final btn = ElevatedButton.icon(
     icon: const Icon(Icons.analytics),
     style: ElevatedButton.styleFrom(
@@ -258,39 +278,41 @@ Widget _analysisButton(BuildContext context, ClimateViewModel vm, {bool alignedL
     onPressed: vm.isLoading
         ? null
         : () async {
-      try {
-        final payload = await vm.generateAnalysis();
-        if (!context.mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ClimateDetailsScreen(
-              location: vm.locationController.text,
-              date: vm.userFriendlyDateRange,
-              coordinates: vm.currentLocation,
-              weatherData: payload.raw,
-            ),
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    },
+            try {
+              final payload = await vm.generateAnalysis();
+              if (!context.mounted) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ClimateDetailsScreen(
+                    location: vm.locationController.text,
+                    date: vm.userFriendlyDateRange,
+                    coordinates: vm.currentLocation,
+                    weatherData: payload.raw,
+                  ),
+                ),
+              );
+            } catch (e) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.toString())));
+            }
+          },
     label: vm.isLoading
         ? const SizedBox(
-      height: 22,
-      width: 22,
-      child: CircularProgressIndicator(
-        strokeWidth: 2.5,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-      ),
-    )
+            height: 22,
+            width: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ),
+          )
         : const Text('Analyze'),
   );
 
-  return alignedLeft ? Align(alignment: Alignment.centerLeft, child: btn) : Center(child: btn);
+  return alignedLeft
+      ? Align(alignment: Alignment.centerLeft, child: btn)
+      : Center(child: btn);
 }
 
 class _Map extends StatefulWidget {

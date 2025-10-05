@@ -1,0 +1,252 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../domain/entities/friend.dart';
+
+/// Serviço para gerenciar amigos e solicitações de amizade
+class FriendsService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? get _userId => _auth.currentUser?.uid;
+
+  /// Buscar todos os amigos do usuário
+  Future<List<Friend>> getFriends() async {
+    if (_userId == null) return [];
+
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('friends')
+          .orderBy('name')
+          .get();
+
+      return snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw Exception('Erro ao buscar amigos: $e');
+    }
+  }
+
+  /// Adicionar um amigo
+  Future<void> addFriend(Friend friend) async {
+    if (_userId == null) throw Exception('Usuário não autenticado');
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('friends')
+          .doc(friend.id)
+          .set(friend.toFirestore());
+    } catch (e) {
+      throw Exception('Erro ao adicionar amigo: $e');
+    }
+  }
+
+  /// Remover um amigo
+  Future<void> removeFriend(String friendId) async {
+    if (_userId == null) throw Exception('Usuário não autenticado');
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('friends')
+          .doc(friendId)
+          .delete();
+    } catch (e) {
+      throw Exception('Erro ao remover amigo: $e');
+    }
+  }
+
+  /// Atualizar nome do amigo
+  Future<void> updateFriendName(String friendId, String newName) async {
+    if (_userId == null) throw Exception('Usuário não autenticado');
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('friends')
+          .doc(friendId)
+          .update({'name': newName});
+    } catch (e) {
+      throw Exception('Erro ao atualizar nome: $e');
+    }
+  }
+
+  /// Enviar solicitação de amizade
+  Future<void> sendFriendRequest({
+    required String toUserId,
+    String? message,
+  }) async {
+    if (_userId == null) throw Exception('Usuário não autenticado');
+
+    final currentUser = _auth.currentUser!;
+
+    try {
+      final request = FriendRequest(
+        id: '',
+        fromUserId: _userId!,
+        fromUserName: currentUser.displayName ?? 'Usuário',
+        fromUserPhotoUrl: currentUser.photoURL,
+        toUserId: toUserId,
+        createdAt: DateTime.now(),
+        status: FriendRequestStatus.pending,
+        message: message,
+      );
+
+      await _firestore.collection('friendRequests').add(request.toFirestore());
+    } catch (e) {
+      throw Exception('Erro ao enviar solicitação: $e');
+    }
+  }
+
+  /// Buscar solicitações recebidas
+  Future<List<FriendRequest>> getReceivedRequests() async {
+    if (_userId == null) return [];
+
+    try {
+      final snapshot = await _firestore
+          .collection('friendRequests')
+          .where('toUserId', isEqualTo: _userId)
+          .where('status', isEqualTo: 'pending')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => FriendRequest.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      throw Exception('Erro ao buscar solicitações: $e');
+    }
+  }
+
+  /// Aceitar solicitação de amizade
+  Future<void> acceptFriendRequest(FriendRequest request) async {
+    if (_userId == null) throw Exception('Usuário não autenticado');
+
+    try {
+      // Adicionar amigo para ambos os usuários
+      final friend = Friend(
+        id: request.fromUserId,
+        name: request.fromUserName,
+        photoUrl: request.fromUserPhotoUrl,
+        addedAt: DateTime.now(),
+      );
+
+      // Adicionar para o usuário atual
+      await addFriend(friend);
+
+      // Adicionar o usuário atual como amigo do solicitante
+      final currentUser = _auth.currentUser!;
+      await _firestore
+          .collection('users')
+          .doc(request.fromUserId)
+          .collection('friends')
+          .doc(_userId)
+          .set({
+            'name': currentUser.displayName ?? 'Usuário',
+            'photoUrl': currentUser.photoURL,
+            'addedAt': FieldValue.serverTimestamp(),
+            'isFromContacts': false,
+          });
+
+      // Atualizar status da solicitação
+      await _firestore.collection('friendRequests').doc(request.id).update({
+        'status': FriendRequestStatus.accepted.name,
+      });
+    } catch (e) {
+      throw Exception('Erro ao aceitar solicitação: $e');
+    }
+  }
+
+  /// Rejeitar solicitação de amizade
+  Future<void> rejectFriendRequest(String requestId) async {
+    try {
+      await _firestore.collection('friendRequests').doc(requestId).update({
+        'status': FriendRequestStatus.rejected.name,
+      });
+    } catch (e) {
+      throw Exception('Erro ao rejeitar solicitação: $e');
+    }
+  }
+
+  /// Buscar usuário por email
+  Future<Map<String, dynamic>?> findUserByEmail(String email) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isEmpty) return null;
+
+      final doc = snapshot.docs.first;
+      return {
+        'id': doc.id,
+        'name': doc.data()['displayName'] as String?,
+        'email': doc.data()['email'] as String?,
+        'photoUrl': doc.data()['photoURL'] as String?,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Contar solicitações pendentes
+  Future<int> getPendingRequestsCount() async {
+    if (_userId == null) return 0;
+
+    try {
+      final snapshot = await _firestore
+          .collection('friendRequests')
+          .where('toUserId', isEqualTo: _userId)
+          .where('status', isEqualTo: 'pending')
+          .count()
+          .get();
+
+      return snapshot.count ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  /// Obter solicitações pendentes
+  Future<List<FriendRequest>> getPendingRequests() async {
+    if (_userId == null) return [];
+
+    try {
+      final snapshot = await _firestore
+          .collection('friendRequests')
+          .where('toUserId', isEqualTo: _userId)
+          .where('status', isEqualTo: 'pending')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => FriendRequest.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Stream de solicitações pendentes
+  Stream<List<FriendRequest>> getPendingRequestsStream() {
+    if (_userId == null) return Stream.value([]);
+
+    return _firestore
+        .collection('friendRequests')
+        .where('toUserId', isEqualTo: _userId)
+        .where('status', isEqualTo: 'pending')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => FriendRequest.fromFirestore(doc))
+              .toList();
+        });
+  }
+}

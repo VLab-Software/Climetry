@@ -19,12 +19,14 @@ class MeteomaticsRemoteDataSource {
     required String variables,
     required String location,
   }) async {
-    final uri = Uri.parse('https://api.meteomatics.com/$timeRange/$variables/$location/json');
+    final uri = Uri.parse(
+      'https://api.meteomatics.com/$timeRange/$variables/$location/json',
+    );
     final creds = base64Encode(utf8.encode('$username:$password'));
-    final res = await client.get(uri, headers: {
-      'Authorization': 'Basic $creds',
-      'Accept': 'application/json',
-    });
+    final res = await client.get(
+      uri,
+      headers: {'Authorization': 'Basic $creds', 'Accept': 'application/json'},
+    );
     return WeatherPayload(json.decode(res.body) as Map<String, dynamic>);
   }
 }

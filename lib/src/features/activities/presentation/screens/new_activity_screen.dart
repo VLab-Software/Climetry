@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../activities/domain/entities/activity.dart';
 import '../../../disasters/presentation/widgets/location_picker_widget.dart';
 import '../../../../core/widgets/location_autocomplete_field.dart';
+import '../../../../core/providers/event_refresh_notifier.dart';
+import '../../../friends/domain/entities/friend.dart';
+import '../widgets/event_participants_selector.dart';
 
 class NewActivityScreen extends StatefulWidget {
   const NewActivityScreen({super.key});
@@ -17,18 +22,28 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+  final _tagsController = TextEditingController();
+
   DateTime _selectedDate = DateTime.now();
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   ActivityType _selectedType = ActivityType.other;
+  ActivityPriority _selectedPriority = ActivityPriority.low;
+  RecurrenceType _selectedRecurrence = RecurrenceType.none;
+  List<String> _tags = [];
+  List<WeatherCondition> _monitoredConditions = [
+    WeatherCondition.temperature,
+    WeatherCondition.rain,
+  ];
   LatLng _selectedCoordinates = const LatLng(-23.5505, -46.6333);
+  List<EventParticipant> _selectedParticipants = [];
 
   @override
   void dispose() {
     _titleController.dispose();
     _locationController.dispose();
     _descriptionController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
@@ -79,22 +94,67 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
       });
     }
   }
+  
+  Future<void> _selectParticipants() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: EventParticipantsSelector(
+          selectedParticipants: _selectedParticipants,
+          onChanged: (participants) {
+            setState(() {
+              _selectedParticipants = participants;
+            });
+          },
+        ),
+      ),
+    );
+  }
 
   void _saveActivity() {
     if (_formKey.currentState!.validate()) {
+      // Combinar data com horário de início, se disponível
+      DateTime finalDateTime = _selectedDate;
+
+      if (_startTime != null) {
+        finalDateTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          _startTime!.hour,
+          _startTime!.minute,
+        );
+      }
+
       final activity = Activity(
         id: const Uuid().v4(),
+        ownerId: FirebaseAuth.instance.currentUser!.uid,
         title: _titleController.text,
         location: _locationController.text,
         coordinates: _selectedCoordinates,
-        date: _selectedDate,
+        date: finalDateTime,
         startTime: _startTime?.format(context),
         endTime: _endTime?.format(context),
         type: _selectedType,
-        description: _descriptionController.text.isNotEmpty 
-            ? _descriptionController.text 
+        description: _descriptionController.text.isNotEmpty
+            ? _descriptionController.text
             : null,
+        priority: _selectedPriority,
+        tags: _tags,
+        recurrence: _selectedRecurrence,
+        monitoredConditions: _monitoredConditions,
+        participants: _selectedParticipants,
       );
+
+      // Notificar que um novo evento foi criado
+      Provider.of<EventRefreshNotifier>(
+        context,
+        listen: false,
+      ).notifyEventsChanged();
+
       Navigator.pop(context, activity);
     }
   }
@@ -132,17 +192,29 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Campo de localização com autocomplete
               _buildLocationAutocompleteField(),
               const SizedBox(height: 16),
-              
+
               _buildDateTimePicker(),
               const SizedBox(height: 16),
-              
+
               _buildTypePicker(),
               const SizedBox(height: 16),
-              
+
+              _buildPriorityPicker(),
+              const SizedBox(height: 16),
+
+              _buildRecurrencePicker(),
+              const SizedBox(height: 16),
+
+              _buildWeatherConditionsPicker(),
+              const SizedBox(height: 16),
+
+              _buildTagsField(),
+              const SizedBox(height: 16),
+
               _buildTextField(
                 controller: _descriptionController,
                 label: 'Descrição (Opcional)',
@@ -150,7 +222,11 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 24),
-              
+
+              // Botão para selecionar participantes
+              _buildParticipantsSelector(),
+              const SizedBox(height: 16),
+
               ElevatedButton(
                 onPressed: _saveActivity,
                 style: ElevatedButton.styleFrom(
@@ -205,8 +281,8 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-            prefixIcon: prefixIcon != null 
-                ? Icon(prefixIcon, color: Colors.white60) 
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, color: Colors.white60)
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
@@ -217,6 +293,103 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildParticipantsSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Participantes',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: _selectParticipants,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A3A4D),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _selectedParticipants.isNotEmpty
+                    ? const Color(0xFF4A9EFF)
+                    : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.people,
+                  color: _selectedParticipants.isNotEmpty
+                      ? const Color(0xFF4A9EFF)
+                      : Colors.white60,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _selectedParticipants.isEmpty
+                        ? 'Convidar amigos (opcional)'
+                        : '${_selectedParticipants.length} ${_selectedParticipants.length == 1 ? "convidado" : "convidados"}',
+                    style: TextStyle(
+                      color: _selectedParticipants.isNotEmpty
+                          ? Colors.white
+                          : Colors.white60,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white60, size: 16),
+              ],
+            ),
+          ),
+        ),
+        if (_selectedParticipants.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _selectedParticipants.map((participant) {
+                return Chip(
+                  avatar: CircleAvatar(
+                    backgroundImage: participant.photoUrl != null
+                        ? NetworkImage(participant.photoUrl!)
+                        : null,
+                    backgroundColor: const Color(0xFF4A9EFF),
+                    child: participant.photoUrl == null
+                        ? Text(
+                            participant.name[0].toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        : null,
+                  ),
+                  label: Text(
+                    '${participant.name} ${participant.role == EventRole.admin ? "👑" : participant.role == EventRole.moderator ? "🎖️" : ""}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  backgroundColor: const Color(0xFF2A3A4D),
+                  labelStyle: const TextStyle(color: Colors.white),
+                  deleteIcon: const Icon(Icons.close, size: 16, color: Colors.white60),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedParticipants.removeWhere((p) => p.userId == participant.userId);
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
       ],
     );
   }
@@ -247,7 +420,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
               _selectedCoordinates = suggestion.coordinates;
               _locationController.text = suggestion.displayName;
             });
-            
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -255,7 +428,9 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
                     const Icon(Icons.check_circle, color: Colors.green),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text('Localização selecionada: ${suggestion.displayName}'),
+                      child: Text(
+                        'Localização selecionada: ${suggestion.displayName}',
+                      ),
                     ),
                   ],
                 ),
@@ -295,7 +470,8 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             Expanded(
               child: _buildPickerButton(
                 icon: Icons.calendar_today,
-                label: '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                label:
+                    '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                 onTap: _selectDate,
               ),
             ),
@@ -388,6 +564,238 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPriorityPicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Prioridade',
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButton<ActivityPriority>(
+            value: _selectedPriority,
+            isExpanded: true,
+            dropdownColor: const Color(0xFF1E1E1E),
+            underline: const SizedBox(),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.white60),
+            items: ActivityPriority.values.map((priority) {
+              return DropdownMenuItem(
+                value: priority,
+                child: Row(
+                  children: [
+                    Text(priority.icon, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Text(priority.label),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedPriority = value);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecurrencePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Repetir',
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButton<RecurrenceType>(
+            value: _selectedRecurrence,
+            isExpanded: true,
+            dropdownColor: const Color(0xFF1E1E1E),
+            underline: const SizedBox(),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.white60),
+            items: RecurrenceType.values.map((recurrence) {
+              return DropdownMenuItem(
+                value: recurrence,
+                child: Row(
+                  children: [
+                    Text(recurrence.icon, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Text(recurrence.label),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedRecurrence = value);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeatherConditionsPicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Monitorar Condições Climáticas',
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: WeatherCondition.values.map((condition) {
+              final isSelected = _monitoredConditions.contains(condition);
+              return CheckboxListTile(
+                value: isSelected,
+                onChanged: (checked) {
+                  setState(() {
+                    if (checked == true) {
+                      _monitoredConditions.add(condition);
+                    } else {
+                      _monitoredConditions.remove(condition);
+                    }
+                  });
+                },
+                title: Row(
+                  children: [
+                    Text(condition.icon, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Text(
+                      condition.label,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+                checkColor: Colors.black,
+                activeColor: Colors.blue,
+                side: const BorderSide(color: Colors.white24),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTagsField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tags',
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              TextField(
+                controller: _tagsController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Digite uma tag e pressione Enter',
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(16),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add, color: Colors.blue),
+                    onPressed: () {
+                      final tag = _tagsController.text.trim();
+                      if (tag.isNotEmpty && !_tags.contains(tag)) {
+                        setState(() {
+                          _tags.add(tag);
+                          _tagsController.clear();
+                        });
+                      }
+                    },
+                  ),
+                ),
+                onSubmitted: (value) {
+                  final tag = value.trim();
+                  if (tag.isNotEmpty && !_tags.contains(tag)) {
+                    setState(() {
+                      _tags.add(tag);
+                      _tagsController.clear();
+                    });
+                  }
+                },
+              ),
+              if (_tags.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _tags.map((tag) {
+                      return Chip(
+                        label: Text(tag),
+                        labelStyle: const TextStyle(color: Colors.white),
+                        backgroundColor: Colors.blue.withOpacity(0.3),
+                        deleteIcon: const Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.white60,
+                        ),
+                        onDeleted: () {
+                          setState(() => _tags.remove(tag));
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

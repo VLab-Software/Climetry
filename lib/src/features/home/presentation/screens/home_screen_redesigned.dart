@@ -18,18 +18,20 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   final UserDataService _userDataService = UserDataService();
   final LocationService _locationService = LocationService();
-  final EventWeatherPredictionService _predictionService = EventWeatherPredictionService();
-  
+  final EventWeatherPredictionService _predictionService =
+      EventWeatherPredictionService();
+
   List<Activity> _upcomingEvents = [];
   List<EventWeatherAnalysis> _analyses = [];
   bool _loading = true;
   bool _loadingLocation = false;
   String _locationName = 'Carregando...';
   LatLng _location = const LatLng(-23.5505, -46.6333);
-  
+
   @override
   bool get wantKeepAlive => true;
 
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   Future<void> _loadLocation() async {
     if (!mounted) return;
     setState(() => _loadingLocation = true);
-    
+
     try {
       final locationData = await _locationService.getActiveLocation();
       if (!mounted) return;
@@ -65,19 +67,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   Future<void> _loadEventsPredictions() async {
     if (!mounted) return;
     setState(() => _loading = true);
-    
+
     try {
       final events = await _userDataService.getActivities();
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
-      
+
       final upcomingEvents = events.where((event) {
         return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
       }).toList();
-      
+
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
       final eventsToAnalyze = upcomingEvents.take(10).toList();
-      
+
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
         try {
@@ -87,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           debugPrint('Erro ao analisar evento ${event.title}: $e');
         }
       }
-      
+
       if (!mounted) return;
       setState(() {
         _upcomingEvents = upcomingEvents;
@@ -114,13 +116,13 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     if (result != null && mounted) {
       final newLocation = result['location'] as LatLng;
       final newName = result['name'] as String;
-      
+
       await _locationService.saveCustomLocation(
         latitude: newLocation.latitude,
         longitude: newLocation.longitude,
         name: newName,
       );
-      
+
       if (!mounted) return;
       setState(() {
         _location = newLocation;
@@ -133,14 +135,17 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.themeMode == ThemeMode.dark ||
+    final isDark =
+        themeProvider.themeMode == ThemeMode.dark ||
         (themeProvider.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F1419) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0F1419)
+          : const Color(0xFFF8FAFC),
       body: RefreshIndicator(
         onRefresh: _loadEventsPredictions,
         color: const Color(0xFF3B82F6),
@@ -153,9 +158,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
 
             // Card de resumo redesenhado
             if (!_loading && _analyses.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _buildCleanSummaryCard(isDark),
-              ),
+              SliverToBoxAdapter(child: _buildCleanSummaryCard(isDark)),
 
             // Lista de eventos
             if (_loading)
@@ -207,10 +210,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       SizedBox(height: 8),
                       Text(
                         'Adicione eventos na aba Agenda',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -220,12 +220,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               SliverPadding(
                 padding: const EdgeInsets.all(20.0),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return _buildModernEventCard(_analyses[index], isDark);
-                    },
-                    childCount: _analyses.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return _buildModernEventCard(_analyses[index], isDark);
+                  }, childCount: _analyses.length),
                 ),
               ),
 
@@ -294,7 +291,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                     child: IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                        isDark
+                            ? Icons.light_mode_outlined
+                            : Icons.dark_mode_outlined,
                         color: isDark ? Colors.white : Color(0xFF1F2937),
                         size: 20,
                       ),
@@ -315,7 +314,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: isDark ? Colors.white : Color(0xFF1F2937),
+                                color: isDark
+                                    ? Colors.white
+                                    : Color(0xFF1F2937),
                               ),
                             )
                           : Icon(
@@ -341,11 +342,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.location_on,
-                  size: 16,
-                  color: Color(0xFF3B82F6),
-                ),
+                Icon(Icons.location_on, size: 16, color: Color(0xFF3B82F6)),
                 SizedBox(width: 6),
                 Text(
                   _locationName,
@@ -364,9 +361,15 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildCleanSummaryCard(bool isDark) {
-    final criticalCount = _analyses.where((a) => a.risk == EventWeatherRisk.critical).length;
-    final warningCount = _analyses.where((a) => a.risk == EventWeatherRisk.warning).length;
-    final safeCount = _analyses.where((a) => a.risk == EventWeatherRisk.safe).length;
+    final criticalCount = _analyses
+        .where((a) => a.risk == EventWeatherRisk.critical)
+        .length;
+    final warningCount = _analyses
+        .where((a) => a.risk == EventWeatherRisk.warning)
+        .length;
+    final safeCount = _analyses
+        .where((a) => a.risk == EventWeatherRisk.safe)
+        .length;
 
     return Container(
       margin: EdgeInsets.all(20),
@@ -448,10 +451,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
             SizedBox(height: 12),
             Text(
               '+${_upcomingEvents.length - 10} eventos adicionais',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ],
@@ -459,23 +459,23 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildSummaryMetric(String emoji, String value, String label, Color color, bool isDark) {
+  Widget _buildSummaryMetric(
+    String emoji,
+    String value,
+    String label,
+    Color color,
+    bool isDark,
+  ) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
       ),
       child: Column(
         children: [
-          Text(
-            emoji,
-            style: TextStyle(fontSize: 24),
-          ),
+          Text(emoji, style: TextStyle(fontSize: 24)),
           SizedBox(height: 8),
           Text(
             value,
@@ -502,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   Widget _buildModernEventCard(EventWeatherAnalysis analysis, bool isDark) {
     final dateFormat = DateFormat('dd MMM', 'pt_BR');
     final timeFormat = DateFormat('HH:mm');
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -589,7 +589,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                     // Badge de risco
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: analysis.riskColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -620,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                   ],
                 ),
-                
+
                 if (analysis.weather != null) ...[
                   SizedBox(height: 16),
                   Container(
@@ -652,7 +655,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     ),
                   ),
                 ],
-                
+
                 if (analysis.alerts.isNotEmpty) ...[
                   SizedBox(height: 12),
                   Wrap(
@@ -660,7 +663,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     runSpacing: 6,
                     children: analysis.alerts.take(3).map((alert) {
                       return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Color(0xFFF59E0B).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -677,15 +683,11 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     }).toList(),
                   ),
                 ],
-                
+
                 SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(
-                      Icons.schedule,
-                      size: 12,
-                      color: Color(0xFF3B82F6),
-                    ),
+                    Icon(Icons.schedule, size: 12, color: Color(0xFF3B82F6)),
                     SizedBox(width: 4),
                     Text(
                       'Em ${analysis.daysUntilEvent} dias',
@@ -696,11 +698,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       ),
                     ),
                     Spacer(),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 12,
-                      color: Colors.grey,
-                    ),
+                    Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
                   ],
                 ),
               ],
@@ -715,11 +713,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: isDark ? Colors.white70 : Colors.black54,
-        ),
+        Icon(icon, size: 16, color: isDark ? Colors.white70 : Colors.black54),
         SizedBox(width: 4),
         Text(
           value,

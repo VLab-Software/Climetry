@@ -8,10 +8,10 @@ import 'dart:convert';
 
 /// Status de risco climático para um evento
 enum EventWeatherRisk {
-  safe,      // Verde - Sem problemas
-  warning,   // Amarelo - Atenção necessária
-  critical,  // Vermelho - Risco alto
-  unknown,   // Cinza - Sem dados ainda
+  safe, // Verde - Sem problemas
+  warning, // Amarelo - Atenção necessária
+  critical, // Vermelho - Risco alto
+  unknown, // Cinza - Sem dados ainda
 }
 
 /// Análise completa do impacto climático em um evento
@@ -38,8 +38,9 @@ class EventWeatherAnalysis {
     required this.daysUntilEvent,
   });
 
-  bool get needsAttention => risk == EventWeatherRisk.warning || risk == EventWeatherRisk.critical;
-  
+  bool get needsAttention =>
+      risk == EventWeatherRisk.warning || risk == EventWeatherRisk.critical;
+
   Color get riskColor {
     switch (risk) {
       case EventWeatherRisk.safe:
@@ -134,18 +135,14 @@ class EventSuggestion {
 }
 
 enum SuggestionType {
-  reschedule,  // Reagendar horário
-  relocate,    // Mudar local
-  prepare,     // Preparação necessária
-  cancel,      // Considerar cancelamento
-  other,       // Outras sugestões
+  reschedule, // Reagendar horário
+  relocate, // Mudar local
+  prepare, // Preparação necessária
+  cancel, // Considerar cancelamento
+  other, // Outras sugestões
 }
 
-enum SuggestionPriority {
-  high,
-  medium,
-  low,
-}
+enum SuggestionPriority { high, medium, low }
 
 /// Serviço principal para análise preditiva de eventos
 class EventWeatherPredictionService {
@@ -161,13 +158,19 @@ class EventWeatherPredictionService {
       // Buscar previsão do tempo para a data do evento
       // Determinar qual endpoint usar baseado na distância do evento
       List<DailyWeather> forecasts;
-      
+
       if (daysUntil <= 7) {
-        forecasts = await _weatherService.getWeeklyForecast(activity.coordinates);
+        forecasts = await _weatherService.getWeeklyForecast(
+          activity.coordinates,
+        );
       } else if (daysUntil <= 30) {
-        forecasts = await _weatherService.getMonthlyForecast(activity.coordinates);
+        forecasts = await _weatherService.getMonthlyForecast(
+          activity.coordinates,
+        );
       } else {
-        forecasts = await _weatherService.getSixMonthsForecast(activity.coordinates);
+        forecasts = await _weatherService.getSixMonthsForecast(
+          activity.coordinates,
+        );
       }
 
       // Encontrar previsão mais próxima da data do evento
@@ -180,9 +183,11 @@ class EventWeatherPredictionService {
           break;
         }
       }
-      
+
       // Se não encontrou previsão exata, usar a mais próxima
-      weather ??= forecasts.isEmpty ? throw Exception('Sem previsão disponível') : forecasts.first;
+      weather ??= forecasts.isEmpty
+          ? throw Exception('Sem previsão disponível')
+          : forecasts.first;
 
       // Analisar alertas climáticos
       final alerts = _analyzeWeatherAlerts(weather, activity);
@@ -212,7 +217,7 @@ class EventWeatherPredictionService {
       );
     } catch (e) {
       debugPrint('Erro ao analisar evento ${activity.title}: $e');
-      
+
       return EventWeatherAnalysis(
         activity: activity,
         weather: null,
@@ -243,73 +248,86 @@ class EventWeatherPredictionService {
 
     // Alerta de chuva forte
     if (weather.precipitation > 30) {
-      alerts.add(WeatherAlert(
-        type: weather.precipitation > 50 
-            ? WeatherAlertType.floodRisk 
-            : WeatherAlertType.heavyRain,
-        date: weather.date,
-        value: weather.precipitation,
-        unit: 'mm',
-      ));
+      alerts.add(
+        WeatherAlert(
+          type: weather.precipitation > 50
+              ? WeatherAlertType.floodRisk
+              : WeatherAlertType.heavyRain,
+          date: weather.date,
+          value: weather.precipitation,
+          unit: 'mm',
+        ),
+      );
     }
 
     // Alerta de temperatura extrema
     if (weather.maxTemp > 35) {
-      alerts.add(WeatherAlert(
-        type: WeatherAlertType.heatWave,
-        date: weather.date,
-        value: weather.maxTemp,
-        unit: '°C',
-      ));
+      alerts.add(
+        WeatherAlert(
+          type: WeatherAlertType.heatWave,
+          date: weather.date,
+          value: weather.maxTemp,
+          unit: '°C',
+        ),
+      );
     }
-    
+
     if (weather.minTemp < 5) {
-      alerts.add(WeatherAlert(
-        type: weather.minTemp < 3 
-            ? WeatherAlertType.frostRisk 
-            : WeatherAlertType.intenseCold,
-        date: weather.date,
-        value: weather.minTemp,
-        unit: '°C',
-      ));
+      alerts.add(
+        WeatherAlert(
+          type: weather.minTemp < 3
+              ? WeatherAlertType.frostRisk
+              : WeatherAlertType.intenseCold,
+          date: weather.date,
+          value: weather.minTemp,
+          unit: '°C',
+        ),
+      );
     }
 
     // Alerta de vento forte
     if (weather.windSpeed > 60) {
-      alerts.add(WeatherAlert(
-        type: WeatherAlertType.strongWind,
-        date: weather.date,
-        value: weather.windSpeed,
-        unit: 'km/h',
-      ));
+      alerts.add(
+        WeatherAlert(
+          type: WeatherAlertType.strongWind,
+          date: weather.date,
+          value: weather.windSpeed,
+          unit: 'km/h',
+        ),
+      );
     }
 
     // Alerta de tempestade severa (alta precipitação + vento)
     if (weather.precipitation > 40 && weather.windSpeed > 50) {
-      alerts.add(WeatherAlert(
-        type: WeatherAlertType.severeStorm,
-        date: weather.date,
-        value: weather.precipitation,
-        unit: 'mm',
-      ));
+      alerts.add(
+        WeatherAlert(
+          type: WeatherAlertType.severeStorm,
+          date: weather.date,
+          value: weather.precipitation,
+          unit: 'mm',
+        ),
+      );
     }
 
     // Verificar compatibilidade com tipo de atividade
     if (activity.type == ActivityType.outdoor) {
       if (weather.precipitationProbability > 70 && weather.precipitation > 5) {
         // Se já não tem alerta de chuva, adicionar alerta de probabilidade
-        final hasRainAlert = alerts.any((a) => 
-          a.type == WeatherAlertType.heavyRain || 
-          a.type == WeatherAlertType.floodRisk
+        final hasRainAlert = alerts.any(
+          (a) =>
+              a.type == WeatherAlertType.heavyRain ||
+              a.type == WeatherAlertType.floodRisk,
         );
-        
+
         if (!hasRainAlert) {
-          alerts.add(WeatherAlert(
-            type: WeatherAlertType.heavyRain,
-            date: weather.date,
-            value: weather.precipitationProbability,
-            unit: '%',
-          ));
+          alerts.add(
+            WeatherAlert(
+              type: WeatherAlertType.heavyRain,
+              date: weather.date,
+              value: weather.precipitationProbability,
+              unit: '%',
+            ),
+          );
         }
       }
     }
@@ -329,12 +347,13 @@ class EventWeatherPredictionService {
     }
 
     // Verificar se há alertas críticos (enchente, tempestade severa)
-    final hasCriticalAlert = alerts.any((a) => 
-      a.type == WeatherAlertType.floodRisk || 
-      a.type == WeatherAlertType.severeStorm ||
-      a.type == WeatherAlertType.hailRisk
+    final hasCriticalAlert = alerts.any(
+      (a) =>
+          a.type == WeatherAlertType.floodRisk ||
+          a.type == WeatherAlertType.severeStorm ||
+          a.type == WeatherAlertType.hailRisk,
     );
-    
+
     if (hasCriticalAlert) {
       return EventWeatherRisk.critical;
     }
@@ -358,7 +377,7 @@ class EventWeatherPredictionService {
     }
 
     final problems = alerts.map((a) => a.type.description).join(', ');
-    
+
     switch (risk) {
       case EventWeatherRisk.safe:
         return 'Clima adequado, sem preocupações';
@@ -380,7 +399,8 @@ class EventWeatherPredictionService {
     int daysUntil,
   ) async {
     try {
-      final prompt = '''
+      final prompt =
+          '''
 Você é um assistente especializado em análise climática para eventos.
 
 **EVENTO:**
@@ -425,19 +445,23 @@ REGRAS:
 - Considere que faltam $daysUntil dias (tempo para agir)
 ''';
 
-      final response = await _aiService.generateEventAnalysis(prompt, maxTokens: 600);
-      
+      final response = await _aiService.generateEventAnalysis(
+        prompt,
+        maxTokens: 600,
+      );
+
       // Tentar extrair JSON da resposta
       final jsonStart = response.indexOf('{');
       final jsonEnd = response.lastIndexOf('}') + 1;
-      
+
       if (jsonStart != -1 && jsonEnd > jsonStart) {
         final jsonStr = response.substring(jsonStart, jsonEnd);
         final data = jsonDecode(jsonStr);
-        
+
         return {
           'insight': data['insight'] ?? 'Análise indisponível',
-          'suggestions': (data['suggestions'] as List?)
+          'suggestions':
+              (data['suggestions'] as List?)
                   ?.map((s) => EventSuggestion.fromJson(s))
                   .toList() ??
               [],
@@ -449,7 +473,8 @@ REGRAS:
 
     // Fallback: sugestões básicas sem IA
     return {
-      'insight': 'Monitore as condições climáticas conforme a data se aproxima.',
+      'insight':
+          'Monitore as condições climáticas conforme a data se aproxima.',
       'suggestions': _generateBasicSuggestions(risk, alerts, activity),
     };
   }
@@ -462,33 +487,39 @@ REGRAS:
     final suggestions = <EventSuggestion>[];
 
     if (risk == EventWeatherRisk.critical) {
-      suggestions.add(EventSuggestion(
-        title: 'Considere Reagendar',
-        description: 'As condições climáticas apresentam risco alto',
-        type: SuggestionType.reschedule,
-        priority: SuggestionPriority.high,
-        icon: '📅',
-      ));
+      suggestions.add(
+        EventSuggestion(
+          title: 'Considere Reagendar',
+          description: 'As condições climáticas apresentam risco alto',
+          type: SuggestionType.reschedule,
+          priority: SuggestionPriority.high,
+          icon: '📅',
+        ),
+      );
     }
 
     if (alerts.any((a) => a.type == WeatherAlertType.heavyRain)) {
-      suggestions.add(EventSuggestion(
-        title: 'Prepare-se para Chuva',
-        description: 'Leve guarda-chuva e considere local coberto',
-        type: SuggestionType.prepare,
-        priority: SuggestionPriority.medium,
-        icon: '☔',
-      ));
+      suggestions.add(
+        EventSuggestion(
+          title: 'Prepare-se para Chuva',
+          description: 'Leve guarda-chuva e considere local coberto',
+          type: SuggestionType.prepare,
+          priority: SuggestionPriority.medium,
+          icon: '☔',
+        ),
+      );
     }
 
     if (alerts.any((a) => a.type == WeatherAlertType.thermalDiscomfort)) {
-      suggestions.add(EventSuggestion(
-        title: 'Proteção Solar',
-        description: 'Use protetor solar e busque sombra',
-        type: SuggestionType.prepare,
-        priority: SuggestionPriority.medium,
-        icon: '☀️',
-      ));
+      suggestions.add(
+        EventSuggestion(
+          title: 'Proteção Solar',
+          description: 'Use protetor solar e busque sombra',
+          type: SuggestionType.prepare,
+          priority: SuggestionPriority.medium,
+          icon: '☀️',
+        ),
+      );
     }
 
     return suggestions;
