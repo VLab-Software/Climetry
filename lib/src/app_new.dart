@@ -127,7 +127,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           onTap: () => setState(() => _currentIndex = index),
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
             decoration: BoxDecoration(
               color: isSelected 
                   ? Color(0xFF3B82F6).withOpacity(0.1)
@@ -143,17 +143,21 @@ class _MainScaffoldState extends State<MainScaffold> {
                   color: isSelected
                       ? Color(0xFF3B82F6)
                       : (isDark ? Colors.white54 : Colors.black45),
-                  size: 24,
+                  size: 22,
                 ),
-                SizedBox(height: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected
-                        ? Color(0xFF3B82F6)
-                        : (isDark ? Colors.white54 : Colors.black45),
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                SizedBox(height: 2),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected
+                          ? Color(0xFF3B82F6)
+                          : (isDark ? Colors.white54 : Colors.black45),
+                      fontSize: 10,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],

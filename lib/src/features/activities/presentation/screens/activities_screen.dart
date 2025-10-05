@@ -226,40 +226,43 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with AutomaticKeepA
           SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push<Activity>(
-            context,
-            MaterialPageRoute(builder: (_) => const NewActivityScreen()),
-          );
-          if (result != null) {
-            // Salvar no Firebase
-            await _userDataService.saveActivity(result);
-            // Recarregar lista
-            _loadActivities();
-            // Mostrar sucesso
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text('✅ Evento "${result.title}" criado com sucesso!'),
-                    ],
-                  ),
-                  backgroundColor: Color(0xFF10B981),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              );
-            }
-          }
-        },
-        backgroundColor: Color(0xFF3B82F6),
-        icon: Icon(Icons.add, color: Colors.white),
-        label: Text('Novo Evento', style: TextStyle(color: Colors.white)),
-      ),
+      // FAB só aparece quando NÃO está no filtro "Passados"
+      floatingActionButton: _selectedFilter == 'past' 
+          ? null 
+          : FloatingActionButton.extended(
+              onPressed: () async {
+                final result = await Navigator.push<Activity>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NewActivityScreen()),
+                );
+                if (result != null) {
+                  // Salvar no Firebase
+                  await _userDataService.saveActivity(result);
+                  // Recarregar lista
+                  _loadActivities();
+                  // Mostrar sucesso
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text('✅ Evento "${result.title}" criado com sucesso!'),
+                          ],
+                        ),
+                        backgroundColor: Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  }
+                }
+              },
+              backgroundColor: Color(0xFF3B82F6),
+              icon: Icon(Icons.add, color: Colors.white),
+              label: Text('Novo Evento', style: TextStyle(color: Colors.white)),
+            ),
     );
   }
 
@@ -729,55 +732,60 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with AutomaticKeepA
             Text(
               _selectedFilter == 'all'
                   ? 'Adicione seu primeiro evento'
-                  : 'Nenhum evento nesta categoria',
+                  : _selectedFilter == 'past'
+                      ? 'Nenhum evento passado ainda'
+                      : 'Nenhum evento nesta categoria',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () async {
-                final result = await Navigator.push<Activity>(
-                  context,
-                  MaterialPageRoute(builder: (_) => const NewActivityScreen()),
-                );
-                if (result != null) {
-                  // Salvar no Firebase
-                  await _userDataService.saveActivity(result);
-                  // Recarregar lista
-                  _loadActivities();
-                  // Mostrar sucesso
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            Icon(Icons.check_circle, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text('✅ Evento "${result.title}" criado!'),
-                          ],
+            // Botão só aparece se NÃO for filtro "Passados"
+            if (_selectedFilter != 'past') ...[
+              SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push<Activity>(
+                    context,
+                    MaterialPageRoute(builder: (_) => const NewActivityScreen()),
+                  );
+                  if (result != null) {
+                    // Salvar no Firebase
+                    await _userDataService.saveActivity(result);
+                    // Recarregar lista
+                    _loadActivities();
+                    // Mostrar sucesso
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('✅ Evento "${result.title}" criado!'),
+                            ],
+                          ),
+                          backgroundColor: Color(0xFF10B981),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        backgroundColor: Color(0xFF10B981),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
+                      );
+                    }
                   }
-                }
-              },
-              icon: Icon(Icons.add),
-              label: Text('Criar Evento'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF3B82F6),
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                },
+                icon: Icon(Icons.add),
+                label: Text('Criar Evento'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
