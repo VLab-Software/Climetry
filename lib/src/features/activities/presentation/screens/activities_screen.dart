@@ -27,7 +27,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   List<Activity> _allActivities = [];
   List<Activity> _filteredActivities = [];
   Map<String, EventWeatherAnalysis> _analyses = {};
-  String _selectedFilter = 'all'; // all, upcoming, past
+  String _selectedFilter = 'time'; // time, distance, priority
   String _recurrenceFilter = 'all'; // all, single, recurring
   bool _isAnalyzing = false;
   String _searchQuery = '';
@@ -63,12 +63,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     final now = DateTime.now();
     List<Activity> filtered = List.from(_allActivities);
 
-    // Filtro de tempo
-    if (_selectedFilter == 'upcoming') {
-      filtered = filtered.where((a) => a.date.isAfter(now)).toList();
-    } else if (_selectedFilter == 'past') {
-      filtered = filtered.where((a) => a.date.isBefore(now)).toList();
-    }
+    // Filtrar apenas eventos futuros
+    filtered = filtered.where((a) => a.date.isAfter(now)).toList();
 
     // Filtro de busca (nome ou tags)
     if (_searchQuery.isNotEmpty) {
@@ -83,42 +79,66 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
     // Filtro de recorrência
     if (_recurrenceFilter == 'single') {
-      // Apenas eventos sem recorrência (únicos)
       filtered = filtered
           .where((a) => a.recurrence == RecurrenceType.none)
           .toList();
     } else if (_recurrenceFilter == 'recurring') {
-      // Apenas eventos com recorrência
       filtered = filtered
           .where((a) => a.recurrence != RecurrenceType.none)
           .toList();
     }
 
-    // Ordenar por data - eventos únicos primeiro, depois recorrentes
-    filtered.sort((a, b) {
-      // Se um é único e outro recorrente, único vem primeiro
-      if (a.recurrence == RecurrenceType.none && b.recurrence != RecurrenceType.none) {
-        return -1;
-      }
-      if (a.recurrence != RecurrenceType.none && b.recurrence == RecurrenceType.none) {
-        return 1;
-      }
-      // Se ambos são do mesmo tipo, ordenar por data (mais recente primeiro)
-      return b.date.compareTo(a.date);
-    });
+    // Aplicar ordenação baseada no filtro selecionado
+    switch (_selectedFilter) {
+      case 'time':
+        // Ordenar por proximidade de tempo (data mais próxima primeiro)
+        filtered.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      
+      case 'distance':
+        // TODO: Ordenar por proximidade geográfica (requer localização do usuário)
+        // Por enquanto, manter ordem por data
+        filtered.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      
+      case 'priority':
+        // Ordenar por prioridade (Urgente > Alta > Média > Baixa)
+        filtered.sort((a, b) {
+          final priorityOrder = {
+            ActivityPriority.urgent: 0,
+            ActivityPriority.high: 1,
+            ActivityPriority.medium: 2,
+            ActivityPriority.low: 3,
+          };
+          final priorityCompare = (priorityOrder[a.priority] ?? 999)
+              .compareTo(priorityOrder[b.priority] ?? 999);
+          
+          // Se mesma prioridade, ordenar por data
+          if (priorityCompare == 0) {
+            return a.date.compareTo(b.date);
+          }
+          return priorityCompare;
+        });
+        break;
+    }
 
     setState(() => _filteredActivities = filtered);
   }
 
   Future<void> _deleteActivity(Activity activity) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF1F2937),
-        title: Text('Excluir Evento', style: TextStyle(color: Colors.white)),
+        backgroundColor: isDark ? Color(0xFF1F2937) : Colors.white,
+        title: Text(
+          'Excluir Evento',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+        ),
         content: Text(
           'Deseja realmente excluir "${activity.title}"?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
         ),
         actions: [
           TextButton(
@@ -491,7 +511,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Filtrar eventos',
+                    'Ordenar eventos',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -501,7 +521,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   SizedBox(height: 20),
                   
                   Text(
-                    'Por tempo',
+                    'Ordenar por',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -511,33 +531,38 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   SizedBox(height: 12),
                   
                   _buildFilterOption(
-                    icon: Icons.all_inclusive,
-                    title: 'Todos os eventos',
-                    value: 'all',
-                    filterType: 'time',
+                    icon: Icons.access_time,
+                    title: 'Proximidade de tempo',
+                    subtitle: 'Eventos mais próximos primeiro',
+                    value: 'time',
+                    filterType: 'sort',
                     isDark: isDark,
                   ),
                   
                   _buildFilterOption(
-                    icon: Icons.upcoming,
-                    title: 'Próximos eventos',
-                    value: 'upcoming',
-                    filterType: 'time',
+                    icon: Icons.location_on,
+                    title: 'Proximidade de distância',
+                    subtitle: 'Eventos mais próximos de você',
+                    value: 'distance',
+                    filterType: 'sort',
                     isDark: isDark,
                   ),
                   
                   _buildFilterOption(
-                    icon: Icons.history,
-                    title: 'Eventos passados',
-                    value: 'past',
-                    filterType: 'time',
+                    icon: Icons.flag,
+                    title: 'Prioridade',
+                    subtitle: 'Mais urgentes primeiro',
+                    value: 'priority',
+                    filterType: 'sort',
                     isDark: isDark,
                   ),
                   
                   SizedBox(height: 20),
+                  Divider(color: Colors.grey[300]),
+                  SizedBox(height: 12),
                   
                   Text(
-                    'Por tipo',
+                    'Tipo de recorrência',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -548,7 +573,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   
                   _buildFilterOption(
                     icon: Icons.all_inclusive,
-                    title: 'Todos os tipos',
+                    title: 'Todos',
+                    subtitle: 'Únicos e recorrentes',
                     value: 'all',
                     filterType: 'recurrence',
                     isDark: isDark,
@@ -556,7 +582,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   
                   _buildFilterOption(
                     icon: Icons.event,
-                    title: 'Eventos únicos',
+                    title: 'Apenas únicos',
+                    subtitle: 'Eventos sem recorrência',
                     value: 'single',
                     filterType: 'recurrence',
                     isDark: isDark,
@@ -564,7 +591,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   
                   _buildFilterOption(
                     icon: Icons.repeat,
-                    title: 'Eventos recorrentes',
+                    title: 'Apenas recorrentes',
+                    subtitle: 'Eventos que se repetem',
                     value: 'recurring',
                     filterType: 'recurrence',
                     isDark: isDark,
@@ -583,11 +611,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   Widget _buildFilterOption({
     required IconData icon,
     required String title,
+    required String subtitle,
     required String value,
     required String filterType,
     required bool isDark,
   }) {
-    final isSelected = filterType == 'time' 
+    final isSelected = filterType == 'sort' 
         ? _selectedFilter == value 
         : _recurrenceFilter == value;
     
@@ -612,12 +641,19 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           color: isDark ? Colors.white : Color(0xFF1F2937),
         ),
       ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey,
+        ),
+      ),
       trailing: isSelected
           ? Icon(Icons.check_circle, color: Color(0xFF3B82F6))
           : null,
       onTap: () {
         setState(() {
-          if (filterType == 'time') {
+          if (filterType == 'sort') {
             _selectedFilter = value;
           } else {
             _recurrenceFilter = value;

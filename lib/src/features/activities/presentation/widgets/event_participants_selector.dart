@@ -283,6 +283,15 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                       value: isSelected,
                                       onChanged: (value) => _toggleParticipant(friend),
                                       activeColor: const Color(0xFF3B82F6),
+                                      checkColor: Colors.white,
+                                      fillColor: MaterialStateProperty.resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          if (states.contains(MaterialState.selected)) {
+                                            return const Color(0xFF3B82F6);
+                                          }
+                                          return isDark ? Colors.grey[700]! : Colors.grey[300]!;
+                                        },
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(4),
                                       ),

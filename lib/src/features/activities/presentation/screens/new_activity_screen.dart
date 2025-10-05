@@ -282,6 +282,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   Widget _buildSaveButton(bool isDark) {
     return SafeArea(
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
@@ -293,22 +294,26 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
             ),
           ],
         ),
-        child: ElevatedButton(
-          onPressed: _saveActivity,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4A9EFF),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _saveActivity,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A9EFF),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+              minimumSize: const Size(double.infinity, 50),
             ),
-            elevation: 0,
-          ),
-          child: const Text(
-            'Criar Evento',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+            child: const Text(
+              'Criar Evento',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
