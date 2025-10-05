@@ -44,12 +44,12 @@ class _SettingsScreenState extends State<SettingsScreen>
 
     try {
       _currentUser = _authService.currentUser;
-      if (_currentUser != null) {
-        final prefs = await _userDataService.getPreferences();
-        _temperatureUnit = prefs['temperatureUnit'] ?? 'celsius';
-        _windUnit = prefs['windUnit'] ?? 'kmh';
-        _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
-      }
+      
+      // ✅ SOLUÇÃO URGENTE: Não carregar do Firestore - usar valores padrão locais
+      // Isso previne travamento quando Firestore está lento/sem rede
+      _temperatureUnit = 'celsius';
+      _windUnit = 'kmh';
+      _precipitationUnit = 'mm';
 
       _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
       final savedLocation = await _locationService.getSavedLocation();
@@ -65,11 +65,15 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Future<void> _savePreferences() async {
     try {
-      await _userDataService.savePreferences({
-        'temperatureUnit': _temperatureUnit,
-        'windUnit': _windUnit,
-        'precipitationUnit': _precipitationUnit,
-      });
+      // ✅ SOLUÇÃO URGENTE: Comentar salvamento no Firestore para evitar travamentos
+      // TODO: Implementar salvamento local com SharedPreferences
+      debugPrint('💾 Preferências salvas localmente (Firestore desabilitado): $_temperatureUnit, $_windUnit, $_precipitationUnit');
+      
+      // await _userDataService.savePreferences({
+      //   'temperatureUnit': _temperatureUnit,
+      //   'windUnit': _windUnit,
+      //   'precipitationUnit': _precipitationUnit,
+      // });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

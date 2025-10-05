@@ -188,20 +188,32 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       body: StreamBuilder<List<Activity>>(
         stream: _activityRepository.watchAll(),
         builder: (context, snapshot) {
-          // Update local state when stream updates
+          // ✅ CORREÇÃO URGENTE: Não chamar setState durante build!
+          // Agendar atualização para APÓS o build
           if (snapshot.hasData) {
-            _allActivities = snapshot.data!;
-            _filterActivities();
+            final newActivities = snapshot.data!;
             
-            // Analyze future events in background (only if not already analyzing)
-            if (!_isAnalyzing) {
-              final now = DateTime.now();
-              final futureEvents = _allActivities
-                  .where((a) => a.date.isAfter(now))
-                  .toList();
-              if (futureEvents.isNotEmpty) {
-                _analyzeActivities(futureEvents);
-              }
+            // Verificar se houve mudança antes de agendar setState
+            if (_allActivities.length != newActivities.length ||
+                !_allActivities.every((a) => newActivities.any((n) => n.id == a.id))) {
+              
+              // Agendar setState para APÓS o build
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                _allActivities = newActivities;
+                _filterActivities();
+                
+                // Analyze future events in background (only if not already analyzing)
+                if (!_isAnalyzing) {
+                  final now = DateTime.now();
+                  final futureEvents = _allActivities
+                      .where((a) => a.date.isAfter(now))
+                      .toList();
+                  if (futureEvents.isNotEmpty) {
+                    _analyzeActivities(futureEvents);
+                  }
+                }
+              });
             }
           }
 

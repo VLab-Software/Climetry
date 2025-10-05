@@ -27,7 +27,12 @@ class UserDataService {
           'enabledAlerts': [],
           'notificationsEnabled': true,
         },
-      }, SetOptions(merge: true));
+      }, SetOptions(merge: true)).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw FirestoreException('⏱️ Timeout ao criar perfil');
+        },
+      );
     } catch (e) {
       throw FirestoreException('Erro ao criar perfil: $e');
     }
@@ -38,7 +43,12 @@ class UserDataService {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
     try {
-      await _firestore.collection('users').doc(_userId).update(data);
+      await _firestore.collection('users').doc(_userId).update(data).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw FirestoreException('⏱️ Timeout ao atualizar perfil');
+        },
+      );
     } catch (e) {
       throw FirestoreException('Erro ao atualizar perfil: $e');
     }
@@ -49,7 +59,12 @@ class UserDataService {
     if (_userId == null) return null;
 
     try {
-      final doc = await _firestore.collection('users').doc(_userId).get();
+      final doc = await _firestore.collection('users').doc(_userId).get().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw FirestoreException('⏱️ Timeout ao obter perfil');
+        },
+      );
       return doc.data();
     } catch (e) {
       throw FirestoreException('Erro ao obter perfil: $e');
@@ -74,7 +89,12 @@ class UserDataService {
     try {
       await _firestore.collection('users').doc(_userId).update({
         'preferences': preferences,
-      });
+      }).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw FirestoreException('⏱️ Timeout ao salvar preferências');
+        },
+      );
     } catch (e) {
       throw FirestoreException('Erro ao salvar preferências: $e');
     }
@@ -87,10 +107,17 @@ class UserDataService {
     }
 
     try {
-      final doc = await _firestore.collection('users').doc(_userId).get();
+      final doc = await _firestore.collection('users').doc(_userId).get().timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {
+          print('⏱️ Timeout ao obter preferências - usando padrão');
+          return _firestore.collection('_timeout_').doc('_default_').get();
+        },
+      );
       final data = doc.data();
       return data?['preferences'] ?? _defaultPreferences();
     } catch (e) {
+      print('⚠️ Erro ao obter preferências: $e - usando padrão');
       return _defaultPreferences();
     }
   }
@@ -283,14 +310,30 @@ class UserDataService {
           .collection('users')
           .doc(_userId)
           .collection('activities')
-          .get();
+          .get()
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () {
+              throw FirestoreException('⏱️ Timeout ao buscar atividades para deletar');
+            },
+          );
 
       for (var doc in activitiesSnapshot.docs) {
-        await doc.reference.delete();
+        await doc.reference.delete().timeout(
+          const Duration(seconds: 3),
+          onTimeout: () {
+            print('⏱️ Timeout ao deletar atividade ${doc.id}');
+          },
+        );
       }
 
       // Deletar perfil do usuário
-      await _firestore.collection('users').doc(_userId).delete();
+      await _firestore.collection('users').doc(_userId).delete().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw FirestoreException('⏱️ Timeout ao deletar perfil');
+        },
+      );
     } catch (e) {
       throw FirestoreException('Erro ao deletar dados: $e');
     }

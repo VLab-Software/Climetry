@@ -71,12 +71,19 @@ class ActivityRepository {
 
   Future<Activity?> getById(String id) async {
     try {
-      final doc = await _firestore.collection('activities').doc(id).get();
+      final doc = await _firestore.collection('activities').doc(id).get().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          print('⏱️ Timeout ao buscar atividade $id');
+          return _firestore.collection('_timeout_').doc('_default_').get();
+        },
+      );
       
       if (!doc.exists) return null;
       
       return Activity.fromJson(doc.data()!);
     } catch (e) {
+      print('⚠️ Erro ao buscar atividade: $e');
       return null;
     }
   }

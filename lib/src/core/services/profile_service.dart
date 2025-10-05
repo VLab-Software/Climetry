@@ -160,9 +160,16 @@ class ProfileService {
       final user = currentUser;
       if (user == null) return null;
 
-      final doc = await _firestore.collection('users').doc(user.uid).get();
+      final doc = await _firestore.collection('users').doc(user.uid).get().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          print('⏱️ Timeout ao obter dados do perfil');
+          return _firestore.collection('_timeout_').doc('_default_').get();
+        },
+      );
       return doc.data();
     } catch (e) {
+      print('⚠️ Erro ao obter perfil: $e');
       return null;
     }
   }
