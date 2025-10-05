@@ -244,6 +244,11 @@ Seja conversacional e amigável.
     return await _makeRequest(prompt, maxTokens: 100);
   }
 
+  /// Gera análise específica para um evento
+  Future<String> generateEventAnalysis(String prompt, {int maxTokens = 600}) async {
+    return await _makeRequest(prompt, maxTokens: maxTokens);
+  }
+
   /// Requisição genérica para OpenAI
   Future<String> _makeRequest(String prompt, {int maxTokens = 200}) async {
     try {
