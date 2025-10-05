@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'src/core/auth/auth_wrapper.dart';
@@ -28,6 +29,15 @@ void main() async {
           measurementId: "G-H36QPYN3EY",
         ),
       );
+      
+      // DESABILITAR CACHE PERSISTENTE DO FIRESTORE NA WEB
+      // Isso força todas as queries a irem direto ao servidor
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: false,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+      
+      debugPrint('🔥 Firestore: Cache desabilitado para web');
     } else {
       // Para Android e iOS, usa os arquivos de configuração nativos
       await Firebase.initializeApp();

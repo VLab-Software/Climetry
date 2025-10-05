@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/event_weather_prediction_service.dart';
@@ -76,9 +77,9 @@ class _HomeScreenState extends State<HomeScreen>
       
       final events = await _activityRepository.getAll()
           .timeout(
-            const Duration(seconds: 10),
+            const Duration(seconds: 15),
             onTimeout: () {
-              debugPrint('⚠️ Timeout ao carregar eventos');
+              debugPrint('⚠️ Timeout ao carregar eventos (15s)');
               return [];
             },
           );
@@ -101,12 +102,21 @@ class _HomeScreenState extends State<HomeScreen>
       // Analisar clima para cada evento (até 10 eventos mais próximos)
       final eventsToAnalyze = upcomingEvents.take(10).toList();
 
-      // Analisar cada evento individualmente
+      // Analisar cada evento individualmente com timeout por evento
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
         try {
-          final analysis = await _predictionService.analyzeEvent(event);
+          debugPrint('🌤️ Analisando clima para: ${event.title}');
+          final analysis = await _predictionService.analyzeEvent(event)
+              .timeout(
+                const Duration(seconds: 10),
+                onTimeout: () {
+                  debugPrint('⏱️ Timeout ao analisar ${event.title}');
+                  throw TimeoutException('Análise timeout');
+                },
+              );
           analyses.add(analysis);
+          debugPrint('✅ Análise concluída para: ${event.title}');
         } catch (e) {
           debugPrint('⚠️ Erro ao analisar evento ${event.title}: $e');
           // Continuar mesmo com erro em um evento específico
