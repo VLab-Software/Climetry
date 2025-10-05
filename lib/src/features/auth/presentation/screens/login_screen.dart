@@ -67,10 +67,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 0 : (isTablet ? 40 : 24),
+              horizontal: isDesktop ? 80 : (isTablet ? 60 : 24),
               vertical: 32,
             ),
-            child: _buildResponsiveLayout(isDesktop, isTablet, isWeb),
+            child: Center(
+              child: _buildResponsiveLayout(isDesktop, isTablet, isWeb),
+            ),
           ),
         ),
       ),
@@ -79,81 +81,94 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildResponsiveLayout(bool isDesktop, bool isTablet, bool isWeb) {
     if (isDesktop) {
-      // Layout Desktop (2 colunas)
+      // Layout Desktop (centralizado com max width)
       return Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
+        constraints: const BoxConstraints(maxWidth: 1000),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 1,
-              child: _buildWelcomeSection(isLarge: true),
+              child: Center(child: _buildWelcomeSection(isLarge: true)),
             ),
-            const SizedBox(width: 80),
+            const SizedBox(width: 100),
             Expanded(
               flex: 1,
-              child: _buildLoginForm(isWeb: isWeb, maxWidth: 450),
+              child: Center(child: _buildLoginForm(isWeb: isWeb, maxWidth: 400)),
             ),
           ],
         ),
       );
     } else if (isTablet) {
-      // Layout Tablet (single column, mais espaçoso)
+      // Layout Tablet (centralizado)
       return Container(
-        constraints: const BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 450),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildWelcomeSection(isLarge: false),
             const SizedBox(height: 48),
-            _buildLoginForm(isWeb: isWeb, maxWidth: 500),
+            _buildLoginForm(isWeb: isWeb, maxWidth: 450),
           ],
         ),
       );
     } else {
-      // Layout Mobile (compact)
-      return Column(
-        children: [
-          _buildWelcomeSection(isLarge: false),
-          const SizedBox(height: 32),
-          _buildLoginForm(isWeb: isWeb, maxWidth: double.infinity),
-        ],
+      // Layout Mobile (centralizado)
+      return Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildWelcomeSection(isLarge: false),
+            const SizedBox(height: 32),
+            _buildLoginForm(isWeb: isWeb, maxWidth: double.infinity),
+          ],
+        ),
       );
     }
   }
 
   Widget _buildWelcomeSection({required bool isLarge}) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
           Icons.cloud,
           size: isLarge ? 80 : 60,
           color: const Color(0xFF4A9EFF),
         ),
-        SizedBox(height: isLarge ? 32 : 24),
+        SizedBox(height: isLarge ? 24 : 20),
         Text(
           'Bem-vindo ao',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white70,
-            fontSize: isLarge ? 24 : 18,
+            fontSize: isLarge ? 20 : 16,
             fontWeight: FontWeight.w300,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Climetry',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white,
-            fontSize: isLarge ? 56 : 42,
+            fontSize: isLarge ? 48 : 36,
             fontWeight: FontWeight.bold,
             height: 1.2,
           ),
         ),
-        SizedBox(height: isLarge ? 24 : 16),
+        SizedBox(height: isLarge ? 16 : 12),
         Text(
           'Análise climática inteligente\npara seus eventos',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
-            fontSize: isLarge ? 18 : 16,
+            fontSize: isLarge ? 16 : 14,
             height: 1.5,
           ),
         ),
@@ -172,18 +187,20 @@ class _LoginScreenState extends State<LoginScreen> {
             // Título do formulário
             Text(
               'Entrar na conta',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isWeb ? 32 : 28,
+                fontSize: isWeb ? 28 : 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Acesse sua conta para continuar',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white60,
-                fontSize: isWeb ? 16 : 14,
+                fontSize: isWeb ? 14 : 13,
               ),
             ),
             const SizedBox(height: 40),
@@ -207,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo Senha
+            // Campo Senha - SEM validação de tamanho mínimo no login
             _buildTextField(
               controller: _passwordController,
               label: 'Senha',
@@ -225,9 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (value == null || value.isEmpty) {
                   return 'Digite sua senha';
                 }
-                if (value.length < 6) {
-                  return 'Senha deve ter no mínimo 6 caracteres';
-                }
+                // Removido: validação de tamanho mínimo no login
                 return null;
               },
             ),

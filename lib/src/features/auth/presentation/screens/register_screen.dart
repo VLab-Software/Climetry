@@ -100,10 +100,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 0 : (isTablet ? 40 : 24),
+              horizontal: isDesktop ? 80 : (isTablet ? 60 : 24),
               vertical: 32,
             ),
-            child: _buildResponsiveLayout(isDesktop, isTablet, isWeb),
+            child: Center(
+              child: _buildResponsiveLayout(isDesktop, isTablet, isWeb),
+            ),
           ),
         ),
       ),
@@ -113,77 +115,90 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildResponsiveLayout(bool isDesktop, bool isTablet, bool isWeb) {
     if (isDesktop) {
       return Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
+        constraints: const BoxConstraints(maxWidth: 1000),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 1,
-              child: _buildInfoSection(isLarge: true),
+              child: Center(child: _buildInfoSection(isLarge: true)),
             ),
-            const SizedBox(width: 80),
+            const SizedBox(width: 100),
             Expanded(
               flex: 1,
-              child: _buildRegisterForm(isWeb: isWeb, maxWidth: 450),
+              child: Center(child: _buildRegisterForm(isWeb: isWeb, maxWidth: 400)),
             ),
           ],
         ),
       );
     } else if (isTablet) {
       return Container(
-        constraints: const BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 450),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildInfoSection(isLarge: false),
             const SizedBox(height: 48),
-            _buildRegisterForm(isWeb: isWeb, maxWidth: 500),
+            _buildRegisterForm(isWeb: isWeb, maxWidth: 450),
           ],
         ),
       );
     } else {
-      return Column(
-        children: [
-          _buildInfoSection(isLarge: false),
-          const SizedBox(height: 32),
-          _buildRegisterForm(isWeb: isWeb, maxWidth: double.infinity),
-        ],
+      return Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildInfoSection(isLarge: false),
+            const SizedBox(height: 32),
+            _buildRegisterForm(isWeb: isWeb, maxWidth: double.infinity),
+          ],
+        ),
       );
     }
   }
 
   Widget _buildInfoSection({required bool isLarge}) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
           Icons.person_add,
           size: isLarge ? 80 : 60,
           color: const Color(0xFF4A9EFF),
         ),
-        SizedBox(height: isLarge ? 32 : 24),
+        SizedBox(height: isLarge ? 24 : 20),
         Text(
           'Junte-se ao',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white70,
-            fontSize: isLarge ? 24 : 18,
+            fontSize: isLarge ? 20 : 16,
             fontWeight: FontWeight.w300,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Climetry',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white,
-            fontSize: isLarge ? 56 : 42,
+            fontSize: isLarge ? 48 : 36,
             fontWeight: FontWeight.bold,
             height: 1.2,
           ),
         ),
-        SizedBox(height: isLarge ? 24 : 16),
+        SizedBox(height: isLarge ? 16 : 12),
         Text(
           'Crie sua conta e comece a\nplanejar eventos com\ninteligência climática',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
-            fontSize: isLarge ? 18 : 16,
+            fontSize: isLarge ? 16 : 14,
             height: 1.5,
           ),
         ),
@@ -201,18 +216,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             Text(
               'Criar nova conta',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isWeb ? 32 : 28,
+                fontSize: isWeb ? 28 : 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Preencha os dados abaixo',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white60,
-                fontSize: isWeb ? 16 : 14,
+                fontSize: isWeb ? 14 : 13,
               ),
             ),
             const SizedBox(height: 40),
