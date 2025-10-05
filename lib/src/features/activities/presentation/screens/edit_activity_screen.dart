@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../activities/domain/entities/activity.dart';
+import '../../../activities/data/repositories/activity_repository.dart';
 import '../../../../core/widgets/location_autocomplete_field.dart';
-import '../../../../core/services/user_data_service.dart';
 import '../../../../core/providers/event_refresh_notifier.dart';
 
 class EditActivityScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class EditActivityScreen extends StatefulWidget {
 
 class _EditActivityScreenState extends State<EditActivityScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _userDataService = UserDataService();
+  final _activityRepository = ActivityRepository();
 
   late TextEditingController _titleController;
   late TextEditingController _locationController;
@@ -126,7 +126,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
           monitoredConditions: _monitoredConditions,
         );
 
-        await _userDataService.updateActivity(updatedActivity);
+        await _activityRepository.update(updatedActivity);
 
         if (mounted) {
           // Notificar que o evento foi atualizado

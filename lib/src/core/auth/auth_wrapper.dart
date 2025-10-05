@@ -14,10 +14,25 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
+  void initState() {
+    super.initState();
+    // Forçar rebuild quando o estado de autenticação mudar
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (mounted) {
+        setState(() {
+          debugPrint('🔄 Auth state changed: ${user?.email ?? "null"}');
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        debugPrint('📱 AuthWrapper build - ConnectionState: ${snapshot.connectionState}, Has user: ${snapshot.data != null}');
+        
         // Carregando - mostrar splash screen
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
