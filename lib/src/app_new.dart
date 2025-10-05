@@ -49,67 +49,74 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
-      // Floating Tab Bar sempre visível na parte inferior
+      // Bottom Navigation Bar estática, clean e moderna
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-        height: 70,
         decoration: BoxDecoration(
-          color: const Color(0xFF2A3A4D),
-          borderRadius: BorderRadius.circular(30),
+          color: isDark ? Color(0xFF1F2937) : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, -2),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildTabItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'Início',
-                index: 0,
-              ),
-              _buildTabItem(
-                icon: Icons.calendar_today_outlined,
-                activeIcon: Icons.calendar_today,
-                label: 'Agenda',
-                index: 1,
-              ),
-              _buildTabItem(
-                icon: Icons.warning_amber_outlined,
-                activeIcon: Icons.warning_amber,
-                label: 'Alertas',
-                index: 2,
-              ),
-              _buildTabItem(
-                icon: Icons.settings_outlined,
-                activeIcon: Icons.settings,
-                label: 'Ajustes',
-                index: 3,
-              ),
-            ],
+        child: SafeArea(
+          child: Container(
+            height: 65,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildCleanTabItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Início',
+                  index: 0,
+                  isDark: isDark,
+                ),
+                _buildCleanTabItem(
+                  icon: Icons.calendar_today_outlined,
+                  activeIcon: Icons.calendar_today,
+                  label: 'Agenda',
+                  index: 1,
+                  isDark: isDark,
+                ),
+                _buildCleanTabItem(
+                  icon: Icons.warning_amber_outlined,
+                  activeIcon: Icons.warning_amber,
+                  label: 'Alertas',
+                  index: 2,
+                  isDark: isDark,
+                ),
+                _buildCleanTabItem(
+                  icon: Icons.settings_outlined,
+                  activeIcon: Icons.settings,
+                  label: 'Ajustes',
+                  index: 3,
+                  isDark: isDark,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTabItem({
+  Widget _buildCleanTabItem({
     required IconData icon,
     required IconData activeIcon,
     required String label,
     required int index,
+    required bool isDark,
   }) {
     final isSelected = _currentIndex == index;
     
@@ -118,35 +125,36 @@ class _MainScaffoldState extends State<MainScaffold> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => setState(() => _currentIndex = index),
-          borderRadius: BorderRadius.circular(30),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected 
+                  ? Color(0xFF3B82F6).withOpacity(0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedScale(
-                  scale: isSelected ? 1.1 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    isSelected ? activeIcon : icon,
-                    color: isSelected
-                        ? const Color(0xFF4A9EFF)
-                        : Colors.grey.shade400,
-                    size: 26,
-                  ),
+                Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected
+                      ? Color(0xFF3B82F6)
+                      : (isDark ? Colors.white54 : Colors.black45),
+                  size: 24,
                 ),
-                const SizedBox(height: 4),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 200),
+                SizedBox(height: 4),
+                Text(
+                  label,
                   style: TextStyle(
                     color: isSelected
-                        ? const Color(0xFF4A9EFF)
-                        : Colors.grey.shade400,
-                    fontSize: isSelected ? 12 : 11,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ? Color(0xFF3B82F6)
+                        : (isDark ? Colors.white54 : Colors.black45),
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
-                  child: Text(label),
                 ),
               ],
             ),
