@@ -251,6 +251,11 @@ Seja conversacional e amigável.
 
   /// Requisição genérica para OpenAI
   Future<String> _makeRequest(String prompt, {int maxTokens = 200}) async {
+    // Verificar se API key está configurada
+    if (_apiKey.isEmpty) {
+      return 'ℹ️ **Análise IA Indisponível**\n\nPara ativar análises inteligentes:\n• Configure a chave OpenAI API\n• Execute com: flutter run --dart-define=OPENAI_API_KEY=sua_chave';
+    }
+
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
@@ -263,7 +268,7 @@ Seja conversacional e amigável.
           'messages': [
             {
               'role': 'system',
-              'content': 'Você é um assistente climático inteligente e prestativo. Suas respostas são sempre práticas, concisas e focadas em ajudar o usuário.',
+              'content': 'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, com insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
             },
             {
               'role': 'user',
@@ -278,12 +283,16 @@ Seja conversacional e amigável.
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'].toString().trim();
+      } else if (response.statusCode == 401) {
+        return '🔐 **Erro de Autenticação**\n\nChave OpenAI inválida ou expirada. Verifique sua configuração.';
+      } else if (response.statusCode == 429) {
+        return '⏱️ **Limite de Requisições**\n\nMuitas requisições. Aguarde alguns instantes e tente novamente.';
       } else {
-        throw Exception('OpenAI API error: ${response.statusCode}');
+        throw Exception('OpenAI API error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      // Em caso de erro, retorna mensagem padrão
-      return 'Não foi possível gerar insights no momento. Tente novamente mais tarde.';
+      // Em caso de erro, retorna mensagem informativa
+      return '⚠️ **Erro Temporário**\n\nNão foi possível conectar ao serviço de análise IA.\n\nVerifique sua conexão com a internet e tente novamente.';
     }
   }
 }
