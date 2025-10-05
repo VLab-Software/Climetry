@@ -61,6 +61,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // ThemeProvider mantido apenas para compatibilidade
+        // mas não é mais usado - tema fixo light
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => EventRefreshNotifier()),
       ],
@@ -74,24 +76,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return MaterialApp(
-          title: 'Climetry',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: themeProvider.themeMode,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('pt', 'BR'), Locale('en', 'US')],
-          locale: const Locale('pt', 'BR'),
-          home: const AuthWrapper(),
-        );
-      },
+    // TEMA FIXO LIGHT - SEM CONSUMER, SEM CARREGAMENTO
+    return MaterialApp(
+      title: 'Climetry',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      themeMode: ThemeMode.light, // SEMPRE LIGHT - FIXO E IMEDIATO
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pt', 'BR'), Locale('en', 'US')],
+      locale: const Locale('pt', 'BR'),
+      home: const AuthWrapper(),
     );
   }
 }
