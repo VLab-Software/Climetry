@@ -699,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildWeatherInfo(IconDate icon, String value, bool isDark) {
+  Widget _buildWeatherInfo(IconData icon, String value, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

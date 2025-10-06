@@ -65,7 +65,7 @@ class EventWeatherAnalysis {
     }
   }
 
-  IconDate get riskIcon {
+  IconData get riskIcon {
     switch (risk) {
       case EventWeatherRisk.safe:
         return Icons.check_circle;

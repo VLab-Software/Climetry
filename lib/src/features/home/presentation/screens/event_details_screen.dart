@@ -589,7 +589,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Widget _buildInfoCard(
     bool isDark, {
-    required IconDate icon,
+    required IconData icon,
     required String title,
     required String content,
   }) {
@@ -697,7 +697,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildWeatherMetric(
-    IconDate icon,
+    IconData icon,
     String value,
     String label,
     bool isDark,
@@ -898,14 +898,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  IconDate _getSuggestionIcon(SuggestionType type) {
+  IconData _getSuggestionIcon(SuggestionType type) {
     switch (type) {
       case SuggestionType.reschedule:
         return Icons.event_available;
       case SuggestionType.relocate:
         return Icons.location_on;
       case SuggestionType.prepare:
-        return Icons.inwindry_2;
+        return Icons.inventory_2;
       case SuggestionType.cancel:
         return Icons.cancel;
       default:

@@ -391,7 +391,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
     );
   }
 
-  IconDate _getNotificationIcon(NotificationType type) {
+  IconData _getNotificationIcon(NotificationType type) {
     switch (type) {
       case NotificationType.friendRequest:
         return Icons.person_add;

@@ -522,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildFilterOption({
-    required IconDate icon,
+    required IconData icon,
     required String title,
     required String subtitle,
     required String value,
@@ -877,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen>
     return metrics;
   }
 
-  Widget _buildWeatherMetric(IconDate icon, String value, bool isDark) {
+  Widget _buildWeatherMetric(IconData icon, String value, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -924,7 +924,7 @@ class _HomeScreenState extends State<HomeScreen>
     return 'Em ${(difference / 30).floor()} meses';
   }
 
-  IconDate _getAlertIcon(WeatherAlertType type) {
+  IconData _getAlertIcon(WeatherAlertType type) {
     return switch (type) {
       WeatherAlertType.heavyRain => Icons.water_drop,
       WeatherAlertType.severeStorm => Icons.thunderstorm,

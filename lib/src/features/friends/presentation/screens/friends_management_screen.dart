@@ -76,7 +76,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Enter your friend's email:',
+              "Enter your friend's email:",
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),

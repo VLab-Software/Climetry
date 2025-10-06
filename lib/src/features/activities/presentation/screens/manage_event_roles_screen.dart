@@ -276,7 +276,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
 
   Widget _buildRoleBadge(EventRole role) {
     Color color;
-    IconDate icon;
+    IconData icon;
 
     switch (role) {
       case EventRole.owner:
@@ -327,7 +327,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
     EventRole role,
     String title,
     String subtitle,
-    IconDate icon,
+    IconData icon,
   ) {
     final isSelected = participant.role == role;
 

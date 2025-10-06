@@ -266,7 +266,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconDate icon,
+    required IconData icon,
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {

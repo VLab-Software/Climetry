@@ -287,7 +287,7 @@ class CustomAlert {
     }
   }
 
-  IconDate get severityIcon {
+  IconData get severityIcon {
     switch (severity) {
       case AlertSeverity.low:
         return Icons.info_outline;

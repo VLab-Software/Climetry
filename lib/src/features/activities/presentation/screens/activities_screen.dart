@@ -179,7 +179,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       body: StreamBuilder<List<Activity>>(
         stream: _activityRepository.watchAll(),
         builder: (context, snapshot) {
-          if (snapshot.hasDate) {
+          if (snapshot.hasData) {
             final newActivities = snapshot.data!;
             
             if (_allActivities.length != newActivities.length ||
@@ -204,7 +204,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           }
 
           final bool isLoading = snapshot.connectionState == ConnectionState.waiting;
-          final bool hasDate = snapshot.hasDate && _filteredActivities.isNotEmpty;
+          final bool hasDate = snapshot.hasData && _filteredActivities.isNotEmpty;
 
           return CustomScrollView(
             slivers: [
@@ -595,7 +595,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   Widget _buildFilterOption({
-    required IconDate icon,
+    required IconData icon,
     required String title,
     required String subtitle,
     required String value,
@@ -1169,7 +1169,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   Widget _buildActionButton({
-    required IconDate icon,
+    required IconData icon,
     required String label,
     required Color color,
     required bool isDark,

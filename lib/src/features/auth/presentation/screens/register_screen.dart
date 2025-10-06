@@ -456,7 +456,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconDate icon,
+    required IconData icon,
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,

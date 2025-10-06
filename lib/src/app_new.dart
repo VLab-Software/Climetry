@@ -120,8 +120,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   }
 
   Widget _buildCleanTabItem({
-    required IconDate icon,
-    required IconDate activeIcon,
+    required IconData icon,
+    required IconData activeIcon,
     required String label,
     required int index,
     required bool isDark,

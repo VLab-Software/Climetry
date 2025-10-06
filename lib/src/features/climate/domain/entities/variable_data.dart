@@ -5,7 +5,7 @@ class VariableDate {
   final String name;
   final String parameter;
   final String unit;
-  final IconDate icon;
+  final IconData icon;
   final double currentValue;
   final double minValue;
   final double maxValue;

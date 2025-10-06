@@ -381,7 +381,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     required TextEditingController controller,
     required String label,
     required String hint,
-    IconDate? prefixIcon,
+    IconData? prefixIcon,
     Widget? suffixIcon,
     String? Function(String?)? validator,
     int maxLines = 1,
@@ -694,7 +694,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildPickerButton({
-    required IconDate icon,
+    required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {

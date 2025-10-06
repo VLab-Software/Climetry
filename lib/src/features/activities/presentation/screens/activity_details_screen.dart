@@ -497,7 +497,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  Widget _buildWeatherItem(IconDate icon, String value, String label) {
+  Widget _buildWeatherItem(IconData icon, String value, String label) {
     return Column(
       children: [
         Icon(icon, color: const Color(0xFF4A9EFF), size: 24),
@@ -708,7 +708,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconDate icon, String label, String value) {
+  Widget _buildDetailRow(IconData icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

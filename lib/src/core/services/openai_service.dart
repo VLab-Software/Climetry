@@ -368,17 +368,17 @@ Responda APENAS with JSON válido neste formato:
         'temperature': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.meanTemp,
-          'label': Day ${w.date.day}'
+          'label': 'Day ${w.date.day}'
         }).toList(),
         'precipitation': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.precipitation,
-          'label': Day ${w.date.day}'
+          'label': 'Day ${w.date.day}'
         }).toList(),
         'windSpeed': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.windSpeed,
-          'label': Day ${w.date.day}'
+          'label': 'Day ${w.date.day}'
         }).toList(),
         'uvIndex': eventWeather.uvIndex,
       },

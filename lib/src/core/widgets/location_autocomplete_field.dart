@@ -5,7 +5,7 @@ class LocationAutocompleteField extends StatefulWidget {
   final TextEditingController controller;
   final String? labelText;
   final String? hintText;
-  final IconDate? prefixIcon;
+  final IconData? prefixIcon;
   final Widget? suffixIcon;
   final Function(LocationSuggestion)? onLocationSelected;
   final bool enabled;

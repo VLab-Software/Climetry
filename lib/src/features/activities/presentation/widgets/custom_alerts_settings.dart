@@ -376,7 +376,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
   Widget _buildToggleSection({
     required bool isDark,
-    required IconDate icon,
+    required IconData icon,
     required Color iconColor,
     required String title,
     required bool enabled,
@@ -467,7 +467,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
         ),
         SizedBox(height: 8),
         SliderTheme(
-          data: SliderThemeDate(
+          data: SliderThemeData(
             activeTrackColor: Color(0xFF3B82F6),
             inactiveTrackColor: Color(0xFF3B82F6).withOpacity(0.2),
             thumbColor: Color(0xFF3B82F6),

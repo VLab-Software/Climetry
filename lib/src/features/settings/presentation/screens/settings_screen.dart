@@ -571,7 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget _buildSection(
     bool isDark, {
     required String title,
-    required IconDate icon,
+    required IconData icon,
     required List<Widget> children,
   }) {
     return Container(
@@ -616,7 +616,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildSettingTile(
     bool isDark, {
-    required IconDate icon,
+    required IconData icon,
     required String title,
     String? subtitle,
     Widget? trailing,

@@ -440,7 +440,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   Widget _buildMapControlButton({
-    required IconDate icon,
+    required IconData icon,
     required VoidCallback onPressed,
     required bool isDark,
     required String heroTag,

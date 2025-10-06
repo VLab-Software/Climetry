@@ -114,7 +114,7 @@ class MeteomaticsParser {
     return '';
   }
 
-  static IconDate _icon(String p) {
+  static IconData _icon(String p) {
     if (p.contains('t_2m')) return Icons.thermostat_outlined;
     if (p.contains('precip')) return Icons.water_drop_outlined;
     if (p.contains('wind_speed')) return Icons.air;
