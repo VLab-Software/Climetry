@@ -6,7 +6,6 @@ import '../../../activities/domain/entities/activity.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/daily_weather.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
-import '../../../friends/domain/entities/friend.dart';
 import 'manage_event_roles_screen.dart';
 
 class ActivityDetailsScreen extends StatefulWidget {

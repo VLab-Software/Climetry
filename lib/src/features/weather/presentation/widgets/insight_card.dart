@@ -377,8 +377,8 @@ class _InsightCardState extends State<InsightCard>
         SizedBox(
           height: 200,
           child: LineChart(
-            LineChartDate(
-              gridDate: FlGridDate(
+            LineChartData(
+              gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: 5,
@@ -391,7 +391,7 @@ class _InsightCardState extends State<InsightCard>
                   );
                 },
               ),
-              titlesDate: FlTitlesDate(
+              titlesData: FlTitlesData(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -436,17 +436,17 @@ class _InsightCardState extends State<InsightCard>
                   sideTitles: SideTitles(showTitles: false),
                 ),
               ),
-              borderDate: FlBorderDate(show: false),
-              lineBarsDate: [
-                LineChartBarDate(
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
                   spots: data.asMap().entries.map((entry) {
                     return FlSpot(entry.key.toDouble(), entry.value.value);
                   }).toList(),
                   isCurved: true,
                   color: const Color(0xFFEF4444),
                   barWidth: 3,
-                  dotDate: const FlDotDate(show: true),
-                  belowBarDate: BarAreaDate(
+                  dotData: const FlDotData(show: true),
+                  belowBarData: BarAreaData(
                     show: true,
                     color: const Color(0xFFEF4444).withOpacity(0.1),
                   ),
@@ -488,8 +488,8 @@ class _InsightCardState extends State<InsightCard>
         SizedBox(
           height: 200,
           child: BarChart(
-            BarChartDate(
-              gridDate: FlGridDate(
+            BarChartData(
+              gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: 10,
@@ -502,7 +502,7 @@ class _InsightCardState extends State<InsightCard>
                   );
                 },
               ),
-              titlesDate: FlTitlesDate(
+              titlesData: FlTitlesData(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -547,12 +547,12 @@ class _InsightCardState extends State<InsightCard>
                   sideTitles: SideTitles(showTitles: false),
                 ),
               ),
-              borderDate: FlBorderDate(show: false),
+              borderData: FlBorderData(show: false),
               barGroups: data.asMap().entries.map((entry) {
-                return BarChartGroupDate(
+                return BarChartGroupData(
                   x: entry.key,
                   barRods: [
-                    BarChartRodDate(
+                    BarChartRodData(
                       toY: entry.value.value,
                       color: const Color(0xFF3B82F6),
                       width: 16,

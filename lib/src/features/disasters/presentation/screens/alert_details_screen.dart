@@ -285,8 +285,8 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: LineChart(
-                LineChartDate(
-                  gridDate: FlGridDate(
+                LineChartData(
+                  gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) => FlLine(
@@ -294,7 +294,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       strokeWidth: 1,
                     ),
                   ),
-                  titlesDate: FlTitlesDate(
+                  titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -339,14 +339,14 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     ),
                   ),
-                  borderDate: FlBorderDate(show: false),
-                  lineBarsDate: [
-                    LineChartBarDate(
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
                       spots: _getChartDate(),
                       isCurved: true,
                       color: alertColor,
                       barWidth: 3,
-                      dotDate: FlDotDate(
+                      dotData: FlDotData(
                         show: true,
                         getDotPainter: (spot, percent, barDate, index) =>
                             FlDotCirclePainter(
@@ -356,7 +356,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                               strokeColor: const Color(0xFF2A3A4D),
                             ),
                       ),
-                      belowBarDate: BarAreaDate(
+                      belowBarData: BarAreaData(
                         show: true,
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -369,8 +369,8 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     ),
                   ],
-                  lineTouchDate: LineTouchDate(
-                    touchTooltipDate: LineTouchTooltipDate(
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
                       getTooltipColor: (_) => const Color(0xFF2A3A4D),
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((spot) {

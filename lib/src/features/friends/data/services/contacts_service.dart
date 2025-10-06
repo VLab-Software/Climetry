@@ -115,9 +115,9 @@ class ContactsService {
       if (cleanPhone == null) return false;
 
       final message = Uri.encodeComponent(
-        'Olá! Sou $inviterName e estou usando o Climetry, um app incrível para '
-        'planning events with previsões climáticas detalhadas! 🌤️\n\n'
-        'Download now and let's organize events together:\n'
+        'Hello! I am $inviterName and I am using Climetry, an amazing app for '
+        'planning events with detailed weather forecasts! 🌤️\n\n'
+        'Download now and organize events together:\n'
         'https://climetry.app/download',
       );
 

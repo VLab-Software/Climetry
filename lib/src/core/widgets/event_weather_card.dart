@@ -48,7 +48,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactCard(ThemeDate theme, bool isDark) {
+  Widget _buildCompactCard(ThemeData theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -112,7 +112,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(ThemeDate theme) {
+  Widget _buildHeader(ThemeData theme) {
     return Row(
       children: [
         Container(
@@ -176,7 +176,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRiskIndicator(ThemeDate theme) {
+  Widget _buildRiskIndicator(ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -215,7 +215,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAIInsight(ThemeDate theme, bool isDark) {
+  Widget _buildAIInsight(ThemeData theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -267,7 +267,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSuggestions(ThemeDate theme, bool isDark) {
+  Widget _buildSuggestions(ThemeData theme, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,7 +288,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSuggestionItem(EventSuggestion suggestion, ThemeDate theme) {
+  Widget _buildSuggestionItem(EventSuggestion suggestion, ThemeData theme) {
     Color priorityColor;
     switch (suggestion.priority) {
       case SuggestionPriority.high:
