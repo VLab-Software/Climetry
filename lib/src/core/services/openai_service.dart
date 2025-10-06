@@ -265,6 +265,221 @@ Seja conversacional e amigável.
     return await _makeRequest(prompt, maxTokens: maxTokens);
   }
 
+  /// Gera insights completos com dados estruturados para gráficos
+  Future<Map<String, dynamic>> generateWeatherInsights({
+    required Activity activity,
+    required List<DailyWeather> forecast,
+    List<WeatherAlert>? alerts,
+  }) async {
+    if (forecast.isEmpty) {
+      return {
+        'title': 'Sem dados disponíveis',
+        'description': 'Não há previsão climática para este evento.',
+        'rating': 5.0,
+        'recommendations': [],
+        'whatToBring': [],
+        'bestTime': 'Indeterminado',
+        'alerts': [],
+      };
+    }
+
+    final eventWeather = forecast.first;
+    final alertsText = alerts?.isNotEmpty == true
+        ? alerts!.map((a) => '${a.type.label}: ${a.value} ${a.unit}').join(', ')
+        : 'Sem alertas';
+
+    final prompt = '''
+Você é um meteorologista especialista. Analise as condições climáticas para o evento e forneça insights detalhados em JSON:
+
+**Evento:** ${activity.title}
+**Tipo:** ${activity.type.label}
+**Data:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
+**Local:** ${activity.location}
+
+**Previsão para o dia:**
+- Temperatura: ${eventWeather.minTemp.toInt()}°C - ${eventWeather.maxTemp.toInt()}°C
+- Chuva: ${eventWeather.precipitation.toInt()}mm (${eventWeather.precipitationProbability.toInt()}%)
+- Vento: ${eventWeather.windSpeed.toInt()} km/h
+- Umidade: ${eventWeather.humidity.toInt()}%
+- UV: ${eventWeather.uvIndex.toInt()}
+- Alertas: $alertsText
+
+**Previsão dos próximos dias:**
+${forecast.take(7).map((w) => '${w.date.day}/${w.date.month}: ${w.minTemp.toInt()}-${w.maxTemp.toInt()}°C, ${w.precipitation.toInt()}mm').join('\n')}
+
+Responda APENAS com JSON válido neste formato:
+{
+  "title": "Título descritivo da análise (máx 50 chars)",
+  "description": "Análise geral do clima e impacto no evento (100-150 palavras)",
+  "rating": 8.5,
+  "recommendations": [
+    "Recomendação prática 1",
+    "Recomendação prática 2",
+    "Recomendação prática 3"
+  ],
+  "whatToBring": [
+    "Item essencial 1",
+    "Item essencial 2",
+    "Item essencial 3"
+  ],
+  "bestTime": "Melhor horário para o evento (ex: 'Manhã (8h-12h)' ou 'Tarde (14h-18h)')",
+  "alerts": [
+    {
+      "type": "warning",
+      "message": "Mensagem do alerta",
+      "icon": "⚠️"
+    }
+  ],
+  "chartData": {
+    "temperature": [
+      {"time": "${forecast[0].date.toIso8601String()}", "value": ${eventWeather.meanTemp}, "label": "Dia ${forecast[0].date.day}"}
+    ],
+    "precipitation": [
+      {"time": "${forecast[0].date.toIso8601String()}", "value": ${eventWeather.precipitation}, "label": "Dia ${forecast[0].date.day}"}
+    ],
+    "windSpeed": [
+      {"time": "${forecast[0].date.toIso8601String()}", "value": ${eventWeather.windSpeed}, "label": "Dia ${forecast[0].date.day}"}
+    ],
+    "uvIndex": ${eventWeather.uvIndex}
+  }
+}
+
+- rating: 0-10, onde 10 = condições perfeitas
+- alerts type: "info", "warning" ou "danger"
+- Seja específico e útil
+- Inclua dados reais de temperatura, chuva e vento para os gráficos
+''';
+
+    final response = await _makeRequest(prompt, maxTokens: 800);
+
+    try {
+      final jsonStart = response.indexOf('{');
+      final jsonEnd = response.lastIndexOf('}') + 1;
+      if (jsonStart != -1 && jsonEnd > jsonStart) {
+        final jsonStr = response.substring(jsonStart, jsonEnd);
+        return jsonDecode(jsonStr);
+      }
+    } catch (e) {
+      // Se JSON parsing falhar, retorna dados padrão estruturados
+    }
+
+    // Fallback com dados reais da previsão
+    return {
+      'title': 'Análise Climática - ${activity.title}',
+      'description':
+          'Condições previstas: temperatura entre ${eventWeather.minTemp.toInt()}°C e ${eventWeather.maxTemp.toInt()}°C, '
+          'com ${eventWeather.precipitationProbability.toInt()}% de chance de chuva. '
+          'Vento de ${eventWeather.windSpeed.toInt()} km/h e índice UV ${eventWeather.uvIndex.toInt()}.',
+      'rating': _calculateRating(eventWeather),
+      'recommendations': [
+        'Verifique a previsão atualizada próximo à data',
+        'Prepare-se para variações de temperatura',
+        'Considere levar itens de proteção',
+      ],
+      'whatToBring': _suggestItems(eventWeather, activity.type),
+      'bestTime': _suggestBestTime(eventWeather),
+      'alerts': _buildAlerts(alerts ?? []),
+      'chartData': {
+        'temperature': forecast.take(7).map((w) => {
+          'time': w.date.toIso8601String(),
+          'value': w.meanTemp,
+          'label': 'Dia ${w.date.day}'
+        }).toList(),
+        'precipitation': forecast.take(7).map((w) => {
+          'time': w.date.toIso8601String(),
+          'value': w.precipitation,
+          'label': 'Dia ${w.date.day}'
+        }).toList(),
+        'windSpeed': forecast.take(7).map((w) => {
+          'time': w.date.toIso8601String(),
+          'value': w.windSpeed,
+          'label': 'Dia ${w.date.day}'
+        }).toList(),
+        'uvIndex': eventWeather.uvIndex,
+      },
+    };
+  }
+
+  double _calculateRating(DailyWeather weather) {
+    double rating = 10.0;
+    
+    // Penalizar extremos de temperatura
+    if (weather.maxTemp > 35 || weather.minTemp < 5) rating -= 2;
+    if (weather.maxTemp > 38 || weather.minTemp < 0) rating -= 2;
+    
+    // Penalizar chuva
+    if (weather.precipitationProbability > 50) rating -= 2;
+    if (weather.precipitationProbability > 80) rating -= 2;
+    
+    // Penalizar vento forte
+    if (weather.windSpeed > 40) rating -= 1;
+    if (weather.windSpeed > 60) rating -= 2;
+    
+    return rating.clamp(0, 10);
+  }
+
+  List<String> _suggestItems(DailyWeather weather, ActivityType type) {
+    final items = <String>[];
+    
+    if (weather.precipitationProbability > 30) {
+      items.add('Guarda-chuva ou capa de chuva');
+    }
+    if (weather.uvIndex > 6) {
+      items.add('Protetor solar FPS 50+');
+    }
+    if (weather.maxTemp > 28) {
+      items.add('Garrafa de água (1L+)');
+    }
+    if (weather.minTemp < 15) {
+      items.add('Agasalho ou jaqueta');
+    }
+    if (weather.windSpeed > 30) {
+      items.add('Roupas corta-vento');
+    }
+    
+    // Itens específicos por tipo de atividade
+    if (type == ActivityType.sport) {
+      items.add('Roupas esportivas adequadas');
+    } else if (type == ActivityType.social) {
+      items.add('Roupas confortáveis');
+    }
+    
+    return items.isEmpty ? ['Preparação básica recomendada'] : items;
+  }
+
+  String _suggestBestTime(DailyWeather weather) {
+    if (weather.maxTemp > 32) {
+      return 'Manhã (6h-10h) ou fim de tarde (17h-20h)';
+    } else if (weather.minTemp < 10) {
+      return 'Meio-dia (11h-15h)';
+    } else if (weather.precipitationProbability > 50) {
+      return 'Verifique previsão horária antes de sair';
+    }
+    return 'Qualquer horário do dia';
+  }
+
+  List<Map<String, dynamic>> _buildAlerts(List<WeatherAlert> alerts) {
+    return alerts.map((alert) {
+      String type = 'info';
+      String icon = 'ℹ️';
+      
+      final value = alert.value ?? 0;
+      if (value > 30) {
+        type = 'danger';
+        icon = '⛔';
+      } else if (value > 15) {
+        type = 'warning';
+        icon = '⚠️';
+      }
+      
+      return {
+        'type': type,
+        'message': '${alert.type.label}: ${alert.type.description}',
+        'icon': icon,
+      };
+    }).toList();
+  }
+
   /// Requisição genérica para OpenAI
   Future<String> _makeRequest(String prompt, {int maxTokens = 200}) async {
     // Verificar se API key está configurada
