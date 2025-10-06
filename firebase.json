@@ -14,6 +14,23 @@
     ],
     "headers": [
       {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Pragma",
+            "value": "no-cache"
+          },
+          {
+            "key": "Expires",
+            "value": "0"
+          }
+        ]
+      },
+      {
         "source": "**/*.@(js|css|woff2|woff|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)",
         "headers": [
           {
@@ -23,7 +40,7 @@
         ]
       },
       {
-        "source": "**/*.@(json|html)",
+        "source": "**/*.@(json)",
         "headers": [
           {
             "key": "Cache-Control",
