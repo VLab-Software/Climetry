@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     
     try {
-      debugPrint('🔄 Iniciando carregamento de ewinds...');
+      debugPrint('🔄 Iniciando carregamento de eventos...');
       
       if (mounted) {
         setState(() => _loading = true);
@@ -75,14 +75,14 @@ class _HomeScreenState extends State<HomeScreen>
       
       final events = await _activityRepository.getAll()
           .timeout(
-            const Duration(seconds: 5), // Reduzido para 5s
+            const Duration(seconds: 10), // Aumentado para 10s
             onTimeout: () {
-              debugPrint('⚠️ Timeout loading ewinds (5s)');
+              debugPrint('⚠️ Timeout loading eventos (10s)');
               return [];
             },
           );
 
-      debugPrint('✅ Ewinds carregados: ${events.length}');
+      debugPrint('✅ Eventos carregados: ${events.length}');
 
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
@@ -91,19 +91,26 @@ class _HomeScreenState extends State<HomeScreen>
         return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
       }).toList();
 
-      debugPrint('📅 Ewinds futuros: ${upcomingEvents.length}');
+      debugPrint('📅 Eventos futuros: ${upcomingEvents.length}');
 
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
 
       if (!mounted) return;
+      
+      // SEMPRE libera o loading, mesmo sem eventos
       setState(() {
-        _analyses = []; // Vazio por enquanto
+        _analyses = [];
         _filteredAnalyses = [];
         _loading = false; // LIBERA A UI IMEDIATAMENTE
       });
 
+      if (upcomingEvents.isEmpty) {
+        debugPrint('ℹ️ Nenhum evento futuro para analisar');
+        return;
+      }
+
       final eventsToAnalyze = upcomingEvents.take(10).toList();
-      debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} ewinds em background...');
+      debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} eventos em background...');
 
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
