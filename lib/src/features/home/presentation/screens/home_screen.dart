@@ -577,227 +577,388 @@ class _HomeScreenState extends State<HomeScreen>
     final riskIcon = analysis.riskIcon;
     final riskText = analysis.riskLabel;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EventDetailsScreen(analysis: analysis),
-          ),
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 300),
+      tween: Tween<double>(begin: 0.95, end: 1.0),
+      builder: (context, double scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: child,
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1F2937) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventDetailsScreen(analysis: analysis),
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.1),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(riskIcon, color: riskColor, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    riskText,
-                    style: TextStyle(
-                      color: riskColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: riskColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _formatDaysUntil(event.date),
-                      style: TextStyle(
-                        color: riskColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1F2937) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: riskColor.withOpacity(0.2),
+              width: 2,
             ),
-
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    event.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF1F2937),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: isDark ? Colors.white60 : Colors.black45,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _formatDate(event.date),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white70 : Colors.black54,
-                        ),
-                      ),
-                      if (event.startTime != null) ...[
-                        const SizedBox(width: 16),
-                        Icon(
-                          Icons.access_time,
-                          size: 16,
-                          color: isDark ? Colors.white60 : Colors.black45,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          event.startTime!,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          ),
-                        ),
-                      ],
+            boxShadow: [
+              BoxShadow(
+                color: riskColor.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+                spreadRadius: 2,
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Enhanced header with gradient
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      riskColor.withOpacity(0.15),
+                      riskColor.withOpacity(0.05),
                     ],
                   ),
-
-                  if (event.location.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          size: 16,
-                          color: isDark ? Colors.white60 : Colors.black45,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            event.location,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: isDark ? Colors.white70 : Colors.black54,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-
-                  if (analysis.weather != null) ...[
-                    const SizedBox(height: 12),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                  ),
+                ),
+                child: Row(
+                  children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF374151)
-                            : const Color(0xFFF3F4F6),
+                        color: riskColor.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Wrap(
-                        spacing: 16,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.spaceAround,
-                        children: _buildCustomWeatherMetrics(
-                          event,
-                          analysis.weather!,
-                          isDark,
+                      child: Icon(riskIcon, color: riskColor, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      riskText,
+                      style: TextStyle(
+                        color: riskColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: riskColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _formatDaysUntil(event.date),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
+                ),
+              ),
 
-                  if (analysis.alerts.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: analysis.alerts.take(2).map((alert) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Event icon and title
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: riskColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: riskColor.withOpacity(0.3),
-                              width: 1,
-                            ),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Text(
+                            event.type.icon,
+                            style: const TextStyle(fontSize: 32),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                _getAlertIcon(alert.type),
-                                size: 12,
-                                color: riskColor,
-                              ),
-                              const SizedBox(width: 4),
                               Text(
-                                _getAlertName(alert.type),
+                                event.title,
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: riskColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : const Color(0xFF1F2937),
+                                  letterSpacing: 0.3,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getPriorityColor(event.priority).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  _getPriorityLabel(event.priority),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: _getPriorityColor(event.priority),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Date, time, location with better spacing
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF374151)
+                            : const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_rounded,
+                                size: 18,
+                                color: const Color(0xFF3B82F6),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                _formatDate(event.date),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white : const Color(0xFF1F2937),
+                                ),
+                              ),
+                              if (event.startTime != null) ...[
+                                const Spacer(),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 18,
+                                  color: const Color(0xFF8B5CF6),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  event.startTime!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : const Color(0xFF1F2937),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          if (event.location.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            const Divider(height: 1),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_rounded,
+                                  size: 18,
+                                  color: const Color(0xFFEF4444),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    event.location,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? Colors.white70 : Colors.black87,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    if (analysis.weather != null) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              const Color(0xFF3B82F6).withOpacity(0.08),
+                              const Color(0xFF8B5CF6).withOpacity(0.08),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFF3B82F6).withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.cloud_outlined,
+                                  size: 18,
+                                  color: const Color(0xFF3B82F6),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Weather Forecast',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF1F2937),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 20,
+                              runSpacing: 14,
+                              children: _buildCustomWeatherMetrics(
+                                event,
+                                analysis.weather!,
+                                isDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    if (analysis.alerts.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: analysis.alerts.take(2).map((alert) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: riskColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: riskColor.withOpacity(0.4),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getAlertIcon(alert.type),
+                                  size: 14,
+                                  color: riskColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _getAlertName(alert.type),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: riskColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        ParticipantsAvatars(
+                          activity: event,
+                          maxAvatars: 4,
+                          avatarSize: 32,
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: riskColor,
+                        ),
+                      ],
                     ),
                   ],
-
-                  const SizedBox(height: 12),
-                  ParticipantsAvatars(
-                    activity: event,
-                    maxAvatars: 3,
-                    avatarSize: 28,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+  
+  Color _getPriorityColor(ActivityPriority priority) {
+    return switch (priority) {
+      ActivityPriority.urgent => const Color(0xFFEF4444),
+      ActivityPriority.high => const Color(0xFFF59E0B),
+      ActivityPriority.medium => const Color(0xFF3B82F6),
+      ActivityPriority.low => const Color(0xFF10B981),
+    };
+  }
+  
+  String _getPriorityLabel(ActivityPriority priority) {
+    return switch (priority) {
+      ActivityPriority.urgent => 'URGENT',
+      ActivityPriority.high => 'HIGH',
+      ActivityPriority.medium => 'MEDIUM',
+      ActivityPriority.low => 'LOW',
+    };
   }
 
   List<Widget> _buildCustomWeatherMetrics(

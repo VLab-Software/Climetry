@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
 import '../../../weather/domain/entities/daily_weather.dart';
+import '../../../weather/presentation/widgets/nasa_powered_badge.dart';
 import '../../data/repositories/alert_preferences_repository.dart';
 import 'package:intl/intl.dart';
 import '../widgets/location_picker_widget.dart';
@@ -378,7 +379,7 @@ class _DisastersScreenState extends State<DisastersScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Alertas Climáticos',
+                        'Climate Alerts',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -387,7 +388,7 @@ class _DisastersScreenState extends State<DisastersScreen>
                       ),
                       if (_alerts.isNotEmpty)
                         Text(
-                          '$criticalCount alertas ativos',
+                          '$criticalCount active alerts',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                     ],
@@ -431,6 +432,8 @@ class _DisastersScreenState extends State<DisastersScreen>
               ),
             ],
           ),
+          SizedBox(height: 12),
+          NasaPoweredBadge(showFull: false),
           SizedBox(height: 16),
           InkWell(
             onTap: _selectLocation,
