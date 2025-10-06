@@ -160,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         SizedBox(height: isLarge ? 24 : 20),
         Text(
-          'Bem-vindo ao',
+          'Welcome to',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white70,
@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Login na conta',
+              'Sign in to your account',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return 'Enter your email';
                 }
                 if (!value.contains('@')) {
-                  return 'Email inválido';
+                  return 'Invalid email';
                 }
                 return null;
               },
@@ -299,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'ou',
+                    'or',
                     style: TextStyle(color: Colors.white.withOpacity(0.5)),
                   ),
                 ),
@@ -328,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Create nova conta',
+                  'Create new account',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

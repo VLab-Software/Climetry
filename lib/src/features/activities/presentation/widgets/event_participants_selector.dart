@@ -111,7 +111,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
             child: Row(
               children: [
                 Text(
-                  'Convidar Amigos',
+                  'Invite Friends',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -369,8 +369,8 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                 ),
                 child: Text(
                   widget.selectedParticipants.isEmpty
-                      ? 'Continuar sem convidados'
-                      : 'Confirm ${widget.selectedParticipants.length} convidado(s)',
+                      ? 'Continue without guests'
+                      : 'Confirm ${widget.selectedParticipants.length} guest${widget.selectedParticipants.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

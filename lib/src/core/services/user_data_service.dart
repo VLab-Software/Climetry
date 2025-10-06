@@ -81,16 +81,25 @@ class UserDateService {
     if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
-      await _firestore.collection('users').doc(_userId).update({
-        'preferences': preferences,
-      }).timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          throw FirestoreException('⏱️ Timeout ao salvar preferências');
-        },
-      );
+      // First, check if user document exists
+      final docSnapshot = await _firestore.collection('users').doc(_userId).get();
+      
+      if (!docSnapshot.exists) {
+        // Create user document with preferences
+        await _firestore.collection('users').doc(_userId).set({
+          'email': _auth.currentUser?.email,
+          'displayName': _auth.currentUser?.displayName ?? 'User',
+          'createdAt': FieldValue.serverTimestamp(),
+          'preferences': preferences,
+        });
+      } else {
+        // Update existing preferences
+        await _firestore.collection('users').doc(_userId).update({
+          'preferences': preferences,
+        });
+      }
     } catch (e) {
-      throw FirestoreException('Error ao salvar preferências: $e');
+      throw FirestoreException('Error saving preferences: $e');
     }
   }
 
@@ -100,17 +109,23 @@ class UserDateService {
     }
 
     try {
-      final doc = await _firestore.collection('users').doc(_userId).get().timeout(
-        const Duration(seconds: 3),
-        onTimeout: () {
-          print('⏱️ Timeout ao obter preferências - using default');
-          return _firestore.collection('_timeout_').doc('_default_').get();
-        },
-      );
+      final doc = await _firestore.collection('users').doc(_userId).get();
+      
+      if (!doc.exists) {
+        // Create user document with default preferences
+        await _firestore.collection('users').doc(_userId).set({
+          'email': _auth.currentUser?.email,
+          'displayName': _auth.currentUser?.displayName ?? 'User',
+          'createdAt': FieldValue.serverTimestamp(),
+          'preferences': _defaultPreferences(),
+        });
+        return _defaultPreferences();
+      }
+      
       final data = doc.data();
       return data?['preferences'] ?? _defaultPreferences();
     } catch (e) {
-      print('⚠️ Error obtaining preferências: $e - using default');
+      print('⚠️ Error getting preferences: $e - using default');
       return _defaultPreferences();
     }
   }

@@ -63,6 +63,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     final now = DateTime.now();
     List<Activity> filtered = List.from(_allActivities);
 
+    // Always show upcoming events
     filtered = filtered.where((a) => a.date.isAfter(now)).toList();
 
     if (_searchQuery.isNotEmpty) {
@@ -210,8 +211,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             slivers: [
               SliverToBoxAdapter(child: _buildHeader(isDark)),
 
-              SliverToBoxAdapter(child: _buildFilters(isDark)),
-
               if (isLoading)
                 SliverFillRemaining(
                   child: Center(
@@ -299,12 +298,46 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                       ),
                     ),
                     Text(
-                      '${_allActivities.length} ewinds',
+                      '${_filteredActivities.length}',
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
                 ),
               ),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showFilterSheet(isDark),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF3B82F6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.filter_list,
+                          size: 18,
+                          color: Color(0xFF3B82F6),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          _getFilterLabel(),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF3B82F6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
                   color: Color(0xFF3B82F6),
@@ -314,31 +347,29 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: _selectedFilter == 'past'
-                        ? null
-                        : () async {
-                            final result = await Navigator.push<Activity>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const NewActivityScreen(),
-                              ),
-                            );
-                            if (result != null) {
-                              await _activityRepository.save(result);
-                              
-                              if (result.participants.isNotEmpty) {
-                                final notificationService = EventNotificationService();
-                                await notificationService.notifyEventInvitation(
-                                  activity: result,
-                                  newParticipants: result.participants,
-                                );
-                              }
-                              
-                              if (mounted) {
-                                _showEventCreatedDialog(result);
-                              }
-                            }
-                          },
+                    onTap: () async {
+                      final result = await Navigator.push<Activity>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NewActivityScreen(),
+                        ),
+                      );
+                      if (result != null) {
+                        await _activityRepository.save(result);
+                        
+                        if (result.participants.isNotEmpty) {
+                          final notificationService = EventNotificationService();
+                          await notificationService.notifyEventInvitation(
+                            activity: result,
+                            newParticipants: result.participants,
+                          );
+                        }
+                        
+                        if (mounted) {
+                          _showEventCreatedDialog(result);
+                        }
+                      }
+                    },
                     child: Padding(
                       padding: EdgeInsets.all(12),
                       child: Icon(Icons.add, color: Colors.white, size: 24),
@@ -417,56 +448,22 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
               ),
             ),
           ),
-
-          SizedBox(height: 16),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _showFilterSheet(isDark),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: (isDark ? Color(0xFF374151) : Color(0xFFF3F4F6)),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Color(0xFF3B82F6).withOpacity(0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.filter_list,
-                        color: Color(0xFF3B82F6),
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        _getFilterLabel(),
-                        style: TextStyle(
-                          color: Color(0xFF3B82F6),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
   String _getFilterLabel() {
-    final time = _selectedFilter == 'all' ? 'All' : (_selectedFilter == 'upcoming' ? 'Upcoming' : 'Past');
-    final recurrence = _recurrenceFilter == 'all' ? 'All' : (_recurrenceFilter == 'single' ? 'Single' : 'Recurring');
-    return '$time • $recurrence';
+    switch (_selectedFilter) {
+      case 'time':
+        return 'Tempo';
+      case 'distance':
+        return 'Distância';
+      case 'priority':
+        return 'Prioridade';
+      default:
+        return 'Filtro';
+    }
   }
 
   void _showFilterSheet(bool isDark) {
@@ -648,65 +645,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
         });
         Navigator.pop(context);
       },
-    );
-  }
-
-  Widget _buildFilters(bool isDark) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _buildFilterChip('All', 'all', isDark),
-              SizedBox(width: 8),
-              _buildFilterChip('Upcoming', 'upcoming', isDark),
-              SizedBox(width: 8),
-              _buildFilterChip('Past', 'past', isDark),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, bool isDark) {
-    final isSelected = _selectedFilter == value;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedFilter = value;
-        });
-        _applyFilters();
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Color(0xFF3B82F6)
-              : (isDark ? Color(0xFF1F2937) : Colors.white),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? Color(0xFF3B82F6)
-                : (isDark ? Color(0xFF374151) : Color(0xFFE5E7EB)),
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isSelected
-                ? Colors.white
-                : (isDark ? Colors.white70 : Color(0xFF1F2937)),
-          ),
-        ),
-      ),
     );
   }
 
