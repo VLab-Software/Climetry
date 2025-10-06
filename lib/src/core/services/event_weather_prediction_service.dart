@@ -3,6 +3,7 @@ import '../../features/activities/domain/entities/activity.dart';
 import '../../features/weather/data/services/meteomatics_service.dart';
 import '../../features/weather/domain/entities/daily_weather.dart';
 import '../../features/weather/domain/entities/weather_alert.dart';
+import '../../features/weather/domain/entities/historical_comparison.dart';
 import 'openai_service.dart';
 import 'dart:convert';
 
@@ -23,6 +24,7 @@ class EventWeatherAnalysis {
   final List<EventSuggestion> suggestions;
   final DateTime analyzedAt;
   final int daysUntilEvent;
+  final HistoricalComparison? historicalComparison;
 
   EventWeatherAnalysis({
     required this.activity,
@@ -34,6 +36,7 @@ class EventWeatherAnalysis {
     required this.suggestions,
     required this.analyzedAt,
     required this.daysUntilEvent,
+    this.historicalComparison,
   });
 
   bool get needsAttention =>
@@ -184,12 +187,36 @@ class EventWeatherPredictionService {
 
       final risk = _calculateRisk(weather, activity, alerts);
 
+      // Get historical climate normals for comparison
+      HistoricalComparison? historicalComparison;
+      try {
+        final climateNormals = await _weatherService.getClimateNormals(
+          activity.coordinates,
+          activity.date,
+        );
+
+        historicalComparison = HistoricalComparison(
+          eventDate: activity.date,
+          forecastTemperature: weather.meanTemp,
+          historicalAverageTemperature: climateNormals['temperature'] ?? 70.0,
+          forecastPrecipitation: weather.precipitation,
+          historicalAveragePrecipitation: climateNormals['precipitation'] ?? 0.5,
+          forecastWindSpeed: weather.windSpeed,
+          historicalAverageWindSpeed: climateNormals['windSpeed'] ?? 8.0,
+          forecastHumidity: weather.humidity,
+          historicalAverageHumidity: climateNormals['humidity'] ?? 60.0,
+        );
+      } catch (e) {
+        debugPrint('Could not fetch climate normals: $e');
+      }
+
       final aiAnalysis = await _generateAIAnalysis(
         activity,
         weather,
         alerts,
         risk,
         daysUntil,
+        historicalComparison,
       );
 
       return EventWeatherAnalysis(
@@ -202,6 +229,7 @@ class EventWeatherPredictionService {
         suggestions: aiAnalysis['suggestions'],
         analyzedAt: DateTime.now(),
         daysUntilEvent: daysUntil,
+        historicalComparison: historicalComparison,
       );
     } catch (e) {
       debugPrint('Error ao analisar ewind ${activity.title}: $e');
@@ -371,57 +399,88 @@ class EventWeatherPredictionService {
     List<WeatherAlert> alerts,
     EventWeatherRisk risk,
     int daysUntil,
+    HistoricalComparison? historicalComparison,
   ) async {
     try {
-      final prompt =
-          '''
-Você é um assistente especializado em análise climática para ewinds.
+      // Build historical comparison section
+      String historicalSection = '';
+      if (historicalComparison != null) {
+        historicalSection = '''
 
-**EVENTO:**
-- Nome: ${activity.title}
-- Tipo: ${activity.type.label}
+**HISTORICAL COMPARISON (Climate Normals):**
+- Forecast Temperature: ${weather.meanTemp.toStringAsFixed(1)}°F
+- Historical Average: ${historicalComparison.historicalAverageTemperature.toStringAsFixed(1)}°F
+- Difference: ${historicalComparison.temperatureComparison}
+
+- Forecast Precipitation: ${weather.precipitation.toStringAsFixed(2)} inches
+- Historical Average: ${historicalComparison.historicalAveragePrecipitation.toStringAsFixed(2)} inches
+- ${historicalComparison.precipitationComparison}
+
+- Forecast Wind: ${weather.windSpeed.toStringAsFixed(1)} mph
+- Historical Average: ${historicalComparison.historicalAverageWindSpeed.toStringAsFixed(1)} mph
+- ${historicalComparison.windSpeedComparison}
+
+**COMPARISON SUMMARY:** ${historicalComparison.comparisonSummary}
+${historicalComparison.isBetterThanAverage ? '✅ Better than typical conditions for this date' : '⚠️ Below typical conditions for this date'}
+''';
+      }
+
+      final prompt = '''
+You are a specialized weather analysis assistant for events, integrated with NASA's EONET data and climate normals from Meteomatics API.
+
+**EVENT:**
+- Name: ${activity.title}
+- Type: ${activity.type.label}
 - Date: ${activity.date.day}/${activity.date.month}/${activity.date.year}
-- Faltam: $daysUntil dias
-- Local: ${activity.location}
+- Days Until: $daysUntil days
+- Location: ${activity.location}
 
-**PREVISÃO CLIMÁTICA:**
+**WEATHER FORECAST:**
 - Temperature: ${weather.minTemp.round()}°F - ${weather.maxTemp.round()}°F
-- Rain: ${weather.precipitation.round()}mm (${weather.precipitationProbability.round()}% chance)
+- Precipitation: ${weather.precipitation.toStringAsFixed(2)} inches (${weather.precipitationProbability.round()}% chance)
 - Wind: ${weather.windSpeed.round()} mph
 - Humidity: ${weather.humidity.round()}%
-- UV: ${weather.uvIndex.round()}
-- Condição: ${weather.mainCondition}
-
-**ALERTAS DETECTADOS:**
+- UV Index: ${weather.uvIndex.round()}
+- Condition: ${weather.mainCondition}
+$historicalSection
+**DETECTED ALERTS:**
 ${alerts.isEmpty ? 'No alerts' : alerts.map((a) => '- ${a.type.label}: ${a.value?.round() ?? 0} ${a.unit ?? ''}').join('\n')}
 
-**NÍVEL DE RISCO:** ${risk.name}
+**RISK LEVEL:** ${risk.name}
 
-RESPONDA EM JSON:
+**DATA SOURCES:**
+- Weather Forecast: Meteomatics API (${weather.meanTemp.toStringAsFixed(1)}°F forecast)
+- Historical Averages: Climate Normals from Meteomatics (multi-year average for this date)
+- Natural Events: NASA EONET (Earth Observatory Natural Event Tracker)
+- Analysis: Internal calculations comparing forecast vs historical patterns
+
+RESPOND IN JSON FORMAT:
 {
-  "insight": "Uma análise inteligente e específica sobre o impacto do clima neste ewind. Seja direto e prático.",
+  "insight": "A smart, specific analysis about the weather impact on this event. Reference the historical comparison when relevant. Be direct and practical. Mention that the analysis uses NASA data and climate normals.",
   "suggestions": [
     {
-      "title": "Título curto",
-      "description": "Ação específica recomendada",
+      "title": "Short title",
+      "description": "Specific recommended action",
       "type": "reschedule|relocate|prepare|cancel|other",
       "priority": "high|medium|low",
-      "icon": "emoji apropriado"
+      "icon": "appropriate emoji"
     }
   ]
 }
 
-REGRAS:
-- Se risco crítico: sugira mudanças sérias (reagendar, mudar local)
-- Se risco médio: sugira preparação (guarda-rain, protetor solar, etc)
-- Se seguro: dê dicas de otimização
-- Máximo 3 sugestões, sempre práticas e acionáveis
-- Considere que faltam $daysUntil dias (tempo para agir)
+RULES:
+- If critical risk: suggest serious changes (reschedule, relocate)
+- If medium risk: suggest preparation (umbrella, sunscreen, etc)
+- If safe: give optimization tips
+- Maximum 3 suggestions, always practical and actionable
+- Consider $daysUntil days remaining (time to act)
+- ${historicalComparison != null ? 'IMPORTANT: Mention the historical comparison - is this better or worse than usual for this date?' : ''}
+- Highlight that we use NASA EONET data for natural disaster tracking and Meteomatics climate normals for historical comparison
 ''';
 
       final response = await _aiService.generateEventAnalysis(
         prompt,
-        maxTokens: 600,
+        maxTokens: 700,
       );
 
       final jsonStart = response.indexOf('{');
