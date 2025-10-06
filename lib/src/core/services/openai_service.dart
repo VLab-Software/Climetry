@@ -467,6 +467,9 @@ Responda APENAS with JSON válido neste formato:
     }
 
     try {
+      print('🤖 OpenAI Request - Model: $_model, MaxTokens: $maxTokens');
+      print('🔑 API Key configured: ${_apiKey.isNotEmpty ? "✅ Yes (${_apiKey.length} chars)" : "❌ No"}');
+      
       final response = await http.post(
         Uri.parse(_baseUrl),
         headers: {
@@ -474,34 +477,46 @@ Responda APENAS with JSON válido neste formato:
           'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': _model, // gpt-4o-mini - mais barato e eficiente
+          'model': _model,
           'messages': [
             {
               'role': 'system',
               'content':
-                  'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, with insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
+                  'You are an expert meteorologist and climate assistant. Provide detailed, technical yet accessible analysis with valuable insights and practical recommendations. Use meteorological data to generate accurate forecasts and viable alternatives. Always respond in English with clear, concise, and actionable advice.',
             },
             {'role': 'user', 'content': prompt},
           ],
           'max_tokens': maxTokens,
           'temperature': 0.7,
+          'top_p': 1.0,
+          'frequency_penalty': 0.0,
+          'presence_penalty': 0.0,
         }),
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () => throw Exception('Request timeout after 30s'),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['choices'][0]['message']['content'].toString().trim();
+        final content = data['choices'][0]['message']['content'].toString().trim();
+        print('✅ OpenAI Response received: ${content.length} chars');
+        return content;
       } else if (response.statusCode == 401) {
+        print('❌ OpenAI Auth Error: 401');
         return '🔐 **Authentication Error**\n\nInvalid or expired OpenAI key. Check your configuration.';
       } else if (response.statusCode == 429) {
+        print('⚠️ OpenAI Rate Limit: 429');
         return '⏱️ **Request Limit**\n\nToo many requests. Wait a few moments and try again.';
       } else {
+        print('❌ OpenAI Error: ${response.statusCode} - ${response.body}');
         throw Exception(
           'OpenAI API error: ${response.statusCode} - ${response.body}',
         );
       }
     } catch (e) {
-      return '⚠️ **Temporary Error**\n\nCould not connect to AI analysis service.\n\nCheck your internet connection and try again.';
+      print('❌ OpenAI Exception: $e');
+      return '⚠️ **Temporary Error**\n\nCould not connect to AI analysis service.\n\nError: ${e.toString()}\n\nCheck your internet connection and try again.';
     }
   }
 }
