@@ -423,8 +423,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             'Wind',
             _windUnit,
             {
-              'kmh': 'Quilômetros por hora (km/h)',
-              'mph': 'Milhas por hora (mph)',
+              'kmh': 'Kilometers per hour (km/h)',
+              'mph': 'Miles per hour (mph)',
             },
             (value) {
               setState(() => _windUnit = value);

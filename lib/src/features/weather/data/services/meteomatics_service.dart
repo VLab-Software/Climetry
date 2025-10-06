@@ -253,7 +253,7 @@ class MeteomaticsService {
         throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch anomalias climáticas: $e');
+      throw Exception('Failed to fetch climate anomalies: $e');
     }
   }
 
@@ -688,7 +688,7 @@ class MeteomaticsService {
         'eventName': eventName,
         'daysUntil': daysUntil,
         'emoji': getConditionEmoji(),
-        'title': '$eventName - ${daysUntil == 0 ? 'Today' : daysUntil == 1 ? 'Tomorrow' : 'Em $daysUntil dias'}',
+        'title': '$eventName - ${daysUntil == 0 ? 'Today' : daysUntil == 1 ? 'Tomorrow' : 'In $daysUntil days'}',
         'body': '${forecast.minTemp.toInt()}-${forecast.maxTemp.toInt()}°F, ${forecast.precipitationProbability.toInt()}% rain',
         'recommendation': getRecommendation(),
         'forecast': forecast,

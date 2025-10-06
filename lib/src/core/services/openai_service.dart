@@ -31,7 +31,7 @@ You are an intelligent weather assistant. Analyze the following information and 
 ${activity.description != null ? '**Description:** ${activity.description}' : ''}
 
 **Forecasted Weather Conditions:**
-- Temperature: ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F (média: ${weather.meanTemp.toInt()}°F)
+- Temperature: ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F (average: ${weather.meanTemp.toInt()}°F)
 - Rain: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}% chance)
 - Wind: ${weather.windSpeed.toInt()} mph
 - Humidity: ${weather.humidity.toInt()}%
@@ -237,7 +237,7 @@ You are a meteorologist. Analyze the 3-day forecast and create a short, natural 
 **Next 3 days:**
 - Temperatures: $temps
 - Chance de rain: $rains
-- Média de wind: ${next3Days.map((w) => w.windSpeed.toInt()).reduce((a, b) => a + b) ~/ 3} mph
+- Average wind: ${next3Days.map((w) => w.windSpeed.toInt()).reduce((a, b) => a + b) ~/ 3} mph
 
 Create a natural forecast narrative (maximum 40 words) that describes the trend and gives a practical tip.
 Be conversational and friendly.
@@ -368,17 +368,17 @@ Responda APENAS with JSON válido neste formato:
         'temperature': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.meanTemp,
-          'label': 'Dia ${w.date.day}'
+          'label': Day ${w.date.day}'
         }).toList(),
         'precipitation': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.precipitation,
-          'label': 'Dia ${w.date.day}'
+          'label': Day ${w.date.day}'
         }).toList(),
         'windSpeed': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.windSpeed,
-          'label': 'Dia ${w.date.day}'
+          'label': Day ${w.date.day}'
         }).toList(),
         'uvIndex': eventWeather.uvIndex,
       },

@@ -277,10 +277,10 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
           });
         }
 
-        print('✅ Notificação do dia enviada para: ${activity.title}');
+        print('✅ Day notification sent to: ${activity.title}');
       }
     } catch (e) {
-      print('❌ Error ao enviar notificação do dia: $e');
+      print('❌ Error sending day notification: $e');
     }
   }
 

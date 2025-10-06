@@ -505,7 +505,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
         recommendations.addAll([
           {'icon': '🧥', 'text': 'Vista-se em camadas para manter o calor'},
           {'icon': '🏠', 'text': 'Proteja plantas sensíveis ao frio'},
-          {'icon': '🚗', 'text': 'Cuidado com gelo nas estradas pela manhã'},
+          {'icon': '🚗', 'text': 'Watch out for ice on roads in the morning'},
           {
             'icon': '☕',
             'text': 'Consuma bebidas quentes para manter a temperature',

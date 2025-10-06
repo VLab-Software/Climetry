@@ -919,8 +919,8 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (difference == 0) return 'Today';
     if (difference == 1) return 'Tomorrow';
-    if (difference < 7) return 'Em $difference dias';
-    if (difference < 30) return 'Em ${(difference / 7).floor()} semanas';
+    if (difference < 7) return 'In $difference days';
+    if (difference < 30) return 'In ${(difference / 7).floor()} weeks';
     return 'Em ${(difference / 30).floor()} meses';
   }
 

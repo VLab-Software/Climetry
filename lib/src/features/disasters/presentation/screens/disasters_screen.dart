@@ -707,7 +707,7 @@ class _DisastersScreenState extends State<DisastersScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '${alert.daysInSequence} dias seguidos',
+                            '${alert.daysInSequence} consecutive days',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,

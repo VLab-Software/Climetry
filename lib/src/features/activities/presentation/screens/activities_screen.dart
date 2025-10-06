@@ -880,7 +880,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                   ? 'Today'
                                   : daysUntil == 1
                                   ? 'Tomorrow'
-                                  : 'Em $daysUntil dias',
+                                  : 'In $daysUntil days',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFF3B82F6),

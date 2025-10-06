@@ -88,11 +88,11 @@ enum RecurrenceType {
       case RecurrenceType.none:
         return 'Does not repeat';
       case RecurrenceType.weekly:
-        return 'Toda semana';
+        return 'Every week';
       case RecurrenceType.monthly:
-        return 'Todo mês';
+        return 'Every month';
       case RecurrenceType.yearly:
-        return 'Todo ano';
+        return 'Every year';
     }
   }
 

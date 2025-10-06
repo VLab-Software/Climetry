@@ -104,7 +104,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
       final pastDays = -difference.inDays;
       if (pastDays == 0) return 'Today (passou)';
       if (pastDays == 1) return 'Ontem';
-      return 'Há $pastDays dias';
+      return ' days ago';
     }
 
     final days = difference.inDays;
@@ -112,14 +112,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
     if (days == 0) {
       if (hours == 0) return 'Now';
-      return 'Em $hours horas';
+      return 'In $hours hours';
     } else if (days == 1) {
       return 'Tomorrow';
     } else if (days <= 7) {
-      return 'Em $days dias';
+      return 'In $days days';
     } else {
       final weeks = (days / 7).floor();
-      return 'Em $weeks ${weeks == 1 ? 'semana' : 'semanas'}';
+      return 'Em $weeks ${weeks == 1 ? 'week' : 'weeks'}';
     }
   }
 

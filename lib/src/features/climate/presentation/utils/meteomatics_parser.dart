@@ -98,7 +98,7 @@ class MeteomaticsParser {
     if (p.contains('uv')) return 'Índice UV';
     if (p.contains('visibility')) return 'Visibilidade';
     if (p.contains('dew_point')) return 'Ponto de Orvalho';
-    if (p.contains('global_rad')) return 'Radiação Solar';
+    if (p.contains('global_rad')) return 'Solar Radiation';
     return p;
   }
 
