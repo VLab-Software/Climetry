@@ -124,7 +124,8 @@ class EventParticipant {
   final EventRole role;
   final DateTime joinedAt;
   final ParticipantStatus status;
-  final Map<String, dynamic>? customAlertSettings; // Alertas personalizados do participante
+  final Map<String, dynamic>?
+  customAlertSettings; // Alertas personalizados do participante
 
   const EventParticipant({
     required this.userId,
@@ -137,21 +138,49 @@ class EventParticipant {
   });
 
   factory EventParticipant.fromMap(Map<String, dynamic> data) {
+    final roleName = _normalizeEnumName(data['role']);
+    final statusName = _normalizeEnumName(data['status']);
+
     return EventParticipant(
-      userId: data['userId'] as String,
-      name: data['name'] as String,
+      userId: (data['userId'] ?? data['id'] ?? '').toString(),
+      name: (data['name'] ?? data['displayName'] ?? 'Guest').toString(),
       photoUrl: data['photoUrl'] as String?,
       role: EventRole.values.firstWhere(
-        (e) => e.name == data['role'],
+        (e) => e.name == roleName,
         orElse: () => EventRole.participant,
       ),
-      joinedAt: (data['joinedAt'] as Timestamp).toDate(),
+      joinedAt: _parseJoinedAt(data['joinedAt']),
       status: ParticipantStatus.values.firstWhere(
-        (e) => e.name == data['status'],
+        (e) => e.name == statusName,
         orElse: () => ParticipantStatus.pending,
       ),
-      customAlertSettings: data['customAlertSettings'] as Map<String, dynamic>?,
+      customAlertSettings: data['customAlertSettings'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(data['customAlertSettings'] as Map)
+          : null,
     );
+  }
+
+  static DateTime _parseJoinedAt(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
+
+  static String? _normalizeEnumName(dynamic raw) {
+    if (raw == null) return null;
+    final value = raw.toString();
+    if (value.isEmpty) return null;
+    return value.split('.').last.toLowerCase();
   }
 
   Map<String, dynamic> toMap() {
@@ -165,7 +194,7 @@ class EventParticipant {
       'customAlertSettings': customAlertSettings,
     };
   }
-  
+
   EventParticipant copyWith({
     String? userId,
     String? name,

@@ -61,7 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userCredential = await _authService.signInWithGoogle();
+        // ignore: undefined_method
+        final userCredential = await _authService.signInWithGoogle();
 
       if (userCredential.user != null) {
         await _userDateService.createUserProfile(userCredential.user!);

@@ -59,12 +59,19 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     _filterActivities();
   }
 
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   void _filterActivities() {
     final now = DateTime.now();
     List<Activity> filtered = List.from(_allActivities);
 
     // Always show upcoming events
-    filtered = filtered.where((a) => a.date.isAfter(now)).toList();
+    filtered = filtered.where((a) {
+      if (a.date.isAfter(now)) return true;
+      return _isSameDay(a.date, now);
+    }).toList();
 
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((a) {
@@ -357,6 +364,21 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                       if (result != null) {
                         await _activityRepository.save(result);
                         
+                        if (mounted) {
+                          setState(() {
+                            final existingIndex = _allActivities.indexWhere(
+                              (activity) => activity.id == result.id,
+                            );
+
+                            if (existingIndex >= 0) {
+                              _allActivities[existingIndex] = result;
+                            } else {
+                              _allActivities.add(result);
+                            }
+                            _filterActivities();
+                          });
+                        }
+
                         if (result.participants.isNotEmpty) {
                           final notificationService = EventNotificationService();
                           await notificationService.notifyEventInvitation(

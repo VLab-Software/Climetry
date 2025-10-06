@@ -88,7 +88,9 @@ class _HomeScreenState extends State<HomeScreen>
       final sixMonthsLater = now.add(const Duration(days: 180));
 
       final upcomingEvents = events.where((event) {
-        return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
+        final isToday = _isSameDay(event.date, now);
+        return (event.date.isAfter(now) || isToday) &&
+            event.date.isBefore(sixMonthsLater);
       }).toList();
 
       debugPrint('📅 Eventos futuros: ${upcomingEvents.length}');
@@ -180,6 +182,10 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() {
       _filteredAnalyses = filtered;
     });
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   @override

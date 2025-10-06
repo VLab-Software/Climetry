@@ -12,30 +12,18 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    // Users collection
+    // Users collection - LIBERADO PARA HACKATHON
     match /users/{userId} {
-      // Qualquer um autenticado pode ler perfis públicos
-      allow read: if isAuthenticated();
-      
-      // Apenas o dono pode criar/atualizar seu próprio perfil
-      allow create, update: if isOwner(userId);
+      allow read, write: if isAuthenticated();
       
       // Subcoleção de atividades
       match /activities/{activityId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isAuthenticated();
       }
       
-      // Subcoleção de amigos - REGRA CRÍTICA
+      // Subcoleção de amigos
       match /friends/{friendId} {
-        // Usuário pode ler seus próprios amigos
-        allow read: if isOwner(userId);
-        
-        // Usuário pode adicionar amigos à sua própria lista
-        allow create, update, delete: if isOwner(userId);
-        
-        // IMPORTANTE: Permitir que outro usuário adicione ESTE userId como amigo
-        // Quando aceita friend request, precisa adicionar em ambas as listas
-        allow create: if isAuthenticated();
+        allow read, write: if isAuthenticated();
       }
     }
     
@@ -94,52 +82,9 @@ service cloud.firestore {
       allow create, update: if isAuthenticated();
     }
     
-    // Activities (Eventos/Atividades)
+    // Activities (Eventos/Atividades) - TOTALMENTE LIBERADO PARA HACKATHON
     match /activities/{activityId} {
-      // Função helper para verificar se usuário é owner
-      function isActivityOwner() {
-        return isAuthenticated() && request.auth.uid == resource.data.ownerId;
-      }
-      
-      // Função helper para verificar se usuário é participante
-      function isParticipant() {
-        return isAuthenticated() && 
-               (request.auth.uid == resource.data.ownerId || 
-                request.auth.uid in resource.data.participantIds);
-      }
-      
-      // Função para validar alteração de papéis
-      function isValidRoleChange() {
-        // Se não está alterando participantes, permitir
-        if (request.resource.data.participants == resource.data.participants) {
-          return true;
-        }
-        
-        // Apenas o owner pode promover/rebaixar admins
-        if (!isActivityOwner()) {
-          return false;
-        }
-        
-        // Verificar se algum participante teve papel alterado para/de admin
-        let oldParticipants = resource.data.participants;
-        let newParticipants = request.resource.data.participants;
-        
-        // Permitir apenas se usuário é o owner
-        return request.auth.uid == resource.data.ownerId;
-      }
-      
-      // Qualquer usuário pode ler atividades onde ele é participante
-      allow read: if isParticipant();
-      
-      // Apenas o dono pode criar
-      allow create: if isAuthenticated() && 
-                       request.auth.uid == request.resource.data.ownerId;
-      
-      // Dono pode atualizar; validar mudanças de papel
-      allow update: if isActivityOwner() && isValidRoleChange();
-      
-      // Apenas o dono pode deletar
-      allow delete: if isActivityOwner();
+      allow read, write: if isAuthenticated();
     }
     
     // Event Invitations (para Cloud Functions)

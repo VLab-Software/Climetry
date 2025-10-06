@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../friends/domain/entities/friend.dart';
 
@@ -258,15 +260,17 @@ class Activity {
   }
 
   factory Activity.fromJson(Map<String, dynamic> json) {
+    final createdAt = _parseDate(json['createdAt']);
+    final date = _parseDate(json['date']) ?? createdAt;
+
     return Activity(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      location: json['location'] as String,
-      coordinates: LatLng(
-        (json['coordinates']['latitude'] as num).toDouble(),
-        (json['coordinates']['longitude'] as num).toDouble(),
-      ),
-      date: DateTime.parse(json['date'] as String),
+      id: (json['id'] as String?)?.trim().isNotEmpty == true
+          ? json['id'] as String
+          : (json['activityId'] as String?) ?? '',
+      title: (json['title'] as String?) ?? 'Untitled event',
+      location: (json['location'] as String?) ?? 'Unknown location',
+      coordinates: _parseCoordinates(json['coordinates']),
+      date: date ?? createdAt ?? DateTime.now(),
       startTime: json['startTime'] as String?,
       endTime: json['endTime'] as String?,
       type: ActivityType.values.firstWhere(
@@ -275,39 +279,119 @@ class Activity {
       ),
       description: json['description'] as String?,
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
-      priority: json['priority'] != null
-          ? ActivityPriority.values.firstWhere(
-              (e) => e.name == json['priority'],
-              orElse: () => ActivityPriority.low,
-            )
-          : ActivityPriority.low,
-      tags: json['tags'] != null ? List<String>.from(json['tags'] as List) : [],
-      recurrence: json['recurrence'] != null
-          ? RecurrenceType.values.firstWhere(
-              (e) => e.name == json['recurrence'],
-              orElse: () => RecurrenceType.none,
-            )
-          : RecurrenceType.none,
-      monitoredConditions: json['monitoredConditions'] != null
-          ? (json['monitoredConditions'] as List)
-                .map(
-                  (c) => WeatherCondition.values.firstWhere(
-                    (e) => e.name == c,
-                    orElse: () => WeatherCondition.temperature,
-                  ),
-                )
-                .toList()
-          : [WeatherCondition.temperature, WeatherCondition.rain],
-      ownerId: json['ownerId'] as String? ?? '',
-      participants: json['participants'] != null
-          ? (json['participants'] as List)
-                .map((p) => EventParticipant.fromMap(p as Map<String, dynamic>))
-                .toList()
-          : [],
+      createdAt: createdAt ?? DateTime.now(),
+      priority: ActivityPriority.values.firstWhere(
+        (e) => e.name == json['priority'],
+        orElse: () => ActivityPriority.low,
+      ),
+      tags: _parseTags(json['tags']),
+      recurrence: RecurrenceType.values.firstWhere(
+        (e) => e.name == json['recurrence'],
+        orElse: () => RecurrenceType.none,
+      ),
+      monitoredConditions: _parseMonitoredConditions(
+        json['monitoredConditions'],
+      ),
+      ownerId: (json['ownerId'] as String?)?.trim() ?? '',
+      participants: _parseParticipants(json['participants']),
     );
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+    return null;
+  }
+
+  static LatLng _parseCoordinates(dynamic value) {
+    if (value is GeoPoint) {
+      return LatLng(value.latitude, value.longitude);
+    }
+    if (value is LatLng) {
+      return value;
+    }
+    if (value is Map<String, dynamic>) {
+      final latitude = value['latitude'] ?? value['lat'] ?? value['Latitude'];
+      final longitude =
+          value['longitude'] ?? value['lng'] ?? value['Longitude'];
+
+      if (latitude is num && longitude is num) {
+        return LatLng(latitude.toDouble(), longitude.toDouble());
+      }
+      if (latitude is String && longitude is String) {
+        final lat = double.tryParse(latitude);
+        final lng = double.tryParse(longitude);
+        if (lat != null && lng != null) {
+          return LatLng(lat, lng);
+        }
+      }
+    }
+    if (value is List && value.length >= 2) {
+      final lat = value[0];
+      final lng = value[1];
+      if (lat is num && lng is num) {
+        return LatLng(lat.toDouble(), lng.toDouble());
+      }
+    }
+    return const LatLng(0, 0);
+  }
+
+  static List<String> _parseTags(dynamic value) {
+    if (value is List) {
+      return value.map((tag) => tag?.toString()).whereType<String>().toList();
+    }
+    return [];
+  }
+
+  static List<WeatherCondition> _parseMonitoredConditions(dynamic value) {
+    if (value is List) {
+      return value.map((condition) {
+        final name = condition is Map<String, dynamic>
+            ? condition['name']?.toString()
+            : condition.toString();
+        return WeatherCondition.values.firstWhere(
+          (e) => e.name == name,
+          orElse: () => WeatherCondition.temperature,
+        );
+      }).toList();
+    }
+    return [WeatherCondition.temperature, WeatherCondition.rain];
+  }
+
+  static List<EventParticipant> _parseParticipants(dynamic value) {
+    if (value is List) {
+      return value
+          .map((participant) {
+            try {
+              if (participant is Map<String, dynamic>) {
+                return EventParticipant.fromMap(participant);
+              }
+              if (participant is Map) {
+                return EventParticipant.fromMap(
+                  participant.map(
+                    (key, value) => MapEntry(key.toString(), value),
+                  ),
+                );
+              }
+            } catch (e) {
+              debugPrint('⚠️ Failed to parse participant: $e');
+            }
+            return null;
+          })
+          .whereType<EventParticipant>()
+          .toList();
+    }
+    return [];
   }
 
   bool isOwner(String userId) => ownerId == userId;
@@ -374,8 +458,11 @@ class Activity {
     }).toList();
     return copyWith(participants: updatedParticipants);
   }
-  
-  Activity updateParticipantAlertSettings(String userId, Map<String, dynamic> settings) {
+
+  Activity updateParticipantAlertSettings(
+    String userId,
+    Map<String, dynamic> settings,
+  ) {
     final updatedParticipants = participants.map((p) {
       if (p.userId == userId) {
         return p.copyWith(customAlertSettings: settings);
