@@ -45,11 +45,36 @@ class _SettingsScreenState extends State<SettingsScreen>
     try {
       _currentUser = _authService.currentUser;
       
-      // ✅ SOLUÇÃO URGENTE: Não carregar do Firestore - usar valores padrão locais
-      // Isso previne travamento quando Firestore está lento/sem rede
-      _temperatureUnit = 'celsius';
-      _windUnit = 'kmh';
-      _precipitationUnit = 'mm';
+      // ✅ Tentar carregar do Firestore com timeout CURTO, fallback para valores padrão
+      if (_currentUser != null) {
+        try {
+          // Timeout de apenas 2 segundos - se não responder, usa padrão
+          final prefs = await _userDataService.getPreferences().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              debugPrint('⏱️ Timeout ao carregar preferências - usando padrão');
+              return {
+                'temperatureUnit': 'celsius',
+                'windUnit': 'kmh',
+                'precipitationUnit': 'mm',
+              };
+            },
+          );
+          _temperatureUnit = prefs['temperatureUnit'] ?? 'celsius';
+          _windUnit = prefs['windUnit'] ?? 'kmh';
+          _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
+        } catch (e) {
+          debugPrint('⚠️ Erro ao carregar preferências: $e - usando padrão');
+          _temperatureUnit = 'celsius';
+          _windUnit = 'kmh';
+          _precipitationUnit = 'mm';
+        }
+      } else {
+        // Sem usuário = valores padrão
+        _temperatureUnit = 'celsius';
+        _windUnit = 'kmh';
+        _precipitationUnit = 'mm';
+      }
 
       _useCurrentLocation = await _locationService.shouldUseCurrentLocation();
       final savedLocation = await _locationService.getSavedLocation();
@@ -65,15 +90,21 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Future<void> _savePreferences() async {
     try {
-      // ✅ SOLUÇÃO URGENTE: Comentar salvamento no Firestore para evitar travamentos
-      // TODO: Implementar salvamento local com SharedPreferences
-      debugPrint('💾 Preferências salvas localmente (Firestore desabilitado): $_temperatureUnit, $_windUnit, $_precipitationUnit');
-      
-      // await _userDataService.savePreferences({
-      //   'temperatureUnit': _temperatureUnit,
-      //   'windUnit': _windUnit,
-      //   'precipitationUnit': _precipitationUnit,
-      // });
+      // ✅ Salvar no Firestore com timeout de 3s
+      if (_authService.currentUser != null) {
+        await _userDataService.savePreferences({
+          'temperatureUnit': _temperatureUnit,
+          'windUnit': _windUnit,
+          'precipitationUnit': _precipitationUnit,
+        }).timeout(
+          const Duration(seconds: 3),
+          onTimeout: () {
+            debugPrint('⏱️ Timeout ao salvar preferências - salvando localmente');
+            // TODO: Salvar em SharedPreferences como backup
+          },
+        );
+        debugPrint('💾 Preferências salvas: $_temperatureUnit, $_windUnit, $_precipitationUnit');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

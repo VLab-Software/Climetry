@@ -16,14 +16,18 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    // Forçar rebuild quando o estado de autenticação mudar
+    
+    // ✅ Listener para debug e forçar rebuild
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (mounted) {
-        setState(() {
-          debugPrint('🔄 Auth state changed: ${user?.email ?? "null"}');
-        });
+        debugPrint('🔄 Auth state changed: ${user?.email ?? "null"} (uid: ${user?.uid ?? "null"})');
+        setState(() {});
       }
     });
+    
+    // ✅ Verificar estado inicial imediatamente
+    final currentUser = FirebaseAuth.instance.currentUser;
+    debugPrint('🔐 Estado inicial: ${currentUser?.email ?? "null"}');
   }
 
   @override
@@ -31,10 +35,20 @@ class _AuthWrapperState extends State<AuthWrapper> {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        debugPrint('📱 AuthWrapper build - ConnectionState: ${snapshot.connectionState}, Has user: ${snapshot.data != null}');
+        final user = snapshot.data;
+        final connectionState = snapshot.connectionState;
         
-        // Carregando - mostrar splash screen
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        debugPrint('📱 AuthWrapper build - State: $connectionState, User: ${user?.email ?? "null"}');
+        
+        // ✅ Se já temos usuário, mostrar home IMEDIATAMENTE
+        if (user != null) {
+          debugPrint('✅ Usuário detectado, carregando MainScaffold');
+          return const MainScaffold(key: ValueKey('main'));
+        }
+        
+        // Carregando - mostrar splash screen apenas no PRIMEIRO carregamento
+        if (connectionState == ConnectionState.waiting && user == null) {
+          debugPrint('⏳ Aguardando autenticação inicial...');
           return const Scaffold(
             backgroundColor: Color(0xFF1E2A3A),
             body: Center(
@@ -110,16 +124,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
           );
         }
 
-        // Verificar autenticação
-        final user = snapshot.data;
+        // ✅ Se temos usuário, mostrar home IMEDIATAMENTE (sem verificar connectionState)
+        final currentUser = snapshot.data;
+        if (currentUser != null) {
+          debugPrint('✅ Usuário detectado: ${currentUser.email}');
+          return const MainScaffold(key: ValueKey('main'));
+        }
 
-        // Transição suave entre estados
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: user != null
-              ? const MainScaffold(key: ValueKey('main'))
-              : const WelcomeScreen(key: ValueKey('welcome')),
-        );
+        // Sem usuário = mostrar tela de welcome
+        debugPrint('🚪 Sem usuário, mostrando WelcomeScreen');
+        return const WelcomeScreen(key: ValueKey('welcome'));
       },
     );
   }

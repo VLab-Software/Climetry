@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../activities/domain/entities/activity.dart';
 import '../../../weather/data/services/meteomatics_service.dart';
 import '../../../weather/domain/entities/daily_weather.dart';
 import '../../../weather/domain/entities/weather_alert.dart';
+import '../../../friends/domain/entities/friend.dart';
+import 'manage_event_roles_screen.dart';
 
 class ActivityDetailsScreen extends StatefulWidget {
   final Activity activity;
@@ -203,6 +206,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Verificar se o usuário atual é o dono do evento
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final isOwner = currentUserId == widget.activity.ownerId;
+
     return Scaffold(
       backgroundColor: const Color(0xFF1E2A3A),
       appBar: AppBar(
@@ -211,7 +218,26 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
         title: const Text('Detalhes da Atividade'),
         centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.share), onPressed: _shareActivity),
+          // Botão de gerenciar permissões (apenas para o dono)
+          if (isOwner && widget.activity.participants.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings),
+              tooltip: 'Gerenciar Permissões',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ManageEventRolesScreen(
+                      activity: widget.activity,
+                    ),
+                  ),
+                );
+              },
+            ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _shareActivity,
+          ),
         ],
       ),
       body: _loading

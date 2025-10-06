@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
+import '../../../../core/auth/auth_wrapper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -96,10 +97,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
           content: Text('✅ Conta criada com sucesso!'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
         ),
       );
       
-      debugPrint('🎉 Registro completo!');
+      debugPrint('🎉 Registro completo! Usuário: ${userCredential.user?.email}');
+      
+      // ✅ NAVEGAÇÃO EXPLÍCITA: Aguardar 1s e navegar para home
+      // O AuthWrapper deveria detectar automaticamente, mas garantimos navegação
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) return;
+      
+      // Forçar navegação para AuthWrapper que detectará o usuário logado
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
+        (route) => false,
+      );
       
     } catch (e) {
       debugPrint('❌ Erro no registro: $e');

@@ -299,20 +299,22 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           child: ElevatedButton(
             onPressed: _saveActivity,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A9EFF),
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              // ✅ AZUL VIBRANTE como na imagem
+              backgroundColor: const Color(0xFF3B82F6),
+              padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
-              minimumSize: const Size(double.infinity, 50),
+              minimumSize: const Size(double.infinity, 56),
             ),
             child: const Text(
               'Criar Evento',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -407,30 +409,39 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           controller: controller,
           validator: validator,
           maxLines: maxLines,
-          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 16,
+          ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: isDark ? Colors.white.withOpacity(0.3) : Colors.grey[400],
+              color: isDark ? Colors.white.withOpacity(0.3) : Colors.grey[500],
+              fontSize: 15,
             ),
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: isDark ? Colors.white60 : Colors.grey[600])
+                ? Icon(
+                    prefixIcon,
+                    color: isDark ? Colors.white60 : Colors.grey[600],
+                  )
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: isDark ? const Color(0xFF2A3A4D) : Colors.white,
+            // ✅ CORES ATUALIZADAS: Cinza escuro para tema light (como na imagem)
+            fillColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey[300]!),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey[300]!),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: const Color(0xFF4A9EFF), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
       ],
@@ -438,13 +449,15 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildParticipantsSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Participantes',
           style: TextStyle(
-            color: Colors.white,
+            color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -455,11 +468,12 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF2A3A4D),
+              // ✅ MESMA COR DOS CAMPOS: Cinza escuro
+              color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _selectedParticipants.isNotEmpty
-                    ? const Color(0xFF4A9EFF)
+                    ? const Color(0xFF3B82F6)
                     : Colors.transparent,
                 width: 2,
               ),
@@ -469,8 +483,8 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                 Icon(
                   Icons.people,
                   color: _selectedParticipants.isNotEmpty
-                      ? const Color(0xFF4A9EFF)
-                      : Colors.white60,
+                      ? const Color(0xFF3B82F6)
+                      : (isDark ? Colors.white60 : Colors.white70),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -630,13 +644,15 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildTypePicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Tipo de Atividade',
           style: TextStyle(
-            color: Colors.white,
+            color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -645,16 +661,23 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF2A3A4D),
+            // ✅ MESMA COR: Cinza escuro
+            color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButton<ActivityType>(
             value: _selectedType,
             isExpanded: true,
             underline: const SizedBox.shrink(),
-            dropdownColor: const Color(0xFF2A3A4D),
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-            icon: const Icon(Icons.arrow_drop_down, color: Colors.white60),
+            dropdownColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.white,
+              fontSize: 16,
+            ),
+            icon: Icon(
+              Icons.arrow_drop_down,
+              color: isDark ? Colors.white60 : Colors.white70,
+            ),
             items: ActivityType.values.map((type) {
               return DropdownMenuItem(
                 value: type,

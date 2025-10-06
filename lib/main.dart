@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'src/core/auth/auth_wrapper.dart';
 import 'src/core/theme/app_theme.dart';
 import 'src/core/theme/theme_provider.dart';
@@ -13,6 +14,11 @@ import 'src/core/services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ Carregar variáveis de ambiente do .env
+  await dotenv.load(fileName: ".env");
+  
+  debugPrint('✅ Variáveis de ambiente carregadas');
 
   // Inicializar Firebase
   try {
@@ -30,14 +36,14 @@ void main() async {
         ),
       );
       
-      // DESABILITAR CACHE PERSISTENTE DO FIRESTORE NA WEB
-      // Isso força todas as queries a irem direto ao servidor
+      // ✅ FIRESTORE: Cache em memória apenas (não persistente em disco)
+      // Isso evita travamentos mas mantém performance razoável
       FirebaseFirestore.instance.settings = const Settings(
-        persistenceEnabled: false,
-        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        persistenceEnabled: false, // Sem disco
+        cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache em memória
       );
       
-      debugPrint('🔥 Firestore: Cache desabilitado para web');
+      debugPrint('🔥 Firestore: Cache em memória (não persistente)');
     } else {
       // Para Android e iOS, usa os arquivos de configuração nativos
       await Firebase.initializeApp();

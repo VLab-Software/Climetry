@@ -1,20 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../features/weather/domain/entities/daily_weather.dart';
 import '../../features/weather/domain/entities/weather_alert.dart';
 import '../../features/activities/domain/entities/activity.dart';
 
 class OpenAIService {
-  // IMPORTANTE: Mova a chave da API para variáveis de ambiente em produção
-  // Para desenvolvimento local, crie um arquivo .env ou use flutter_dotenv
-  // Exemplo: final apiKey = dotenv.env['OPENAI_API_KEY'];
-  static const String _apiKey = String.fromEnvironment(
-    'OPENAI_API_KEY',
-    defaultValue: '', // Será preenchido em tempo de execução
-  );
+  // ✅ Carregar API key do .env (seguro e não vai para o Git)
+  String get _apiKey => dotenv.env['OPENAI_API_KEY'] ?? '';
+  
   static const String _baseUrl = 'https://api.openai.com/v1/chat/completions';
 
-  // Usar GPT-4o-mini - modelo mais barato e eficiente
+  // ✅ Usar GPT-4o-mini - modelo mais barato e eficiente
   static const String _model = 'gpt-4o-mini';
 
   /// Gera dicas personalizadas para uma atividade baseada no clima
