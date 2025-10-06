@@ -134,7 +134,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Evento atualizado com sucesso!'),
+              content: Text('Ewind atualizado com success!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -143,7 +143,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao atualizar evento: $e'),
+              content: Text('Error ao atualizar ewind: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -170,7 +170,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Editar Evento',
+          'Edit Ewind',
           style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         ),
         centerTitle: true,
@@ -198,7 +198,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                 color: isDark ? Colors.white : Colors.black87,
               ),
               onPressed: _updateActivity,
-              tooltip: 'Salvar alterações',
+              tooltip: 'Save alterações',
             ),
         ],
       ),
@@ -211,7 +211,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             children: [
               _buildTextField(
                 controller: _titleController,
-                label: 'Título do Evento',
+                label: 'Título do Ewind',
                 hint: 'Ex: Reunião com cliente',
                 icon: Icons.title,
                 validator: (value) {
@@ -249,8 +249,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
 
               _buildTextField(
                 controller: _descriptionController,
-                label: 'Descrição (Opcional)',
-                hint: 'Adicione detalhes sobre o evento',
+                label: 'Description (Opcional)',
+                hint: 'Adicione detalhes sobre o ewind',
                 icon: Icons.description,
                 maxLines: 4,
               ),
@@ -266,7 +266,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    required IconDate icon,
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
@@ -326,7 +326,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tipo de Atividade',
+          'Tipo de Activity',
           style: TextStyle(
             color: isDark ? Colors.grey[400] : Colors.black87,
             fontSize: 14,
@@ -476,7 +476,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Data',
+          'Date',
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 14,
@@ -627,7 +627,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Localização',
+          'Location',
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 14,

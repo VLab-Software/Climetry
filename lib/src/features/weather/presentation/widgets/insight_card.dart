@@ -303,7 +303,7 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
 
-                if (widget.insight.chartData != null)
+                if (widget.insight.chartDate != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -319,17 +319,17 @@ class _InsightCardState extends State<InsightCard>
                         ),
                         const SizedBox(height: 16),
                         
-                        if (widget.insight.chartData!.temperature.isNotEmpty)
+                        if (widget.insight.chartDate!.temperature.isNotEmpty)
                           _buildTemperatureChart(isDark),
                         
                         const SizedBox(height: 24),
                         
-                        if (widget.insight.chartData!.precipitation.isNotEmpty)
+                        if (widget.insight.chartDate!.precipitation.isNotEmpty)
                           _buildPrecipitationChart(isDark),
                         
                         const SizedBox(height: 24),
                         
-                        if (widget.insight.chartData!.windSpeed.isNotEmpty)
+                        if (widget.insight.chartDate!.windSpeed.isNotEmpty)
                           _buildWindSpeedGauge(isDark),
                         
                         const SizedBox(height: 24),
@@ -349,7 +349,7 @@ class _InsightCardState extends State<InsightCard>
   }
 
   Widget _buildTemperatureChart(bool isDark) {
-    final data = widget.insight.chartData!.temperature;
+    final data = widget.insight.chartDate!.temperature;
     if (data.isEmpty) return const SizedBox();
 
     return Column(
@@ -364,7 +364,7 @@ class _InsightCardState extends State<InsightCard>
             ),
             const SizedBox(width: 8),
             Text(
-              'Temperatura (°C)',
+              'Temperature (°F)',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -377,8 +377,8 @@ class _InsightCardState extends State<InsightCard>
         SizedBox(
           height: 200,
           child: LineChart(
-            LineChartData(
-              gridData: FlGridData(
+            LineChartDate(
+              gridDate: FlGridDate(
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: 5,
@@ -391,7 +391,7 @@ class _InsightCardState extends State<InsightCard>
                   );
                 },
               ),
-              titlesData: FlTitlesData(
+              titlesDate: FlTitlesDate(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -436,17 +436,17 @@ class _InsightCardState extends State<InsightCard>
                   sideTitles: SideTitles(showTitles: false),
                 ),
               ),
-              borderData: FlBorderData(show: false),
-              lineBarsData: [
-                LineChartBarData(
+              borderDate: FlBorderDate(show: false),
+              lineBarsDate: [
+                LineChartBarDate(
                   spots: data.asMap().entries.map((entry) {
                     return FlSpot(entry.key.toDouble(), entry.value.value);
                   }).toList(),
                   isCurved: true,
                   color: const Color(0xFFEF4444),
                   barWidth: 3,
-                  dotData: const FlDotData(show: true),
-                  belowBarData: BarAreaData(
+                  dotDate: const FlDotDate(show: true),
+                  belowBarDate: BarAreaDate(
                     show: true,
                     color: const Color(0xFFEF4444).withOpacity(0.1),
                   ),
@@ -460,7 +460,7 @@ class _InsightCardState extends State<InsightCard>
   }
 
   Widget _buildPrecipitationChart(bool isDark) {
-    final data = widget.insight.chartData!.precipitation;
+    final data = widget.insight.chartDate!.precipitation;
     if (data.isEmpty) return const SizedBox();
 
     return Column(
@@ -475,7 +475,7 @@ class _InsightCardState extends State<InsightCard>
             ),
             const SizedBox(width: 8),
             Text(
-              'Precipitação (mm)',
+              'Precipitation (mm)',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -488,8 +488,8 @@ class _InsightCardState extends State<InsightCard>
         SizedBox(
           height: 200,
           child: BarChart(
-            BarChartData(
-              gridData: FlGridData(
+            BarChartDate(
+              gridDate: FlGridDate(
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: 10,
@@ -502,7 +502,7 @@ class _InsightCardState extends State<InsightCard>
                   );
                 },
               ),
-              titlesData: FlTitlesData(
+              titlesDate: FlTitlesDate(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -547,12 +547,12 @@ class _InsightCardState extends State<InsightCard>
                   sideTitles: SideTitles(showTitles: false),
                 ),
               ),
-              borderData: FlBorderData(show: false),
+              borderDate: FlBorderDate(show: false),
               barGroups: data.asMap().entries.map((entry) {
-                return BarChartGroupData(
+                return BarChartGroupDate(
                   x: entry.key,
                   barRods: [
-                    BarChartRodData(
+                    BarChartRodDate(
                       toY: entry.value.value,
                       color: const Color(0xFF3B82F6),
                       width: 16,
@@ -571,7 +571,7 @@ class _InsightCardState extends State<InsightCard>
   }
 
   Widget _buildWindSpeedGauge(bool isDark) {
-    final data = widget.insight.chartData!.windSpeed;
+    final data = widget.insight.chartDate!.windSpeed;
     if (data.isEmpty) return const SizedBox();
     
     final avgWind = data.map((e) => e.value).reduce((a, b) => a + b) / data.length;
@@ -588,7 +588,7 @@ class _InsightCardState extends State<InsightCard>
             ),
             const SizedBox(width: 8),
             Text(
-              'Velocidade do Vento',
+              'Velocidade do Wind',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -656,7 +656,7 @@ class _InsightCardState extends State<InsightCard>
   }
 
   Widget _buildUVIndex(bool isDark) {
-    final uvIndex = widget.insight.chartData!.uvIndex;
+    final uvIndex = widget.insight.chartDate!.uvIndex;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

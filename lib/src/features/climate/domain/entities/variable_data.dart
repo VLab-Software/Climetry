@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'time_series_point.dart';
 
-class VariableData {
+class VariableDate {
   final String name;
   final String parameter;
   final String unit;
-  final IconData icon;
+  final IconDate icon;
   final double currentValue;
   final double minValue;
   final double maxValue;
   final double avgValue;
   final double change;
-  final List<TimeSeriesPoint> timeSeriesData;
+  final List<TimeSeriesPoint> timeSeriesDate;
 
-  const VariableData({
+  const VariableDate({
     required this.name,
     required this.parameter,
     required this.unit,
@@ -23,6 +23,6 @@ class VariableData {
     required this.maxValue,
     required this.avgValue,
     required this.change,
-    required this.timeSeriesData,
+    required this.timeSeriesDate,
   });
 }

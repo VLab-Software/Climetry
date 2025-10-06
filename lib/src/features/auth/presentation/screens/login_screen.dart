@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ Login realizado com sucesso!'),
+          content: Text('✅ Login realizado com success!'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         SizedBox(height: isLarge ? 16 : 12),
         Text(
-          'Análise climática inteligente\npara seus eventos',
+          'Análise climática inteligente\npara seus ewinds',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Entrar na conta',
+              'Login na conta',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -283,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       )
                     : const Text(
-                        'Entrar',
+                        'Login',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -328,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Criar nova conta',
+                  'Create nova conta',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -346,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    required IconDate icon,
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,

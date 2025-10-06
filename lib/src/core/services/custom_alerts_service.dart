@@ -60,12 +60,12 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.temperature,
         severity: AlertSeverity.high,
-        title: 'Temperatura Extrema',
+        title: 'Temperature Extrema',
         message:
-            'Temperatura prevista de ${weather.maxTemp.toStringAsFixed(1)}°C. '
+            'Temperature prevista de ${weather.maxTemp.toStringAsFixed(1)}°F. '
             'Considere reagendar ou tomar precauções contra o calor.',
         value: weather.maxTemp,
-        unit: '°C',
+        unit: '°F',
         timestamp: DateTime.now(),
       );
     }
@@ -76,12 +76,12 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.temperature,
         severity: AlertSeverity.medium,
-        title: 'Temperatura Baixa',
+        title: 'Temperature Baixa',
         message:
-            'Temperatura prevista de ${weather.minTemp.toStringAsFixed(1)}°C. '
+            'Temperature prevista de ${weather.minTemp.toStringAsFixed(1)}°F. '
             'Vista-se adequadamente e leve agasalhos.',
         value: weather.minTemp,
-        unit: '°C',
+        unit: '°F',
         timestamp: DateTime.now(),
       );
     }
@@ -95,10 +95,10 @@ class CustomAlertsService {
         severity: AlertSeverity.low,
         title: 'Grande Variação Térmica',
         message:
-            'Diferença de ${amplitude.toStringAsFixed(1)}°C entre mínima e máxima. '
+            'Diferença de ${amplitude.toStringAsFixed(1)}°F entre mínima e máxima. '
             'Leve roupas extras.',
         value: amplitude,
-        unit: '°C',
+        unit: '°F',
         timestamp: DateTime.now(),
       );
     }
@@ -115,10 +115,10 @@ class CustomAlertsService {
         severity: weather.precipitation > 50
             ? AlertSeverity.high
             : AlertSeverity.medium,
-        title: weather.precipitation > 50 ? 'Chuva Intensa' : 'Chuva Forte',
+        title: weather.precipitation > 50 ? 'Rain Intensa' : 'Rain Forte',
         message:
-            'Previsão de ${weather.precipitation.toStringAsFixed(0)}mm de chuva. '
-            '${weather.precipitation > 50 ? 'Considere reagendar ou mudar para local coberto.' : 'Leve guarda-chuva e evite áreas abertas.'}',
+            'Previsão de ${weather.precipitation.toStringAsFixed(0)}mm de rain. '
+            '${weather.precipitation > 50 ? 'Consider rescheduling or moving to covered location.' : 'Bring umbrella and avoid open areas.'}',
         value: weather.precipitation,
         unit: 'mm',
         timestamp: DateTime.now(),
@@ -131,10 +131,10 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.rain,
         severity: AlertSeverity.low,
-        title: 'Possibilidade de Chuva',
+        title: 'Possibilidade de Rain',
         message:
-            'Previsão de ${weather.precipitation.toStringAsFixed(0)}mm de chuva. '
-            'Leve guarda-chuva e planeje rotas cobertas.',
+            'Previsão de ${weather.precipitation.toStringAsFixed(0)}mm de rain. '
+            'Leve guarda-rain e planeje rotas cobertas.',
         value: weather.precipitation,
         unit: 'mm',
         timestamp: DateTime.now(),
@@ -151,10 +151,10 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.wind,
         severity: AlertSeverity.high,
-        title: 'Vento Muito Forte',
+        title: 'Wind Muito Forte',
         message:
-            'Ventos de até ${weather.windSpeed.toStringAsFixed(0)} km/h previstos. '
-            'Evite atividades ao ar livre e áreas com árvores.',
+            'Winds de até ${weather.windSpeed.toStringAsFixed(0)} mph previstos. '
+            'Avoid outdoor activities and areas with trees.',
         value: weather.windSpeed,
         unit: 'km/h',
         timestamp: DateTime.now(),
@@ -167,9 +167,9 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.wind,
         severity: AlertSeverity.medium,
-        title: 'Vento Forte',
+        title: 'Wind Forte',
         message:
-            'Ventos de até ${weather.windSpeed.toStringAsFixed(0)} km/h previstos. '
+            'Winds de até ${weather.windSpeed.toStringAsFixed(0)} mph previstos. '
             'Proteja objetos leves e evite áreas abertas.',
         value: weather.windSpeed,
         unit: 'km/h',
@@ -187,9 +187,9 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.humidity,
         severity: AlertSeverity.medium,
-        title: 'Umidade Elevada',
+        title: 'Humidity Elevada',
         message:
-            'Umidade de ${weather.humidity.toStringAsFixed(0)}% prevista. '
+            'Humidity de ${weather.humidity.toStringAsFixed(0)}% prevista. '
             'Pode causar desconforto e sensação de calor. Mantenha-se hidratado.',
         value: weather.humidity,
         unit: '%',
@@ -203,9 +203,9 @@ class CustomAlertsService {
         eventTitle: event.title,
         condition: WeatherCondition.humidity,
         severity: AlertSeverity.low,
-        title: 'Umidade Baixa',
+        title: 'Humidity Baixa',
         message:
-            'Umidade de ${weather.humidity.toStringAsFixed(0)}% prevista. '
+            'Humidity de ${weather.humidity.toStringAsFixed(0)}% prevista. '
             'Ar seco pode causar desconforto. Beba bastante água.',
         value: weather.humidity,
         unit: '%',
@@ -287,7 +287,7 @@ class CustomAlert {
     }
   }
 
-  IconData get severityIcon {
+  IconDate get severityIcon {
     switch (severity) {
       case AlertSeverity.low:
         return Icons.info_outline;
@@ -301,13 +301,13 @@ class CustomAlert {
   String get conditionLabel {
     switch (condition) {
       case WeatherCondition.temperature:
-        return 'Temperatura';
+        return 'Temperature';
       case WeatherCondition.rain:
-        return 'Chuva';
+        return 'Rain';
       case WeatherCondition.wind:
-        return 'Vento';
+        return 'Wind';
       case WeatherCondition.humidity:
-        return 'Umidade';
+        return 'Humidity';
       case WeatherCondition.uv:
         return 'UV';
     }

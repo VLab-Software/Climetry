@@ -38,7 +38,7 @@ class WeatherMonitoringService {
 
       print('✅ Monitoramento iniciado para: ${activity.title}');
     } catch (e) {
-      print('❌ Erro ao iniciar monitoramento: $e');
+      print('❌ Error ao iniciar monitoramento: $e');
     }
   }
 
@@ -52,7 +52,7 @@ class WeatherMonitoringService {
           .where('eventDate', isGreaterThan: now.toIso8601String())
           .get();
 
-      print('🔍 Verificando ${snapshot.docs.length} eventos...');
+      print('🔍 Verificando ${snapshot.docs.length} ewinds...');
 
       for (var doc in snapshot.docs) {
         await _checkEventWeather(doc);
@@ -60,7 +60,7 @@ class WeatherMonitoringService {
 
       print('✅ Verificação completa');
     } catch (e) {
-      print('❌ Erro ao verificar eventos: $e');
+      print('❌ Error ao verificar ewinds: $e');
     }
   }
 
@@ -114,7 +114,7 @@ class WeatherMonitoringService {
         });
       }
     } catch (e) {
-      print('❌ Erro ao verificar evento ${doc.id}: $e');
+      print('❌ Error ao verificar ewind ${doc.id}: $e');
     }
   }
 
@@ -132,15 +132,15 @@ class WeatherMonitoringService {
       }).join('\n');
 
       final prompt = '''
-Você é um assistente climático. Houve mudanças significativas na previsão do tempo para o evento "$activityTitle":
+Você é um assistente climático. Houve mudanças significativas na previsão do tempo para o ewind "$activityTitle":
 
 **Mudanças Detectadas:**
 $changesDescription
 
 **Nova Previsão:**
-- Temperatura: ${currentForecast.minTemp.toInt()}-${currentForecast.maxTemp.toInt()}°C
-- Chuva: ${currentForecast.precipitation.toInt()}mm (${currentForecast.precipitationProbability.toInt()}%)
-- Vento: ${currentForecast.windSpeed.toInt()} km/h
+- Temperature: ${currentForecast.minTemp.toInt()}-${currentForecast.maxTemp.toInt()}°F
+- Rain: ${currentForecast.precipitation.toInt()}mm (${currentForecast.precipitationProbability.toInt()}%)
+- Wind: ${currentForecast.windSpeed.toInt()} mph
 
 Forneça recomendações práticas e atualizadas (máximo 5 pontos):
 ''';
@@ -163,7 +163,7 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
 
       print('✅ Insights atualizados para: $activityTitle');
     } catch (e) {
-      print('❌ Erro ao gerar insights: $e');
+      print('❌ Error ao gerar insights: $e');
     }
   }
 
@@ -192,9 +192,9 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
 
       final title = '${getIcon()} $activityTitle - Clima Atualizado';
       final body = daysUntil == 0
-          ? 'Hoje: ${getMainChange()}'
+          ? 'Today: ${getMainChange()}'
           : daysUntil == 1
-              ? 'Amanhã: ${getMainChange()}'
+              ? 'Tomorrow: ${getMainChange()}'
               : 'Em $daysUntil dias: ${getMainChange()}';
 
       for (var participantId in participants) {
@@ -223,13 +223,13 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
             }
           }
         } catch (e) {
-          print('❌ Erro ao enviar notificação para $participantId: $e');
+          print('❌ Error ao enviar notificação para $participantId: $e');
         }
       }
 
-      print('✅ Notificações enviadas para ${participants.length} usuários');
+      print('✅ Notifications enviadas para ${participants.length} usuários');
     } catch (e) {
-      print('❌ Erro ao enviar notificações: $e');
+      print('❌ Error ao enviar notificações: $e');
     }
   }
 
@@ -242,7 +242,7 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
 
       print('✅ Monitoramento parado para: $activityId');
     } catch (e) {
-      print('❌ Erro ao parar monitoramento: $e');
+      print('❌ Error ao parar monitoramento: $e');
     }
   }
 
@@ -280,7 +280,7 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
         print('✅ Notificação do dia enviada para: ${activity.title}');
       }
     } catch (e) {
-      print('❌ Erro ao enviar notificação do dia: $e');
+      print('❌ Error ao enviar notificação do dia: $e');
     }
   }
 

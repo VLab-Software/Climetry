@@ -17,14 +17,14 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen>
     with AutomaticKeepAliveClientMixin {
   final _authService = AuthService();
-  final _userDataService = UserDataService();
+  final _userDateService = UserDateService();
   final _locationService = LocationService();
 
   User? _currentUser;
   bool _isLoading = true;
   String _temperatureUnit = 'celsius'; // celsius, fahrenheit
   String _windUnit = 'kmh'; // kmh, mph
-  String _precipitationUnit = 'mm'; // mm, inch
+  String _precipitationUnit = 'mm'; // in, inch
   bool _useCurrentLocation = true;
   String? _savedLocationName;
 
@@ -34,10 +34,10 @@ class _SettingsScreenState extends State<SettingsScreen>
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadDate();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDate() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
 
@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       
       if (_currentUser != null) {
         try {
-          final prefs = await _userDataService.getPreferences().timeout(
+          final prefs = await _userDateService.getPreferences().timeout(
             const Duration(seconds: 2),
             onTimeout: () {
               debugPrint('⏱️ Timeout ao carregar preferências - usando padrão');
@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           _windUnit = prefs['windUnit'] ?? 'kmh';
           _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
         } catch (e) {
-          debugPrint('⚠️ Erro ao carregar preferências: $e - usando padrão');
+          debugPrint('⚠️ Error loading preferências: $e - usando padrão');
           _temperatureUnit = 'celsius';
           _windUnit = 'kmh';
           _precipitationUnit = 'mm';
@@ -76,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       final savedLocation = await _locationService.getSavedLocation();
       _savedLocationName = savedLocation?['name'];
     } catch (e) {
-      debugPrint('Erro ao carregar dados: $e');
+      debugPrint('Error loading dados: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Future<void> _savePreferences() async {
     try {
       if (_authService.currentUser != null) {
-        await _userDataService.savePreferences({
+        await _userDateService.savePreferences({
           'temperatureUnit': _temperatureUnit,
           'windUnit': _windUnit,
           'precipitationUnit': _precipitationUnit,
@@ -128,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       builder: (context) => AlertDialog(
         backgroundColor: Color(0xFF1F2937),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Sair da Conta', style: TextStyle(color: Colors.white)),
+        title: Text('Logout da Conta', style: TextStyle(color: Colors.white)),
         content: Text(
           'Deseja realmente sair?',
           style: TextStyle(color: Colors.white70),
@@ -136,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -146,7 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('Sair'),
+            child: Text('Logout'),
           ),
         ],
       ),
@@ -181,17 +181,17 @@ class _SettingsScreenState extends State<SettingsScreen>
           children: [
             Icon(Icons.warning, color: Colors.red),
             SizedBox(width: 8),
-            Text('Excluir Conta', style: TextStyle(color: Colors.white)),
+            Text('Delete Conta', style: TextStyle(color: Colors.white)),
           ],
         ),
         content: Text(
-          'Esta ação é PERMANENTE!\n\nTodos os seus dados serão excluídos e não poderão ser recuperados.',
+          'Esta ação é PERMANENTE!\n\nTodos os seus dados serão excluídos e cannotrão ser recuperados.',
           style: TextStyle(color: Colors.white70, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -201,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('Excluir Conta'),
+            child: Text('Delete Conta'),
           ),
         ],
       ),
@@ -209,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
     if (confirm == true && mounted) {
       try {
-        await _userDataService.deleteAllUserData();
+        await _userDateService.deleteAllUserDate();
         await _authService.deleteAccount();
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
@@ -296,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
           SizedBox(width: 12),
           Text(
-            'Configurações',
+            'Settings',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -379,7 +379,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   builder: (context) => const EditProfileScreen(),
                 ),
               ).then((_) {
-                _loadData();
+                _loadDate();
               });
             },
           ),
@@ -398,15 +398,15 @@ class _SettingsScreenState extends State<SettingsScreen>
         _buildSettingTile(
           isDark,
           icon: Icons.thermostat,
-          title: 'Temperatura',
+          title: 'Temperature',
           subtitle: _temperatureUnit == 'celsius'
-              ? 'Celsius (°C)'
+              ? 'Celsius (°F)'
               : 'Fahrenheit (°F)',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: () => _showUnitPicker(
-            'Temperatura',
+            'Temperature',
             _temperatureUnit,
-            {'celsius': 'Celsius (°C)', 'fahrenheit': 'Fahrenheit (°F)'},
+            {'celsius': 'Celsius (°F)', 'fahrenheit': 'Fahrenheit (°F)'},
             (value) {
               setState(() => _temperatureUnit = value);
               _savePreferences();
@@ -416,11 +416,11 @@ class _SettingsScreenState extends State<SettingsScreen>
         _buildSettingTile(
           isDark,
           icon: Icons.air,
-          title: 'Vento',
+          title: 'Wind',
           subtitle: _windUnit == 'kmh' ? 'km/h' : 'mph',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: () => _showUnitPicker(
-            'Vento',
+            'Wind',
             _windUnit,
             {
               'kmh': 'Quilômetros por hora (km/h)',
@@ -435,13 +435,13 @@ class _SettingsScreenState extends State<SettingsScreen>
         _buildSettingTile(
           isDark,
           icon: Icons.water_drop,
-          title: 'Precipitação',
+          title: 'Precipitation',
           subtitle: _precipitationUnit == 'mm'
               ? 'Milímetros (mm)'
               : 'Polegadas (in)',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: () => _showUnitPicker(
-            'Precipitação',
+            'Precipitation',
             _precipitationUnit,
             {'mm': 'Milímetros (mm)', 'inch': 'Polegadas (in)'},
             (value) {
@@ -457,13 +457,13 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget _buildLocationSection(bool isDark) {
     return _buildSection(
       isDark,
-      title: 'Localização',
+      title: 'Location',
       icon: Icons.location_on_outlined,
       children: [
         _buildSettingTile(
           isDark,
           icon: Icons.my_location,
-          title: 'Usar localização atual',
+          title: 'Usar location atual',
           subtitle: 'Detectar automaticamente',
           trailing: Switch(
             value: _useCurrentLocation,
@@ -478,7 +478,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           _buildSettingTile(
             isDark,
             icon: Icons.location_city,
-            title: 'Localização Salva',
+            title: 'Location Salva',
             subtitle: _savedLocationName!,
             trailing: Icon(
               Icons.arrow_forward_ios,
@@ -528,7 +528,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         _buildSettingTile(
           isDark,
           icon: Icons.logout,
-          title: 'Sair',
+          title: 'Logout',
           subtitle: 'Desconectar da conta',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: _logout,
@@ -536,7 +536,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         _buildSettingTile(
           isDark,
           icon: Icons.delete_forever,
-          title: 'Excluir Conta',
+          title: 'Delete Conta',
           subtitle: 'Remover permanentemente',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
           onTap: _deleteAccount,
@@ -571,7 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget _buildSection(
     bool isDark, {
     required String title,
-    required IconData icon,
+    required IconDate icon,
     required List<Widget> children,
   }) {
     return Container(
@@ -616,7 +616,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildSettingTile(
     bool isDark, {
-    required IconData icon,
+    required IconDate icon,
     required String title,
     String? subtitle,
     Widget? trailing,

@@ -38,7 +38,7 @@ class CurrentWeather {
   });
 
   String get mainCondition {
-    if (precipitation > 0.5) return 'Chuva';
+    if (precipitation > 0.5) return 'Rain';
     if (temperature > 30) return 'Ensolarado';
     if (temperature < 15) return 'Nublado';
     return 'Parcialmente Nublado';

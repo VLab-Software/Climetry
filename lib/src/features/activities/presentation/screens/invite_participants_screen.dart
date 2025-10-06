@@ -47,7 +47,7 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao carregar amigos: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error loading amigos: $e')));
       }
     }
   }
@@ -86,7 +86,7 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao enviar convites: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error ao enviar convites: $e')));
       }
     }
   }
@@ -95,7 +95,7 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Convidar Participantes'),
+        title: const Text('Convidar Participants'),
         actions: [
           if (_selectedFriends.isNotEmpty)
             TextButton.icon(
@@ -114,7 +114,7 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Buscar amigos...',
+                hintText: 'Search amigos...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

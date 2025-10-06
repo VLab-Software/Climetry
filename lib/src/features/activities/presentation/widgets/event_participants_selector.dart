@@ -370,7 +370,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                 child: Text(
                   widget.selectedParticipants.isEmpty
                       ? 'Continuar sem convidados'
-                      : 'Confirmar ${widget.selectedParticipants.length} convidado(s)',
+                      : 'Confirm ${widget.selectedParticipants.length} convidado(s)',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

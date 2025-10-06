@@ -47,7 +47,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           _analyses[activity.id] = analysis;
         });
       } catch (e) {
-        debugPrint('Erro ao analisar ${activity.title}: $e');
+        debugPrint('Error ao analisar ${activity.title}: $e');
       }
     }
 
@@ -124,7 +124,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? Color(0xFF1F2937) : Colors.white,
         title: Text(
-          'Excluir Evento',
+          'Delete Ewind',
           style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         ),
         content: Text(
@@ -134,12 +134,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Excluir'),
+            child: Text('Delete'),
           ),
         ],
       ),
@@ -156,7 +156,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
         _applyFilters();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✓ Evento excluído'),
+            content: Text('✓ Ewind excluído'),
             backgroundColor: Colors.green,
           ),
         );
@@ -179,7 +179,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       body: StreamBuilder<List<Activity>>(
         stream: _activityRepository.watchAll(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasDate) {
             final newActivities = snapshot.data!;
             
             if (_allActivities.length != newActivities.length ||
@@ -204,7 +204,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           }
 
           final bool isLoading = snapshot.connectionState == ConnectionState.waiting;
-          final bool hasData = snapshot.hasData && _filteredActivities.isNotEmpty;
+          final bool hasDate = snapshot.hasDate && _filteredActivities.isNotEmpty;
 
           return CustomScrollView(
             slivers: [
@@ -221,14 +221,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                         CircularProgressIndicator(color: Color(0xFF3B82F6)),
                         SizedBox(height: 16),
                         Text(
-                          'Carregando eventos...',
+                          'Loading ewinds...',
                           style: TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
                   ),
                 )
-              else if (!hasData)
+              else if (!hasDate)
                 SliverFillRemaining(child: _buildEmptyState(isDark))
               else
                 SliverPadding(
@@ -291,7 +291,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Eventos',
+                      'Ewinds',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -299,7 +299,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                       ),
                     ),
                     Text(
-                      '${_allActivities.length} eventos',
+                      '${_allActivities.length} ewinds',
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
@@ -391,7 +391,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             },
             style: TextStyle(color: isDark ? Colors.white : Colors.black87),
             decoration: InputDecoration(
-              hintText: 'Buscar por nome ou tags...',
+              hintText: 'Search por nome ou tags...',
               hintStyle: TextStyle(color: Colors.grey),
               prefixIcon: Icon(Icons.search, color: Color(0xFF3B82F6)),
               suffixIcon: _searchQuery.isNotEmpty
@@ -497,7 +497,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ordenar eventos',
+                    'Ordenar ewinds',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -519,7 +519,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.access_time,
                     title: 'Proximidade de tempo',
-                    subtitle: 'Eventos mais próximos primeiro',
+                    subtitle: 'Ewinds mais próximos primeiro',
                     value: 'time',
                     filterType: 'sort',
                     isDark: isDark,
@@ -528,7 +528,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.location_on,
                     title: 'Proximidade de distância',
-                    subtitle: 'Eventos mais próximos de você',
+                    subtitle: 'Ewinds mais próximos de você',
                     value: 'distance',
                     filterType: 'sort',
                     isDark: isDark,
@@ -569,7 +569,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.event,
                     title: 'Apenas únicos',
-                    subtitle: 'Eventos sem recorrência',
+                    subtitle: 'Ewinds sem recorrência',
                     value: 'single',
                     filterType: 'recurrence',
                     isDark: isDark,
@@ -578,7 +578,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.repeat,
                     title: 'Apenas recorrentes',
-                    subtitle: 'Eventos que se repetem',
+                    subtitle: 'Ewinds que se repetem',
                     value: 'recurring',
                     filterType: 'recurrence',
                     isDark: isDark,
@@ -595,7 +595,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   Widget _buildFilterOption({
-    required IconData icon,
+    required IconDate icon,
     required String title,
     required String subtitle,
     required String value,
@@ -877,9 +877,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                             SizedBox(height: 4),
                             Text(
                               daysUntil == 0
-                                  ? 'Hoje'
+                                  ? 'Today'
                                   : daysUntil == 1
-                                  ? 'Amanhã'
+                                  ? 'Tomorrow'
                                   : 'Em $daysUntil dias',
                               style: TextStyle(
                                 fontSize: 11,
@@ -932,7 +932,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Excluir',
+                                    'Delete',
                                     style: TextStyle(color: Colors.red),
                                   ),
                                 ],
@@ -1033,7 +1033,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                         Icon(Icons.check_circle, size: 14, color: Colors.grey),
                         SizedBox(width: 6),
                         Text(
-                          'Evento concluído',
+                          'Ewind concluído',
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey,
@@ -1073,7 +1073,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Evento Criado!',
+                'Ewind Criado!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -1088,7 +1088,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '✅ "${activity.title}" foi criado com sucesso!',
+              '✅ "${activity.title}" foi criado com success!',
               style: TextStyle(
                 fontSize: 16,
                 color: isDark ? Colors.grey[300] : Colors.grey[700],
@@ -1118,8 +1118,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     SnackBar(
                       content: Text(
                         success
-                            ? '✅ Evento adicionado ao calendário!'
-                            : '❌ Erro ao adicionar ao calendário',
+                            ? '✅ Ewind adicionado ao calendário!'
+                            : '❌ Error ao adicionar ao calendário',
                       ),
                       backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
                     ),
@@ -1169,7 +1169,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   Widget _buildActionButton({
-    required IconData icon,
+    required IconDate icon,
     required String label,
     required Color color,
     required bool isDark,
@@ -1223,7 +1223,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
             SizedBox(height: 24),
             Text(
-              'Nenhum evento',
+              'Nenhum ewind',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -1233,10 +1233,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             SizedBox(height: 8),
             Text(
               _selectedFilter == 'all'
-                  ? 'Adicione seu primeiro evento'
+                  ? 'Adicione seu primeiro ewind'
                   : _selectedFilter == 'past'
-                  ? 'Nenhum evento passado ainda'
-                  : 'Nenhum evento nesta categoria',
+                  ? 'Nenhum ewind passado ainda'
+                  : 'Nenhum ewind nesta categoria',
               style: TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -1258,7 +1258,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   }
                 },
                 icon: Icon(Icons.add),
-                label: Text('Criar Evento'),
+                label: Text('Create Ewind'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF3B82F6),
                   foregroundColor: Colors.white,

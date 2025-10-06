@@ -2,12 +2,12 @@ import 'dart:convert';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/weather_payload.dart';
 
-class MeteomaticsRemoteDataSource {
+class MeteomaticsRemoteDateSource {
   final ApiClient client;
   final String username;
   final String password;
 
-  MeteomaticsRemoteDataSource({
+  MeteomaticsRemoteDateSource({
     required this.client,
     this.username = 'soares_rodrigo',
     this.password = 'Jv37937j7LF8noOrpK1c',

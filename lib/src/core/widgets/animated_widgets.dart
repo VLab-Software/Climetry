@@ -234,7 +234,7 @@ class _PulseBadgeState extends State<PulseBadge>
 class ShimmerButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
-  final IconData? icon;
+  final IconDate? icon;
   final Color? backgroundColor;
   final Color? textColor;
 
@@ -337,7 +337,7 @@ class _ShimmerButtonState extends State<ShimmerButton>
 }
 
 class RotatingIcon extends StatefulWidget {
-  final IconData icon;
+  final IconDate icon;
   final Color color;
   final double size;
 

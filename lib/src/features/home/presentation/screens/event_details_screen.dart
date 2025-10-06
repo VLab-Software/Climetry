@@ -52,7 +52,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     if (difference.isNegative) {
       setState(() {
-        _timeRemaining = 'Evento passou';
+        _timeRemaining = 'Ewind passou';
       });
       _countdownTimer?.cancel();
       return;
@@ -101,7 +101,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Compartilhar Evento',
+              'Compartilhar Ewind',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -129,8 +129,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     SnackBar(
                       content: Text(
                         success
-                            ? '✅ Evento adicionado ao calendário!'
-                            : '❌ Erro ao adicionar ao calendário',
+                            ? '✅ Ewind adicionado ao calendário!'
+                            : '❌ Error ao adicionar ao calendário',
                       ),
                       backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
                     ),
@@ -194,7 +194,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Você é o dono deste evento e não pode sair. Delete o evento se necessário.'),
+          content: Text('Você é o dono deste ewind e cannot sair. Delete o ewind se necessário.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -204,12 +204,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Sair do Evento'),
-        content: Text('Tem certeza que deseja sair deste evento? Você não receberá mais atualizações sobre ele.'),
+        title: Text('Logout do Ewind'),
+        content: Text('Tem certeza que deseja sair deste ewind? Você não receberá mais atualizações sobre ele.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -217,7 +217,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: Text('Sair'),
+            child: Text('Logout'),
           ),
         ],
       ),
@@ -239,7 +239,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Você saiu do evento com sucesso'),
+          content: Text('Você saiu do ewind com success'),
           backgroundColor: Colors.green,
         ),
       );
@@ -250,7 +250,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao sair do evento: $e'),
+          content: Text('Error ao sair do ewind: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -304,7 +304,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 SnackBar(
                   content: Text(
                     applyToAll 
-                        ? 'Configurações aplicadas para todos os participantes'
+                        ? 'Settings aplicadas para todos os participants'
                         : 'Suas configurações de alerta foram salvas',
                   ),
                   backgroundColor: Colors.green,
@@ -315,7 +315,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Erro ao salvar configurações: $e'),
+                  content: Text('Error ao salvar configurações: $e'),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -348,7 +348,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               IconButton(
                 icon: Icon(Icons.share, color: Colors.white),
                 onPressed: () => _showShareOptions(),
-                tooltip: 'Compartilhar evento',
+                tooltip: 'Compartilhar ewind',
               ),
               IconButton(
                 icon: Icon(Icons.edit_outlined, color: Colors.white),
@@ -366,7 +366,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     Navigator.pop(context);
                   }
                 },
-                tooltip: 'Editar evento',
+                tooltip: 'Edit ewind',
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -432,7 +432,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   _buildInfoCard(
                     isDark,
                     icon: Icons.calendar_today,
-                    title: 'Data e Hora',
+                    title: 'Date e Time',
                     content:
                         '${dateFormat.format(widget.analysis.activity.date)}\n${timeFormat.format(widget.analysis.activity.date)}',
                   ),
@@ -449,7 +449,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   _buildInfoCard(
                     isDark,
                     icon: Icons.location_on,
-                    title: 'Localização',
+                    title: 'Location',
                     content:
                         '${widget.analysis.activity.coordinates.latitude.toStringAsFixed(4)}, ${widget.analysis.activity.coordinates.longitude.toStringAsFixed(4)}',
                   ),
@@ -493,7 +493,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   
                   SizedBox(height: 24),
 
-                  _buildSectionTitle('Participantes', isDark),
+                  _buildSectionTitle('Participants', isDark),
                   SizedBox(height: 12),
                   _buildParticipantsCard(isDark),
                   SizedBox(height: 24),
@@ -547,7 +547,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               child: OutlinedButton.icon(
                                 onPressed: _leaveEvent,
                                 icon: Icon(Icons.logout, size: 18),
-                                label: Text('Sair do Evento'),
+                                label: Text('Logout do Ewind'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,
                                   side: BorderSide(color: Colors.red),
@@ -589,7 +589,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Widget _buildInfoCard(
     bool isDark, {
-    required IconData icon,
+    required IconDate icon,
     required String title,
     required String content,
   }) {
@@ -665,8 +665,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         children: [
           _buildWeatherMetric(
             Icons.thermostat,
-            '${widget.analysis.weather!.maxTemp.toStringAsFixed(0)}°C',
-            'Temperatura',
+            '${widget.analysis.weather!.maxTemp.toStringAsFixed(0)}°F',
+            'Temperature',
             isDark,
           ),
           Container(
@@ -677,7 +677,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           _buildWeatherMetric(
             Icons.water_drop,
             '${widget.analysis.weather!.precipitation.toStringAsFixed(0)}mm',
-            'Chuva',
+            'Rain',
             isDark,
           ),
           Container(
@@ -688,7 +688,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           _buildWeatherMetric(
             Icons.air,
             '${widget.analysis.weather!.windSpeed.toStringAsFixed(0)}km/h',
-            'Vento',
+            'Wind',
             isDark,
           ),
         ],
@@ -697,7 +697,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildWeatherMetric(
-    IconData icon,
+    IconDate icon,
     String value,
     String label,
     bool isDark,
@@ -898,14 +898,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  IconData _getSuggestionIcon(SuggestionType type) {
+  IconDate _getSuggestionIcon(SuggestionType type) {
     switch (type) {
       case SuggestionType.reschedule:
         return Icons.event_available;
       case SuggestionType.relocate:
         return Icons.location_on;
       case SuggestionType.prepare:
-        return Icons.inventory_2;
+        return Icons.inwindry_2;
       case SuggestionType.cancel:
         return Icons.cancel;
       default:
@@ -973,7 +973,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Participantes (${activity.participants.length})',
+                'Participants (${activity.participants.length})',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1177,7 +1177,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   String _getAlertLabel(WeatherAlertType type) {
     switch (type) {
       case WeatherAlertType.heavyRain:
-        return 'Chuva Forte';
+        return 'Rain Forte';
       case WeatherAlertType.floodRisk:
         return 'Risco de Alagamento';
       case WeatherAlertType.heatWave:
@@ -1187,7 +1187,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       case WeatherAlertType.frostRisk:
         return 'Risco de Geada';
       case WeatherAlertType.strongWind:
-        return 'Vento Forte';
+        return 'Wind Forte';
       case WeatherAlertType.severeStorm:
         return 'Tempestade Severa';
       case WeatherAlertType.thermalDiscomfort:

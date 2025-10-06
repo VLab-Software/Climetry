@@ -55,7 +55,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Notificações',
+                  'Notifications',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
@@ -114,7 +114,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
 
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro ao carregar notificações: ${snapshot.error}'),
+            child: Text('Error loading notificações: ${snapshot.error}'),
           );
         }
 
@@ -163,7 +163,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
 
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro ao carregar solicitações: ${snapshot.error}'),
+            child: Text('Error loading solicitações: ${snapshot.error}'),
           );
         }
 
@@ -391,7 +391,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
     );
   }
 
-  IconData _getNotificationIcon(NotificationType type) {
+  IconDate _getNotificationIcon(NotificationType type) {
     switch (type) {
       case NotificationType.friendRequest:
         return Icons.person_add;

@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
-  final UserDataService _userDataService = UserDataService();
+  final UserDateService _userDateService = UserDateService();
   final LocationService _locationService = LocationService();
   final EventWeatherPredictionService _predictionService =
       EventWeatherPredictionService();
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen>
   List<EventWeatherAnalysis> _analyses = [];
   bool _loading = true;
   bool _loadingLocation = false;
-  String _locationName = 'Carregando...';
+  String _locationName = 'Loading...';
   LatLng _location = const LatLng(-23.5505, -46.6333);
 
   @override
@@ -46,11 +46,11 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _loadingLocation = true);
 
     try {
-      final locationData = await _locationService.getActiveLocation();
+      final locationDate = await _locationService.getActiveLocation();
       if (!mounted) return;
       setState(() {
-        _location = locationData['coordinates'] as LatLng;
-        _locationName = locationData['name'] as String;
+        _location = locationDate['coordinates'] as LatLng;
+        _locationName = locationDate['name'] as String;
         _loadingLocation = false;
       });
       await _loadEventsPredictions();
@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _loading = true);
 
     try {
-      final events = await _userDataService.getActivities();
+      final events = await _userDateService.getActivities();
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
 
@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen>
           final analysis = await _predictionService.analyzeEvent(event);
           analyses.add(analysis);
         } catch (e) {
-          debugPrint('Erro ao analisar evento ${event.title}: $e');
+          debugPrint('Error ao analisar ewind ${event.title}: $e');
         }
       }
 
@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen>
                       CircularProgressIndicator(color: Color(0xFF3B82F6)),
                       SizedBox(height: 16),
                       Text(
-                        'Analisando eventos...',
+                        'Analisando ewinds...',
                         style: TextStyle(
                           color: isDark ? Colors.white70 : Colors.black54,
                           fontSize: 14,
@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 24),
                       Text(
-                        'Nenhum evento próximo',
+                        'Nenhum ewind próximo',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Adicione eventos na aba Agenda',
+                        'Adicione ewinds na aba Agenda',
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
@@ -268,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Gestão Inteligente de Eventos',
+                    'Gestão Inteligente de Ewinds',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey,
@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               SizedBox(width: 12),
               Text(
-                'Análise de Eventos',
+                'Análise de Ewinds',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -443,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen>
           if (_upcomingEvents.length > 10) ...[
             SizedBox(height: 12),
             Text(
-              '+${_upcomingEvents.length - 10} eventos adicionais',
+              '+${_upcomingEvents.length - 10} ewinds adicionais',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
@@ -699,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildWeatherInfo(IconData icon, String value, bool isDark) {
+  Widget _buildWeatherInfo(IconDate icon, String value, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -720,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen>
   String _getAlertLabel(WeatherAlertType type) {
     switch (type) {
       case WeatherAlertType.heavyRain:
-        return 'Chuva Forte';
+        return 'Rain Forte';
       case WeatherAlertType.floodRisk:
         return 'Risco de Alagamento';
       case WeatherAlertType.heatWave:
@@ -730,7 +730,7 @@ class _HomeScreenState extends State<HomeScreen>
       case WeatherAlertType.frostRisk:
         return 'Risco de Geada';
       case WeatherAlertType.strongWind:
-        return 'Vento Forte';
+        return 'Wind Forte';
       case WeatherAlertType.severeStorm:
         return 'Tempestade';
       case WeatherAlertType.thermalDiscomfort:

@@ -96,7 +96,7 @@ class FCMService {
     const androidChannel = AndroidNotificationChannel(
       'climetry_channel',
       'Climetry Notifications',
-      description: 'Notificações do app Climetry',
+      description: 'Notifications do app Climetry',
       importance: Importance.high,
     );
 

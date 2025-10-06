@@ -12,17 +12,17 @@ enum ActivityType {
   String get label {
     switch (this) {
       case ActivityType.sport:
-        return 'Esporte';
+        return 'Sports';
       case ActivityType.outdoor:
-        return 'Ao Ar Livre';
+        return 'Outdoor';
       case ActivityType.social:
         return 'Social';
       case ActivityType.work:
-        return 'Trabalho';
+        return 'Work';
       case ActivityType.travel:
-        return 'Viagem';
+        return 'Travel';
       case ActivityType.other:
-        return 'Outro';
+        return 'Other';
     }
   }
 
@@ -53,13 +53,13 @@ enum ActivityPriority {
   String get label {
     switch (this) {
       case ActivityPriority.low:
-        return 'Baixa';
+        return 'Low';
       case ActivityPriority.medium:
-        return 'Média';
+        return 'Medium';
       case ActivityPriority.high:
-        return 'Alta';
+        return 'High';
       case ActivityPriority.urgent:
-        return 'Crítica';
+        return 'Critical';
     }
   }
 
@@ -120,13 +120,13 @@ enum WeatherCondition {
   String get label {
     switch (this) {
       case WeatherCondition.temperature:
-        return 'Temperatura';
+        return 'Temperature';
       case WeatherCondition.rain:
-        return 'Chuva';
+        return 'Rain';
       case WeatherCondition.wind:
-        return 'Vento';
+        return 'Wind';
       case WeatherCondition.humidity:
-        return 'Umidade';
+        return 'Humidity';
       case WeatherCondition.uv:
         return 'Índice UV';
     }
@@ -166,7 +166,7 @@ class Activity {
   final RecurrenceType recurrence;
   final List<WeatherCondition> monitoredConditions;
 
-  final String ownerId; // ID do criador do evento
+  final String ownerId; // ID do criador do ewind
   final List<EventParticipant> participants;
 
   Activity({

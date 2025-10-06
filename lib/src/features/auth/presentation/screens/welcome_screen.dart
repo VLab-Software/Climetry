@@ -46,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               Text(
-                'Previsão do tempo inteligente\npara suas atividades',
+                'Previsão do tempo inteligente\npara suas activitys',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -75,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Entrar',
+                    'Login',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -104,7 +104,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Criar Conta',
+                    'Create Conta',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

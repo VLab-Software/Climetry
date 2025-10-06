@@ -38,19 +38,19 @@ void main() async {
         cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache em memória
       );
       
-      debugPrint('🔥 Firestore: Cache em memória (não persistente)');
+      debugPrint('🔥 Firestore: In-memory cache (non-persistent)');
     } else {
       await Firebase.initializeApp();
     }
     
-    debugPrint('✅ Firebase inicializado com sucesso');
+    debugPrint('✅ Firebase initialized successfully');
     
     if (!kIsWeb) {
       final fcmService = FCMService();
       await fcmService.initialize();
     }
   } catch (e) {
-    debugPrint('⚠️ Firebase não configurado: $e');
+    debugPrint('⚠️ Firebase not configured: $e');
   }
 
   await initializeDateFormatting('pt_BR', null);

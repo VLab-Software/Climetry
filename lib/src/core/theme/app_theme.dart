@@ -25,7 +25,7 @@ class AppTheme {
   static const darkSuccess = Color(0xFF34D399);
   static const darkWarning = Color(0xFFFBBF24);
 
-  static ThemeData get light => ThemeData(
+  static ThemeDate get light => ThemeDate(
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: lightPrimary,
@@ -50,7 +50,7 @@ class AppTheme {
       centerTitle: true,
     ),
 
-    cardTheme: CardThemeData(
+    cardTheme: CardThemeDate(
       color: lightCardBackground,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -96,7 +96,7 @@ class AppTheme {
       ),
     ),
 
-    elevatedButtonTheme: ElevatedButtonThemeData(
+    elevatedButtonTheme: ElevatedButtonThemeDate(
       style: ElevatedButton.styleFrom(
         backgroundColor: lightPrimary,
         foregroundColor: Colors.white,
@@ -106,10 +106,10 @@ class AppTheme {
       ),
     ),
 
-    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+    snackBarTheme: const SnackBarThemeDate(behavior: SnackBarBehavior.floating),
   );
 
-  static ThemeData get dark => ThemeData(
+  static ThemeDate get dark => ThemeDate(
     useMaterial3: true,
     brightness: Brightness.dark,
     primaryColor: darkPrimary,
@@ -134,7 +134,7 @@ class AppTheme {
       centerTitle: true,
     ),
 
-    cardTheme: CardThemeData(
+    cardTheme: CardThemeDate(
       color: darkCardBackground,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -180,7 +180,7 @@ class AppTheme {
       ),
     ),
 
-    elevatedButtonTheme: ElevatedButtonThemeData(
+    elevatedButtonTheme: ElevatedButtonThemeDate(
       style: ElevatedButton.styleFrom(
         backgroundColor: darkPrimary,
         foregroundColor: darkTextPrimary,
@@ -190,7 +190,7 @@ class AppTheme {
       ),
     ),
 
-    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+    snackBarTheme: const SnackBarThemeDate(behavior: SnackBarBehavior.floating),
   );
 
   static BoxShadow cardShadow(bool isDark) {

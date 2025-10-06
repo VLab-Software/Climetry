@@ -7,7 +7,7 @@ class WeatherInsight {
   final List<String> whatToBring;
   final String bestTime;
   final List<WeatherAlert> alerts;
-  final WeatherChartData? chartData;
+  final WeatherChartDate? chartDate;
 
   WeatherInsight({
     required this.title,
@@ -17,7 +17,7 @@ class WeatherInsight {
     required this.whatToBring,
     required this.bestTime,
     required this.alerts,
-    this.chartData,
+    this.chartDate,
   });
 
   factory WeatherInsight.fromJson(Map<String, dynamic> json) {
@@ -32,8 +32,8 @@ class WeatherInsight {
               ?.map((e) => WeatherAlert.fromJson(e))
               .toList() ??
           [],
-      chartData: json['chartData'] != null
-          ? WeatherChartData.fromJson(json['chartData'])
+      chartDate: json['chartDate'] != null
+          ? WeatherChartDate.fromJson(json['chartDate'])
           : null,
     );
   }
@@ -47,7 +47,7 @@ class WeatherInsight {
       'whatToBring': whatToBring,
       'bestTime': bestTime,
       'alerts': alerts.map((e) => e.toJson()).toList(),
-      'chartData': chartData?.toJson(),
+      'chartDate': chartDate?.toJson(),
     };
   }
 }
@@ -80,21 +80,21 @@ class WeatherAlert {
   }
 }
 
-class WeatherChartData {
+class WeatherChartDate {
   final List<ChartPoint> temperature;
   final List<ChartPoint> precipitation;
   final List<ChartPoint> windSpeed;
   final double uvIndex;
 
-  WeatherChartData({
+  WeatherChartDate({
     required this.temperature,
     required this.precipitation,
     required this.windSpeed,
     required this.uvIndex,
   });
 
-  factory WeatherChartData.fromJson(Map<String, dynamic> json) {
-    return WeatherChartData(
+  factory WeatherChartDate.fromJson(Map<String, dynamic> json) {
+    return WeatherChartDate(
       temperature: (json['temperature'] as List?)
               ?.map((e) => ChartPoint.fromJson(e))
               .toList() ??

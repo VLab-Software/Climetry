@@ -21,16 +21,16 @@ class MeteomaticsService {
 
   Future<CurrentWeather> getCurrentWeather(LatLng location) async {
     final params = [
-      't_2m:C',
       't_2m:F',
-      't_apparent:C',
-      't_min_2m_24h:C',
-      't_max_2m_24h:C',
+      't_apparent:F',
+      't_min_2m_24h:F',
+      't_max_2m_24h:F',
       'uv:idx',
       'relative_humidity_2m:p',
-      'wind_speed_10m:kmh',
+      'wind_speed_10m:mph',
       'wind_dir_10m:d',
-      'wind_gusts_10m_1h:kmh',
+      'wind_gusts_10m_1h:mph',
+      'precip_1h:inch',
     ].join(',');
 
     final url = Uri.https(
@@ -45,10 +45,10 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseCurrentWeather(data, location);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar clima atual: $e');
+      throw Exception('Failed to fetch current weather: $e');
     }
   }
 
@@ -60,12 +60,12 @@ class MeteomaticsService {
     final endStr = future24h.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_2m:C',
-      't_apparent:C',
+      't_2m:F',
+      't_apparent:F',
       'uv:idx',
-      'wind_speed_10m:kmh',
+      'wind_speed_10m:mph',
       'relative_humidity_2m:p',
-      'precip_1h:mm',
+      'precip_1h:inch',
     ].join(',');
 
     final url = Uri.https(
@@ -80,10 +80,10 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseHourlyForecast(data);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão horária: $e');
+      throw Exception('Failed to fetch hourly forecast: $e');
     }
   }
 
@@ -95,16 +95,16 @@ class MeteomaticsService {
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_max_2m_24h:C',
-      't_min_2m_24h:C',
-      'precip_24h:mm',
-      'wind_gusts_10m_24h:kmh',
+      't_max_2m_24h:F',
+      't_min_2m_24h:F',
+      'precip_24h:inch',
+      'wind_gusts_10m_24h:mph',
       'relative_humidity_2m:p',
       'uv:idx',
       'cape:Jkg',
       'prob_precip_1h:p',
-      'wind_speed_10m:kmh',
-      'hail:cm',
+      'wind_speed_10m:mph',
+      'hail:inch',
     ].join(',');
 
     final url = Uri.https(
@@ -119,10 +119,10 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseDailyForecast(data);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão semanal: $e');
+      throw Exception('Failed to fetch weekly forecast: $e');
     }
   }
 
@@ -134,16 +134,16 @@ class MeteomaticsService {
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_max_2m_24h:C',
-      't_min_2m_24h:C',
-      'precip_24h:mm',
-      'wind_gusts_10m_24h:kmh',
+      't_max_2m_24h:F',
+      't_min_2m_24h:F',
+      'precip_24h:inch',
+      'wind_gusts_10m_24h:mph',
       'relative_humidity_2m:p',
       'uv:idx',
       'cape:Jkg',
       'prob_precip_1h:p',
-      'wind_speed_10m:kmh',
-      'hail:cm',
+      'wind_speed_10m:mph',
+      'hail:inch',
     ].join(',');
 
     final url = Uri.https(
@@ -158,10 +158,10 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseDailyForecast(data);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão mensal: $e');
+      throw Exception('Failed to fetch monthly forecast: $e');
     }
   }
 
@@ -173,16 +173,16 @@ class MeteomaticsService {
     final endStr = endDate.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_max_2m_24h:C',
-      't_min_2m_24h:C',
-      'precip_24h:mm',
-      'wind_gusts_10m_24h:kmh',
+      't_max_2m_24h:F',
+      't_min_2m_24h:F',
+      'precip_24h:inch',
+      'wind_gusts_10m_24h:mph',
       'relative_humidity_2m:p',
       'uv:idx',
       'cape:Jkg',
       'prob_precip_1h:p',
-      'wind_speed_10m:kmh',
-      'hail:cm',
+      'wind_speed_10m:mph',
+      'hail:inch',
     ].join(',');
 
     final url = Uri.https(
@@ -197,18 +197,18 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseDailyForecast(data);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão semestral: $e');
+      throw Exception('Failed to fetch 6-month forecast: $e');
     }
   }
 
   Future<Map<String, double>> getClimateAnomalies(LatLng location) async {
     final params = [
-      't_2m:C',
-      't_2m_10y_mean:C',
-      'anomaly_t_mean_2m_24h:C',
+      't_2m:F',
+      't_2m_10y_mean:F',
+      'anomaly_t_mean_2m_24h:F',
     ].join(',');
 
     final url = Uri.https(
@@ -225,7 +225,7 @@ class MeteomaticsService {
 
         double getParam(String paramName) {
           try {
-            final paramData = dataList.firstWhere(
+            final paramDate = dataList.firstWhere(
               (d) => d['parameter'] == paramName,
               orElse: () => {
                 'coordinates': [
@@ -237,7 +237,7 @@ class MeteomaticsService {
                 ],
               },
             );
-            final dates = paramData['coordinates'][0]['dates'] as List;
+            final dates = paramDate['coordinates'][0]['dates'] as List;
             return (dates[0]['value'] as num?)?.toDouble() ?? 0;
           } catch (e) {
             return 0;
@@ -245,15 +245,15 @@ class MeteomaticsService {
         }
 
         return {
-          'current': getParam('t_2m:C'),
-          'historical_mean': getParam('t_2m_10y_mean:C'),
-          'anomaly': getParam('anomaly_t_mean_2m_24h:C'),
+          'current': getParam('t_2m:F'),
+          'historical_mean': getParam('t_2m_10y_mean:F'),
+          'anomaly': getParam('anomaly_t_mean_2m_24h:F'),
         };
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar anomalias climáticas: $e');
+      throw Exception('Failed to fetch anomalias climáticas: $e');
     }
   }
 
@@ -261,7 +261,7 @@ class MeteomaticsService {
     final params = [
       'sunrise:sql',
       'sunset:sql',
-      'precip_1h:mm',
+      'precip_1h:inch',
       'prob_precip_1h:p',
     ].join(',');
 
@@ -279,7 +279,7 @@ class MeteomaticsService {
 
         dynamic getParam(String paramName) {
           try {
-            final paramData = dataList.firstWhere(
+            final paramDate = dataList.firstWhere(
               (d) => d['parameter'] == paramName,
               orElse: () => {
                 'coordinates': [
@@ -291,7 +291,7 @@ class MeteomaticsService {
                 ],
               },
             );
-            final dates = paramData['coordinates'][0]['dates'] as List;
+            final dates = paramDate['coordinates'][0]['dates'] as List;
             return dates[0]['value'];
           } catch (e) {
             return null;
@@ -301,15 +301,15 @@ class MeteomaticsService {
         return {
           'sunrise': getParam('sunrise:sql'),
           'sunset': getParam('sunset:sql'),
-          'precipitation': (getParam('precip_1h:mm') as num?)?.toDouble() ?? 0,
+          'precipitation': (getParam('precip_1h:inch') as num?)?.toDouble() ?? 0,
           'precipitation_probability':
               (getParam('prob_precip_1h:p') as num?)?.toDouble() ?? 0,
         };
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar horários do sol: $e');
+      throw Exception('Failed to fetch horários do sol: $e');
     }
   }
 
@@ -327,7 +327,7 @@ class MeteomaticsService {
               type: WeatherAlertType.heatWave,
               date: day.date,
               value: day.maxTemp,
-              unit: '°C',
+              unit: '°F',
               daysInSequence: heatWaveDays,
             ),
           );
@@ -345,7 +345,7 @@ class MeteomaticsService {
             type: WeatherAlertType.thermalDiscomfort,
             date: day.date,
             value: day.maxTemp,
-            unit: '°C',
+            unit: '°F',
           ),
         );
       }
@@ -356,7 +356,7 @@ class MeteomaticsService {
             type: WeatherAlertType.intenseCold,
             date: day.date,
             value: day.minTemp,
-            unit: '°C',
+            unit: '°F',
           ),
         );
       }
@@ -367,7 +367,7 @@ class MeteomaticsService {
             type: WeatherAlertType.frostRisk,
             date: day.date,
             value: day.minTemp,
-            unit: '°C',
+            unit: '°F',
           ),
         );
       }
@@ -439,13 +439,13 @@ class MeteomaticsService {
     final startStr = eventUtc.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_max_2m_24h:C',
-      't_min_2m_24h:C',
-      't_mean_2m_24h:C',
-      'precip_24h:mm',
+      't_max_2m_24h:F',
+      't_min_2m_24h:F',
+      't_mean_2m_24h:F',
+      'precip_24h:inch',
       'prob_precip_1h:p',
-      'wind_speed_mean_10m_24h:kmh',
-      'wind_gusts_10m_24h:kmh',
+      'wind_speed_mean_10m_24h:mph',
+      'wind_gusts_10m_24h:mph',
       'relative_humidity_2m:p',
       'uv:idx',
       'cape:Jkg',
@@ -465,7 +465,7 @@ class MeteomaticsService {
 
         double getParam(String paramName) {
           try {
-            final paramData = dataList.firstWhere(
+            final paramDate = dataList.firstWhere(
               (d) => d['parameter'] == paramName,
               orElse: () => {
                 'coordinates': [
@@ -477,36 +477,36 @@ class MeteomaticsService {
                 ],
               },
             );
-            final dates = paramData['coordinates'][0]['dates'] as List;
+            final dates = paramDate['coordinates'][0]['dates'] as List;
             return (dates[0]['value'] as num?)?.toDouble() ?? 0;
           } catch (e) {
             return 0;
           }
         }
 
-        final minTemp = getParam('t_min_2m_24h:C');
-        final maxTemp = getParam('t_max_2m_24h:C');
-        final meanTemp = getParam('t_mean_2m_24h:C');
+        final minTemp = getParam('t_min_2m_24h:F');
+        final maxTemp = getParam('t_max_2m_24h:F');
+        final meanTemp = getParam('t_mean_2m_24h:F');
 
         return DailyWeather(
           date: eventDate,
           minTemp: minTemp,
           maxTemp: maxTemp,
           meanTemp: meanTemp > 0 ? meanTemp : (minTemp + maxTemp) / 2,
-          precipitation: getParam('precip_24h:mm'),
+          precipitation: getParam('precip_24h:inch'),
           precipitationProbability: getParam('prob_precip_1h:p'),
-          windSpeed: getParam('wind_speed_mean_10m_24h:kmh'),
-          windGust: getParam('wind_gusts_10m_24h:kmh'),
+          windSpeed: getParam('wind_speed_mean_10m_24h:mph'),
+          windGust: getParam('wind_gusts_10m_24h:mph'),
           humidity: getParam('relative_humidity_2m:p'),
           uvIndex: getParam('uv:idx'),
           cape: getParam('cape:Jkg'),
           hail: 0,
         );
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão para data específica: $e');
+      throw Exception('Failed to fetch previsão para data específica: $e');
     }
   }
 
@@ -527,12 +527,12 @@ class MeteomaticsService {
     final endStr = eventEnd.toIso8601String().split('.')[0] + 'Z';
 
     final params = [
-      't_2m:C',
-      't_apparent:C',
-      'precip_1h:mm',
+      't_2m:F',
+      't_apparent:F',
+      'precip_1h:inch',
       'prob_precip_1h:p',
-      'wind_speed_10m:kmh',
-      'wind_gusts_10m_1h:kmh',
+      'wind_speed_10m:mph',
+      'wind_gusts_10m_1h:mph',
       'relative_humidity_2m:p',
       'uv:idx',
       'weather_symbol_1h:idx',
@@ -551,10 +551,10 @@ class MeteomaticsService {
         final data = jsonDecode(response.body);
         return _parseHourlyForecastExtended(data);
       } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        throw Exception('Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Falha ao buscar previsão horária do evento: $e');
+      throw Exception('Failed to fetch hourly forecast do ewind: $e');
     }
   }
 
@@ -580,8 +580,8 @@ class MeteomaticsService {
         (changes['significantChanges'] as List).add({
           'type': 'temperature',
           'message': tempDiff > 0
-              ? 'Temperatura máxima aumentou ${tempDiff.toInt()}°C'
-              : 'Temperatura máxima diminuiu ${tempDiff.toInt()}°C',
+              ? 'Temperature máxima aumentou ${tempDiff.toInt()}°F'
+              : 'Temperature máxima diminuiu ${tempDiff.toInt()}°F',
           'severity': tempDiff >= 5 ? 'high' : 'medium',
           'icon': '🌡️',
           'previous': previousForecast.maxTemp,
@@ -597,8 +597,8 @@ class MeteomaticsService {
           'type': 'precipitation',
           'message': currentForecast.precipitationProbability > 
               previousForecast.precipitationProbability
-              ? 'Chance de chuva aumentou ${rainDiff.toInt()}%'
-              : 'Chance de chuva diminuiu ${rainDiff.toInt()}%',
+              ? 'Chance de rain aumentou ${rainDiff.toInt()}%'
+              : 'Chance de rain diminuiu ${rainDiff.toInt()}%',
           'severity': currentForecast.precipitationProbability > 70 ? 'high' : 'medium',
           'icon': '🌧️',
           'previous': previousForecast.precipitationProbability,
@@ -612,7 +612,7 @@ class MeteomaticsService {
         changes['hasChanges'] = true;
         (changes['significantChanges'] as List).add({
           'type': 'precipitation_amount',
-          'message': 'Volume de chuva previsto mudou ${precipDiff.toInt()}mm',
+          'message': 'Volume de rain previsto mudou ${precipDiff.toInt()}mm',
           'severity': currentForecast.precipitation > 30 ? 'high' : 'medium',
           'icon': '💧',
           'previous': previousForecast.precipitation,
@@ -625,7 +625,7 @@ class MeteomaticsService {
         changes['hasChanges'] = true;
         (changes['significantChanges'] as List).add({
           'type': 'wind',
-          'message': 'Velocidade do vento mudou ${windDiff.toInt()} km/h',
+          'message': 'Velocidade do wind mudou ${windDiff.toInt()} mph',
           'severity': currentForecast.windSpeed > 40 ? 'high' : 'medium',
           'icon': '💨',
           'previous': previousForecast.windSpeed,
@@ -649,7 +649,7 @@ class MeteomaticsService {
 
       return changes;
     } catch (e) {
-      throw Exception('Erro ao detectar mudanças climáticas: $e');
+      throw Exception('Error ao detectar mudanças climáticas: $e');
     }
   }
 
@@ -673,7 +673,7 @@ class MeteomaticsService {
 
       String getRecommendation() {
         if (forecast.precipitation > 30) {
-          return 'Leve guarda-chuva ou capa de chuva';
+          return 'Leve guarda-rain ou capa de rain';
         } else if (forecast.maxTemp > 30) {
           return 'Mantenha-se hidratado e use protetor solar';
         } else if (forecast.minTemp < 15) {
@@ -681,15 +681,15 @@ class MeteomaticsService {
         } else if (alerts.isNotEmpty) {
           return 'Atenção aos alertas climáticos';
         }
-        return 'Condições favoráveis para o evento';
+        return 'Condições favoráveis para o ewind';
       }
 
       return {
         'eventName': eventName,
         'daysUntil': daysUntil,
         'emoji': getConditionEmoji(),
-        'title': '$eventName - ${daysUntil == 0 ? 'Hoje' : daysUntil == 1 ? 'Amanhã' : 'Em $daysUntil dias'}',
-        'body': '${forecast.minTemp.toInt()}-${forecast.maxTemp.toInt()}°C, ${forecast.precipitationProbability.toInt()}% chuva',
+        'title': '$eventName - ${daysUntil == 0 ? 'Today' : daysUntil == 1 ? 'Tomorrow' : 'Em $daysUntil dias'}',
+        'body': '${forecast.minTemp.toInt()}-${forecast.maxTemp.toInt()}°F, ${forecast.precipitationProbability.toInt()}% rain',
         'recommendation': getRecommendation(),
         'forecast': forecast,
         'alerts': alerts,
@@ -698,7 +698,7 @@ class MeteomaticsService {
             daysUntil <= 3,
       };
     } catch (e) {
-      throw Exception('Erro ao gerar resumo climático: $e');
+      throw Exception('Error ao gerar resumo climático: $e');
     }
   }
 
@@ -711,7 +711,7 @@ class MeteomaticsService {
 
     double getParam(String paramName) {
       try {
-        final paramData = dataList.firstWhere(
+        final paramDate = dataList.firstWhere(
           (d) => d['parameter'] == paramName,
           orElse: () => {
             'coordinates': [
@@ -723,7 +723,7 @@ class MeteomaticsService {
             ],
           },
         );
-        final dates = paramData['coordinates'][0]['dates'] as List;
+        final dates = paramDate['coordinates'][0]['dates'] as List;
         return (dates[0]['value'] as num?)?.toDouble() ?? 0;
       } catch (e) {
         return 0;
@@ -731,16 +731,16 @@ class MeteomaticsService {
     }
 
     return CurrentWeather(
-      temperature: getParam('t_2m:C'),
+      temperature: getParam('t_2m:F'),
       temperatureFahrenheit: getParam('t_2m:F'),
-      feelsLike: getParam('t_apparent:C'),
-      minTemp: getParam('t_min_2m_24h:C'),
-      maxTemp: getParam('t_max_2m_24h:C'),
+      feelsLike: getParam('t_apparent:F'),
+      minTemp: getParam('t_min_2m_24h:F'),
+      maxTemp: getParam('t_max_2m_24h:F'),
       uvIndex: getParam('uv:idx'),
       humidity: getParam('relative_humidity_2m:p'),
-      windSpeed: getParam('wind_speed_10m:kmh'),
+      windSpeed: getParam('wind_speed_10m:mph'),
       windDirection: getParam('wind_dir_10m:d'),
-      windGust: getParam('wind_gusts_10m_1h:kmh'),
+      windGust: getParam('wind_gusts_10m_1h:mph'),
       precipitation: 0,
       precipitationProbability: 0,
       location: location,
@@ -750,7 +750,7 @@ class MeteomaticsService {
 
   List<HourlyWeather> _parseHourlyForecast(Map<String, dynamic> json) {
     final dataList = json['data'] as List;
-    final hourlyData = <HourlyWeather>[];
+    final hourlyDate = <HourlyWeather>[];
 
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
@@ -761,7 +761,7 @@ class MeteomaticsService {
 
       double getParamValue(String paramName) {
         try {
-          final paramData = dataList.firstWhere(
+          final paramDate = dataList.firstWhere(
             (d) => d['parameter'] == paramName,
             orElse: () => {
               'coordinates': [
@@ -769,33 +769,33 @@ class MeteomaticsService {
               ],
             },
           );
-          final value = paramData['coordinates'][0]['dates'][i]['value'];
+          final value = paramDate['coordinates'][0]['dates'][i]['value'];
           return (value as num?)?.toDouble() ?? 0;
         } catch (e) {
           return 0;
         }
       }
 
-      hourlyData.add(
+      hourlyDate.add(
         HourlyWeather(
           time: timestamp,
-          temperature: getParamValue('t_2m:C'),
-          feelsLike: getParamValue('t_apparent:C'),
+          temperature: getParamValue('t_2m:F'),
+          feelsLike: getParamValue('t_apparent:F'),
           uvIndex: getParamValue('uv:idx'),
-          windSpeed: getParamValue('wind_speed_10m:kmh'),
+          windSpeed: getParamValue('wind_speed_10m:mph'),
           humidity: getParamValue('relative_humidity_2m:p'),
-          precipitation: getParamValue('precip_1h:mm'),
+          precipitation: getParamValue('precip_1h:inch'),
           precipitationProbability: 0,
         ),
       );
     }
 
-    return hourlyData;
+    return hourlyDate;
   }
 
   List<HourlyWeather> _parseHourlyForecastExtended(Map<String, dynamic> json) {
     final dataList = json['data'] as List;
-    final hourlyData = <HourlyWeather>[];
+    final hourlyDate = <HourlyWeather>[];
 
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
@@ -806,7 +806,7 @@ class MeteomaticsService {
 
       double getParamValue(String paramName) {
         try {
-          final paramData = dataList.firstWhere(
+          final paramDate = dataList.firstWhere(
             (d) => d['parameter'] == paramName,
             orElse: () => {
               'coordinates': [
@@ -814,33 +814,33 @@ class MeteomaticsService {
               ],
             },
           );
-          final value = paramData['coordinates'][0]['dates'][i]['value'];
+          final value = paramDate['coordinates'][0]['dates'][i]['value'];
           return (value as num?)?.toDouble() ?? 0;
         } catch (e) {
           return 0;
         }
       }
 
-      hourlyData.add(
+      hourlyDate.add(
         HourlyWeather(
           time: timestamp,
-          temperature: getParamValue('t_2m:C'),
-          feelsLike: getParamValue('t_apparent:C'),
+          temperature: getParamValue('t_2m:F'),
+          feelsLike: getParamValue('t_apparent:F'),
           uvIndex: getParamValue('uv:idx'),
-          windSpeed: getParamValue('wind_speed_10m:kmh'),
+          windSpeed: getParamValue('wind_speed_10m:mph'),
           humidity: getParamValue('relative_humidity_2m:p'),
-          precipitation: getParamValue('precip_1h:mm'),
+          precipitation: getParamValue('precip_1h:inch'),
           precipitationProbability: getParamValue('prob_precip_1h:p'),
         ),
       );
     }
 
-    return hourlyData;
+    return hourlyDate;
   }
 
   List<DailyWeather> _parseDailyForecast(Map<String, dynamic> json) {
     final dataList = json['data'] as List;
-    final dailyData = <DailyWeather>[];
+    final dailyDate = <DailyWeather>[];
 
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
@@ -848,7 +848,7 @@ class MeteomaticsService {
     for (var i = 0; i < coordinates.length; i++) {
       double getParamValue(String paramName) {
         try {
-          final paramData = dataList.firstWhere(
+          final paramDate = dataList.firstWhere(
             (d) => d['parameter'] == paramName,
             orElse: () => {
               'coordinates': [
@@ -856,34 +856,34 @@ class MeteomaticsService {
               ],
             },
           );
-          final value = paramData['coordinates'][0]['dates'][i]['value'];
+          final value = paramDate['coordinates'][0]['dates'][i]['value'];
           return (value as num?)?.toDouble() ?? 0;
         } catch (e) {
           return 0;
         }
       }
 
-      final minTemp = getParamValue('t_min_2m_24h:C');
-      final maxTemp = getParamValue('t_max_2m_24h:C');
+      final minTemp = getParamValue('t_min_2m_24h:F');
+      final maxTemp = getParamValue('t_max_2m_24h:F');
 
-      dailyData.add(
+      dailyDate.add(
         DailyWeather(
           date: DateTime.parse(coordinates[i]['date'] as String),
           minTemp: minTemp,
           maxTemp: maxTemp,
           meanTemp: (minTemp + maxTemp) / 2,
-          precipitation: getParamValue('precip_24h:mm'),
-          windSpeed: getParamValue('wind_speed_10m:kmh'),
-          windGust: getParamValue('wind_gusts_10m_24h:kmh'),
+          precipitation: getParamValue('precip_24h:inch'),
+          windSpeed: getParamValue('wind_speed_10m:mph'),
+          windGust: getParamValue('wind_gusts_10m_24h:mph'),
           humidity: getParamValue('relative_humidity_2m:p'),
           uvIndex: getParamValue('uv:idx'),
           cape: getParamValue('cape:Jkg'),
           precipitationProbability: getParamValue('prob_precip_1h:p'),
-          hail: getParamValue('hail:cm'),
+          hail: getParamValue('hail:inch'),
         ),
       );
     }
 
-    return dailyData;
+    return dailyDate;
   }
 }

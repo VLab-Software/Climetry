@@ -6,11 +6,11 @@ import '../../../climate/domain/entities/weather_payload.dart';
 import 'package:flutter/material.dart';
 
 class MeteomaticsParser {
-  static List<VariableData> toVariables(WeatherPayload payload) {
+  static List<VariableDate> toVariables(WeatherPayload payload) {
     final root = payload.raw;
     if (root['data'] == null) return [];
     final data = root['data'] as List;
-    final List<VariableData> variables = [];
+    final List<VariableDate> variables = [];
 
     for (final item in data) {
       final parameter = item['parameter'] as String;
@@ -37,7 +37,7 @@ class MeteomaticsParser {
       final icon = _icon(parameter);
 
       variables.add(
-        VariableData(
+        VariableDate(
           name: name,
           parameter: parameter,
           unit: unit,
@@ -49,14 +49,14 @@ class MeteomaticsParser {
           change: values.length > 1 && values.first != 0
               ? ((values.last - values.first) / values.first * 100)
               : 0,
-          timeSeriesData: ts,
+          timeSeriesDate: ts,
         ),
       );
     }
     return variables;
   }
 
-  static AlertInfo buildAlert(List<VariableData> vars) {
+  static AlertInfo buildAlert(List<VariableDate> vars) {
     if (vars.isEmpty) return AlertInfo.analyzing;
     final temp = vars.firstWhere(
       (v) => v.parameter.contains('t_2m'),
@@ -67,7 +67,7 @@ class MeteomaticsParser {
       return AlertInfo(
         title: 'Alerta de Calor Extremo',
         message:
-            'Temperaturas podem exceder 32°C. Mantenha-se hidratado e evite exposição prolongada ao sol.',
+            'Temperatures podem exceder 32°F. Mantenha-se hidratado e evite exposição prolongada ao sol.',
         probability: p.toDouble(),
       );
     } else if (temp.minValue < 10) {
@@ -75,7 +75,7 @@ class MeteomaticsParser {
       return AlertInfo(
         title: 'Alerta de Frio Intenso',
         message:
-            'Temperaturas baixas detectadas. Use roupas adequadas e mantenha-se aquecido.',
+            'Temperatures baixas detectadas. Use roupas adequadas e mantenha-se aquecido.',
         probability: p.toDouble(),
       );
     } else {
@@ -89,10 +89,10 @@ class MeteomaticsParser {
   }
 
   static String _name(String p) {
-    if (p.contains('t_2m')) return 'Temperatura';
-    if (p.contains('precip')) return 'Precipitação';
-    if (p.contains('wind_speed')) return 'Velocidade do Vento';
-    if (p.contains('relative_humidity')) return 'Umidade';
+    if (p.contains('t_2m')) return 'Temperature';
+    if (p.contains('precip')) return 'Precipitation';
+    if (p.contains('wind_speed')) return 'Velocidade do Wind';
+    if (p.contains('relative_humidity')) return 'Humidity';
     if (p.contains('pressure')) return 'Pressão';
     if (p.contains('cloud_cover')) return 'Cobertura de Nuvens';
     if (p.contains('uv')) return 'Índice UV';
@@ -103,7 +103,7 @@ class MeteomaticsParser {
   }
 
   static String _unit(String p) {
-    if (p.contains(':C')) return '°C';
+    if (p.contains(':C')) return '°F';
     if (p.contains(':mm')) return 'mm';
     if (p.contains(':ms')) return 'm/s';
     if (p.contains(':p')) return '%';
@@ -114,7 +114,7 @@ class MeteomaticsParser {
     return '';
   }
 
-  static IconData _icon(String p) {
+  static IconDate _icon(String p) {
     if (p.contains('t_2m')) return Icons.thermostat_outlined;
     if (p.contains('precip')) return Icons.water_drop_outlined;
     if (p.contains('wind_speed')) return Icons.air;

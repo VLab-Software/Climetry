@@ -2,9 +2,9 @@ import 'dart:convert';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/location_suggestion.dart';
 
-class GeocodingRemoteDataSource {
+class GeocodingRemoteDateSource {
   final ApiClient client;
-  GeocodingRemoteDataSource({required this.client});
+  GeocodingRemoteDateSource({required this.client});
 
   Future<List<LocationSuggestion>> search(String query) async {
     final uri = Uri.parse(

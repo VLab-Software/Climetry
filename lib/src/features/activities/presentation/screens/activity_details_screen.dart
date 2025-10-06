@@ -28,10 +28,10 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadWeatherData();
+    _loadWeatherDate();
   }
 
-  Future<void> _loadWeatherData() async {
+  Future<void> _loadWeatherDate() async {
     if (!mounted) return;
 
     setState(() {
@@ -102,7 +102,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
     if (difference.isNegative) {
       final pastDays = -difference.inDays;
-      if (pastDays == 0) return 'Hoje (passou)';
+      if (pastDays == 0) return 'Today (passou)';
       if (pastDays == 1) return 'Ontem';
       return 'Há $pastDays dias';
     }
@@ -114,7 +114,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
       if (hours == 0) return 'Agora';
       return 'Em $hours horas';
     } else if (days == 1) {
-      return 'Amanhã';
+      return 'Tomorrow';
     } else if (days <= 7) {
       return 'Em $days dias';
     } else {
@@ -163,15 +163,15 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   }
 
   String _getRecommendation() {
-    if (_weatherForecast == null) return 'Carregando recomendações...';
+    if (_weatherForecast == null) return 'Loading recomendações...';
 
     final weather = _weatherForecast!;
     final recommendations = <String>[];
 
     if (weather.precipitationProbability > 70) {
-      recommendations.add('☔ Leve guarda-chuva e capa de chuva');
+      recommendations.add('☔ Leve guarda-rain e capa de rain');
     } else if (weather.precipitationProbability > 30) {
-      recommendations.add('🌂 Risco de chuva - leve guarda-chuva');
+      recommendations.add('🌂 Risco de rain - leve guarda-rain');
     }
 
     if (weather.maxTemp > 30) {
@@ -185,11 +185,11 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     }
 
     if (weather.windSpeed > 40) {
-      recommendations.add('💨 Vento forte - cuidado com objetos soltos');
+      recommendations.add('💨 Wind forte - cuidado com objetos soltos');
     }
 
     if (recommendations.isEmpty) {
-      recommendations.add('✅ Clima ideal para o evento!');
+      recommendations.add('✅ Clima ideal para o ewind!');
     }
 
     return recommendations.join('\n');
@@ -205,7 +205,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E2A3A),
         elevation: 0,
-        title: const Text('Detalhes da Atividade'),
+        title: const Text('Detalhes da Activity'),
         centerTitle: true,
         actions: [
           if (isOwner && widget.activity.participants.isNotEmpty)
@@ -234,7 +234,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
           : _error != null
           ? _buildErrorState()
           : RefreshIndicator(
-              onRefresh: _loadWeatherData,
+              onRefresh: _loadWeatherDate,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
@@ -271,7 +271,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             const Icon(Icons.error_outline, size: 80, color: Colors.red),
             const SizedBox(height: 16),
             const Text(
-              'Erro ao carregar previsão',
+              'Error loading previsão',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -280,7 +280,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _error ?? 'Erro desconhecido',
+              _error ?? 'Error desconhecido',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 14,
@@ -289,7 +289,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: _loadWeatherData,
+              onPressed: _loadWeatherDate,
               icon: const Icon(Icons.refresh),
               label: const Text('Tentar Novamente'),
               style: ElevatedButton.styleFrom(
@@ -456,18 +456,18 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             children: [
               _buildWeatherItem(
                 Icons.thermostat,
-                '${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C',
-                'Temperatura',
+                '${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F',
+                'Temperature',
               ),
               _buildWeatherItem(
                 Icons.water_drop,
                 '${weather.precipitationProbability.toInt()}%',
-                'Chuva',
+                'Rain',
               ),
               _buildWeatherItem(
                 Icons.air,
-                '${weather.windSpeed.toInt()} km/h',
-                'Vento',
+                '${weather.windSpeed.toInt()} mph',
+                'Wind',
               ),
             ],
           ),
@@ -478,7 +478,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
               _buildWeatherItem(
                 Icons.opacity,
                 '${weather.humidity.toInt()}%',
-                'Umidade',
+                'Humidity',
               ),
               _buildWeatherItem(
                 Icons.wb_sunny,
@@ -487,7 +487,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
               ),
               _buildWeatherItem(
                 Icons.umbrella,
-                '${weather.precipitation.toStringAsFixed(1)} mm',
+                '${weather.precipitation.toStringAsFixed(1)} in',
                 'Precip.',
               ),
             ],
@@ -497,7 +497,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  Widget _buildWeatherItem(IconData icon, String value, String label) {
+  Widget _buildWeatherItem(IconDate icon, String value, String label) {
     return Column(
       children: [
         Icon(icon, color: const Color(0xFF4A9EFF), size: 24),
@@ -662,7 +662,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
         children: [
           _buildDetailRow(
             Icons.calendar_today,
-            'Data',
+            'Date',
             DateFormat('d MMMM yyyy', 'pt_BR').format(widget.activity.date),
           ),
           if (widget.activity.startTime != null) ...[
@@ -686,7 +686,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             const Divider(color: Colors.white24),
             const SizedBox(height: 12),
             const Text(
-              'Descrição',
+              'Description',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -708,7 +708,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
+  Widget _buildDetailRow(IconDate icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -790,7 +790,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 📅 ${DateFormat('d MMM yyyy', 'pt_BR').format(widget.activity.date)}
 ⏰ ${widget.activity.startTime ?? 'Horário não definido'}
 
-${weather != null ? '🌡️ ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C\n☔ Chuva: ${weather.precipitationProbability.toInt()}%' : ''}$alertsText
+${weather != null ? '🌡️ ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F\n☔ Rain: ${weather.precipitationProbability.toInt()}%' : ''}$alertsText
 
 ${_getRecommendation()}
 

@@ -18,34 +18,34 @@ class OpenAIService {
     List<WeatherAlert>? alerts,
   }) async {
     final alertsText = alerts?.isNotEmpty == true
-        ? 'Alertas climáticos: ${alerts!.map((a) => '${a.type.label} (${a.value} ${a.unit})').join(', ')}'
-        : 'Sem alertas climáticos';
+        ? 'Weather alerts: ${alerts!.map((a) => '${a.type.label} (${a.value} ${a.unit})').join(', ')}'
+        : 'No weather alerts';
 
     final prompt = '''
-Você é um assistente climático inteligente. Analise as seguintes informações e forneça dicas práticas e concisas (máximo 3-5 dicas):
+You are an intelligent weather assistant. Analyze the following information and provide practical and concise tips (maximum 3-5 tips):
 
-**Atividade:** ${activity.title}
-**Tipo:** ${activity.type.label}
-**Data:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
-**Local:** ${activity.location}
-${activity.description != null ? '**Descrição:** ${activity.description}' : ''}
+**Event:** ${activity.title}
+**Type:** ${activity.type.label}
+**Date:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
+**Location:** ${activity.location}
+${activity.description != null ? '**Description:** ${activity.description}' : ''}
 
-**Condições Climáticas Previstas:**
-- Temperatura: ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C (média: ${weather.meanTemp.toInt()}°C)
-- Chuva: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}% de chance)
-- Vento: ${weather.windSpeed.toInt()} km/h
-- Umidade: ${weather.humidity.toInt()}%
+**Forecasted Weather Conditions:**
+- Temperature: ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F (média: ${weather.meanTemp.toInt()}°F)
+- Rain: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}% chance)
+- Wind: ${weather.windSpeed.toInt()} mph
+- Humidity: ${weather.humidity.toInt()}%
 - UV: ${weather.uvIndex.toInt()}
 - $alertsText
 
-Forneça recomendações específicas e práticas no formato:
-• [dica curta e objetiva sobre o que levar]
-• [dica sobre roupas apropriadas]
-• [dica sobre horário ideal]
-• [cuidado com a saúde se necessário]
-• [alternativa em caso de mudança climática]
+Provide specific and practical recommendations in this format:
+• [short and objective tip about what to bring]
+• [tip about appropriate clothing]
+• [tip about ideal time]
+• [health precaution if necessary]
+• [alternative in case of weather change]
 
-Seja direto, útil e focado no que a pessoa precisa saber para aproveitar melhor o evento.
+Be direct, helpful, and focused on what the person needs to know to better enjoy the event.
 ''';
 
     return await _makeRequest(prompt, maxTokens: 300);
@@ -59,32 +59,32 @@ Seja direto, útil e focado no que a pessoa precisa saber para aproveitar melhor
   }) async {
     final prompt =
         '''
-Você é um assistente de planejamento de eventos. O usuário tem o seguinte evento ao ar livre:
+You are an event planning assistant. The user has the following outdoor event:
 
-**Atividade:** ${activity.title}
-**Tipo:** ${activity.type.label}
-**Local atual:** ${activity.location}
-**Cidade:** $cityName
+**Event:** ${activity.title}
+**Type:** ${activity.type.label}
+**Current location:** ${activity.location}
+**City:** $cityName
 
-**Problema Climático:**
+**Weather Problem:**
 ${alerts.map((a) => '- ${a.type.label}: ${a.type.description}').join('\n')}
-- Temperatura: ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C
-- Chuva: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}%)
+- Temperature: ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F
+- Rain: ${weather.precipitation.toInt()}mm (${weather.precipitationProbability.toInt()}%)
 
-O clima está ameaçando o evento. Sugira 3 locais alternativos REAIS e ESPECÍFICOS em $cityName que sejam:
-1. Cobertos/protegidos do clima
-2. Adequados para ${activity.type.label}
-3. Fáceis de encontrar
+The weather is threatening the event. Suggest 3 REAL and SPECIFIC alternative locations in $cityName that are:
+1. Covered/protected from weather
+2. Suitable for ${activity.type.label}
+3. Easy to find
 
-Responda APENAS em JSON válido:
+Respond ONLY in valid JSON:
 {
-  "reason": "explicação breve do problema climático",
+  "reason": "brief explanation of the weather problem",
   "alternatives": [
     {
-      "name": "Nome do local real",
-      "type": "Tipo de local (shopping, ginásio, etc)",
-      "reason": "Por que é uma boa alternativa",
-      "address": "Endereço aproximado ou região"
+      "name": "Real location name",
+      "type": "Type of venue (mall, gym, etc)",
+      "reason": "Why it is a good alternative",
+      "address": "Approximate address or area"
     }
   ]
 }
@@ -103,7 +103,7 @@ Responda APENAS em JSON válido:
     }
 
     return {
-      'reason': 'Condições climáticas desfavoráveis detectadas',
+      'reason': 'Unfavorable weather conditions detected',
       'alternatives': [],
     };
   }
@@ -115,25 +115,25 @@ Responda APENAS em JSON válido:
   }) async {
     final prompt =
         '''
-Você é um meteorologista especialista. Analise este alerta climático e forneça insights práticos:
+You are an expert meteorologist. Analyze this weather alert and provide practical insights:
 
-**Alerta:** ${alert.type.label}
-**Local:** $location
-**Data:** ${alert.date.day}/${alert.date.month}
-**Severidade:** ${alert.value} ${alert.unit}
+**Alert:** ${alert.type.label}
+**Location:** $location
+**Date:** ${alert.date.day}/${alert.date.month}
+**Severity:** ${alert.value} ${alert.unit}
 
-**Condições Previstas:**
-- Temperatura: ${weather.minTemp.toInt()}°C - ${weather.maxTemp.toInt()}°C
-- Chuva: ${weather.precipitation.toInt()}mm
-- Vento: ${weather.windSpeed.toInt()} km/h
-- Umidade: ${weather.humidity.toInt()}%
+**Forecasted Conditions:**
+- Temperature: ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F
+- Rain: ${weather.precipitation.toInt()}mm
+- Wind: ${weather.windSpeed.toInt()} mph
+- Humidity: ${weather.humidity.toInt()}%
 
-Forneça:
-1. **Impacto esperado** (1 frase)
-2. **Precauções essenciais** (2-3 itens)
-3. **Recomendações práticas** (2-3 itens)
+Provide:
+1. **Expected impact** (1 sentence)
+2. **Essential precautions** (2-3 items)
+3. **Practical recommendations** (2-3 items)
 
-Seja técnico mas acessível. Máximo 150 palavras.
+Be technical but accessible. Maximum 150 words.
 ''';
 
     return await _makeRequest(prompt, maxTokens: 250);
@@ -149,28 +149,28 @@ Seja técnico mas acessível. Máximo 150 palavras.
   }) async {
     final prompt =
         '''
-Você é um assistente climático. Analise as condições atuais e crie 3 dicas práticas:
+You are a weather assistant. Analyze current conditions and create 3 practical tips:
 
-**Local:** $location
-**Condições Atuais:**
-- Temperatura: ${temperature.toInt()}°C
-- Umidade: ${humidity.toInt()}%
+**Location:** $location
+**Current Conditions:**
+- Temperature: ${temperature.toInt()}°F
+- Humidity: ${humidity.toInt()}%
 - UV: ${uvIndex.toInt()}
-- Vento: ${windSpeed.toInt()} km/h
-- Chuva: ${precipitation.toInt()}mm
+- Wind: ${windSpeed.toInt()} mph
+- Rain: ${precipitation.toInt()}mm
 
-Crie 3 cards de dicas no formato JSON:
+Create 3 tip cards in JSON format:
 {
   "cards": [
     {
-      "icon": "emoji relevante",
-      "title": "Título curto (máx 4 palavras)",
-      "tip": "Dica prática (máx 15 palavras)"
+      "icon": "relevant emoji",
+      "title": "Short title (max 4 words)",
+      "tip": "Practical tip (max 15 words)"
     }
   ]
 }
 
-Foque em ações práticas que a pessoa pode tomar AGORA.
+Focus on practical actions the person can take NOW.
 ''';
 
     final response = await _makeRequest(prompt, maxTokens: 250);
@@ -186,7 +186,7 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
             (data['cards'] as List).map(
               (card) => {
                 'icon': card['icon']?.toString() ?? '💡',
-                'title': card['title']?.toString() ?? 'Dica',
+                'title': card['title']?.toString() ?? 'Tip',
                 'tip': card['tip']?.toString() ?? '',
               },
             ),
@@ -199,18 +199,18 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
     return [
       {
         'icon': '☀️',
-        'title': 'Hidratação',
-        'tip': 'Beba água regularmente ao longo do dia',
+        'title': 'Hydration',
+        'tip': 'Drink water regularly throughout the day',
       },
       {
         'icon': '🧴',
-        'title': 'Proteção Solar',
-        'tip': 'Use protetor solar FPS 30+',
+        'title': 'Sun Protection',
+        'tip': 'Use sunscreen SPF 30+',
       },
       {
         'icon': '👕',
-        'title': 'Vestimenta',
-        'tip': 'Vista roupas leves e confortáveis',
+        'title': 'Clothing',
+        'tip': 'Wear light and comfortable clothes',
       },
     ];
   }
@@ -219,11 +219,11 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
     required List<DailyWeather> forecast,
     required String location,
   }) async {
-    if (forecast.isEmpty) return 'Sem dados de previsão disponíveis.';
+    if (forecast.isEmpty) return 'No forecast data available.';
 
     final next3Days = forecast.take(3).toList();
     final temps = next3Days
-        .map((w) => '${w.minTemp.toInt()}-${w.maxTemp.toInt()}°C')
+        .map((w) => '${w.minTemp.toInt()}-${w.maxTemp.toInt()}°F')
         .join(', ');
     final rains = next3Days
         .map((w) => '${w.precipitationProbability.toInt()}%')
@@ -231,16 +231,16 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
 
     final prompt =
         '''
-Você é um meteorologista. Analise a previsão de 3 dias e crie uma narrativa curta e natural:
+You are a meteorologist. Analyze the 3-day forecast and create a short, natural narrative:
 
-**Local:** $location
-**Próximos 3 dias:**
-- Temperaturas: $temps
-- Chance de chuva: $rains
-- Média de vento: ${next3Days.map((w) => w.windSpeed.toInt()).reduce((a, b) => a + b) ~/ 3} km/h
+**Location:** $location
+**Next 3 days:**
+- Temperatures: $temps
+- Chance de rain: $rains
+- Média de wind: ${next3Days.map((w) => w.windSpeed.toInt()).reduce((a, b) => a + b) ~/ 3} mph
 
-Crie uma previsão narrativa natural (máximo 40 palavras) que descreva a tendência e dê uma dica prática.
-Seja conversacional e amigável.
+Create a natural forecast narrative (maximum 40 words) that describes the trend and gives a practical tip.
+Be conversational and friendly.
 ''';
 
     return await _makeRequest(prompt, maxTokens: 100);
@@ -260,12 +260,12 @@ Seja conversacional e amigável.
   }) async {
     if (forecast.isEmpty) {
       return {
-        'title': 'Sem dados disponíveis',
-        'description': 'Não há previsão climática para este evento.',
+        'title': 'No data available',
+        'description': 'No weather forecast for this event.',
         'rating': 5.0,
         'recommendations': [],
         'whatToBring': [],
-        'bestTime': 'Indeterminado',
+        'bestTime': 'Undetermined',
         'alerts': [],
       };
     }
@@ -276,48 +276,48 @@ Seja conversacional e amigável.
         : 'Sem alertas';
 
     final prompt = '''
-Você é um meteorologista especialista. Analise as condições climáticas para o evento e forneça insights detalhados em JSON:
+You are an expert meteorologist. Analyze the weather conditions for the event and provide detailed insights in JSON:
 
-**Evento:** ${activity.title}
-**Tipo:** ${activity.type.label}
-**Data:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
-**Local:** ${activity.location}
+**Event:** ${activity.title}
+**Type:** ${activity.type.label}
+**Date:** ${activity.date.day}/${activity.date.month}/${activity.date.year}
+**Location:** ${activity.location}
 
-**Previsão para o dia:**
-- Temperatura: ${eventWeather.minTemp.toInt()}°C - ${eventWeather.maxTemp.toInt()}°C
-- Chuva: ${eventWeather.precipitation.toInt()}mm (${eventWeather.precipitationProbability.toInt()}%)
-- Vento: ${eventWeather.windSpeed.toInt()} km/h
-- Umidade: ${eventWeather.humidity.toInt()}%
+**Forecast for the day:**
+- Temperature: ${eventWeather.minTemp.toInt()}°F - ${eventWeather.maxTemp.toInt()}°F
+- Rain: ${eventWeather.precipitation.toInt()}mm (${eventWeather.precipitationProbability.toInt()}%)
+- Wind: ${eventWeather.windSpeed.toInt()} mph
+- Humidity: ${eventWeather.humidity.toInt()}%
 - UV: ${eventWeather.uvIndex.toInt()}
-- Alertas: $alertsText
+- Alerts: $alertsText
 
-**Previsão dos próximos dias:**
-${forecast.take(7).map((w) => '${w.date.day}/${w.date.month}: ${w.minTemp.toInt()}-${w.maxTemp.toInt()}°C, ${w.precipitation.toInt()}mm').join('\n')}
+**Forecast for the coming days:**
+${forecast.take(7).map((w) => '${w.date.day}/${w.date.month}: ${w.minTemp.toInt()}-${w.maxTemp.toInt()}°F, ${w.precipitation.toInt()}mm').join('\n')}
 
-Responda APENAS com JSON válido neste formato:
+Responda APENAS with JSON válido neste formato:
 {
-  "title": "Título descritivo da análise (máx 50 chars)",
-  "description": "Análise geral do clima e impacto no evento (100-150 palavras)",
+  "title": "Descriptive analysis title (max 50 chars)",
+  "description": "General weather analysis and event impact (100-150 words)",
   "rating": 8.5,
   "recommendations": [
-    "Recomendação prática 1",
-    "Recomendação prática 2",
-    "Recomendação prática 3"
+    "Practical recommendation 1",
+    "Practical recommendation 2",
+    "Practical recommendation 3"
   ],
   "whatToBring": [
-    "Item essencial 1",
-    "Item essencial 2",
-    "Item essencial 3"
+    "Essential item 1",
+    "Essential item 2",
+    "Essential item 3"
   ],
-  "bestTime": "Melhor horário para o evento (ex: 'Manhã (8h-12h)' ou 'Tarde (14h-18h)')",
+  "bestTime": "Best time for the event (e.g.: 'Morning (8am-12pm)' or 'Afternoon (2pm-6pm)')",
   "alerts": [
     {
       "type": "warning",
-      "message": "Mensagem do alerta",
+      "message": "Alert message",
       "icon": "⚠️"
     }
   ],
-  "chartData": {
+  "chartDate": {
     "temperature": [
       {"time": "${forecast[0].date.toIso8601String()}", "value": ${eventWeather.meanTemp}, "label": "Dia ${forecast[0].date.day}"}
     ],
@@ -334,7 +334,7 @@ Responda APENAS com JSON válido neste formato:
 - rating: 0-10, onde 10 = condições perfeitas
 - alerts type: "info", "warning" ou "danger"
 - Seja específico e útil
-- Inclua dados reais de temperatura, chuva e vento para os gráficos
+- Include real data for temperature, rain and wind for the charts
 ''';
 
     final response = await _makeRequest(prompt, maxTokens: 800);
@@ -350,21 +350,21 @@ Responda APENAS com JSON válido neste formato:
     }
 
     return {
-      'title': 'Análise Climática - ${activity.title}',
+      'title': 'Weather Analysis - ${activity.title}',
       'description':
-          'Condições previstas: temperatura entre ${eventWeather.minTemp.toInt()}°C e ${eventWeather.maxTemp.toInt()}°C, '
-          'com ${eventWeather.precipitationProbability.toInt()}% de chance de chuva. '
-          'Vento de ${eventWeather.windSpeed.toInt()} km/h e índice UV ${eventWeather.uvIndex.toInt()}.',
+          'Forecasted conditions: temperature entre ${eventWeather.minTemp.toInt()}°F e ${eventWeather.maxTemp.toInt()}°F, '
+          'with ${eventWeather.precipitationProbability.toInt()}% chance de rain. '
+          'Wind de ${eventWeather.windSpeed.toInt()} mph and UV index ${eventWeather.uvIndex.toInt()}.',
       'rating': _calculateRating(eventWeather),
       'recommendations': [
-        'Verifique a previsão atualizada próximo à data',
-        'Prepare-se para variações de temperatura',
-        'Considere levar itens de proteção',
+        'Check updated forecast close to the date',
+        'Prepare for temperature variations',
+        'Consider bringing protective items',
       ],
       'whatToBring': _suggestItems(eventWeather, activity.type),
       'bestTime': _suggestBestTime(eventWeather),
       'alerts': _buildAlerts(alerts ?? []),
-      'chartData': {
+      'chartDate': {
         'temperature': forecast.take(7).map((w) => {
           'time': w.date.toIso8601String(),
           'value': w.meanTemp,
@@ -404,39 +404,39 @@ Responda APENAS com JSON válido neste formato:
     final items = <String>[];
     
     if (weather.precipitationProbability > 30) {
-      items.add('Guarda-chuva ou capa de chuva');
+      items.add('Umbrella or raincoat');
     }
     if (weather.uvIndex > 6) {
-      items.add('Protetor solar FPS 50+');
+      items.add('Sunscreen SPF 50+');
     }
     if (weather.maxTemp > 28) {
-      items.add('Garrafa de água (1L+)');
+      items.add('Water bottle (1L+)');
     }
     if (weather.minTemp < 15) {
-      items.add('Agasalho ou jaqueta');
+      items.add('Sweater or jacket');
     }
     if (weather.windSpeed > 30) {
-      items.add('Roupas corta-vento');
+      items.add('Windbreaker clothing');
     }
     
     if (type == ActivityType.sport) {
-      items.add('Roupas esportivas adequadas');
+      items.add('Appropriate sportswear');
     } else if (type == ActivityType.social) {
-      items.add('Roupas confortáveis');
+      items.add('Comfortable clothing');
     }
     
-    return items.isEmpty ? ['Preparação básica recomendada'] : items;
+    return items.isEmpty ? ['Basic preparation recommended'] : items;
   }
 
   String _suggestBestTime(DailyWeather weather) {
     if (weather.maxTemp > 32) {
-      return 'Manhã (6h-10h) ou fim de tarde (17h-20h)';
+      return 'Morning (6am-10am) or late afternoon (5pm-8pm)';
     } else if (weather.minTemp < 10) {
-      return 'Meio-dia (11h-15h)';
+      return 'Midday (11am-3pm)';
     } else if (weather.precipitationProbability > 50) {
-      return 'Verifique previsão horária antes de sair';
+      return 'Check hourly forecast before leaving';
     }
-    return 'Qualquer horário do dia';
+    return 'Any time of day';
   }
 
   List<Map<String, dynamic>> _buildAlerts(List<WeatherAlert> alerts) {
@@ -463,7 +463,7 @@ Responda APENAS com JSON válido neste formato:
 
   Future<String> _makeRequest(String prompt, {int maxTokens = 200}) async {
     if (_apiKey.isEmpty) {
-      return 'ℹ️ **Análise IA Indisponível**\n\nPara ativar análises inteligentes:\n• Configure a chave OpenAI API\n• Execute com: flutter run --dart-define=OPENAI_API_KEY=sua_chave';
+      return 'ℹ️ **AI Analysis Unavailable**\n\nTo enable intelligent analysis:\n• Configure the OpenAI API key\n• Run with: flutter run --dart-define=OPENAI_API_KEY=your_key';
     }
 
     try {
@@ -479,7 +479,7 @@ Responda APENAS com JSON válido neste formato:
             {
               'role': 'system',
               'content':
-                  'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, com insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
+                  'Você é um meteorologista especialista e assistente climático. Forneça análises detalhadas, técnicas mas acessíveis, with insights valiosos e recomendações práticas. Use dados meteorológicos para gerar previsões precisas e alternativas viáveis.',
             },
             {'role': 'user', 'content': prompt},
           ],
@@ -492,16 +492,16 @@ Responda APENAS com JSON válido neste formato:
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'].toString().trim();
       } else if (response.statusCode == 401) {
-        return '🔐 **Erro de Autenticação**\n\nChave OpenAI inválida ou expirada. Verifique sua configuração.';
+        return '🔐 **Authentication Error**\n\nInvalid or expired OpenAI key. Check your configuration.';
       } else if (response.statusCode == 429) {
-        return '⏱️ **Limite de Requisições**\n\nMuitas requisições. Aguarde alguns instantes e tente novamente.';
+        return '⏱️ **Request Limit**\n\nToo many requests. Wait a few moments and try again.';
       } else {
         throw Exception(
           'OpenAI API error: ${response.statusCode} - ${response.body}',
         );
       }
     } catch (e) {
-      return '⚠️ **Erro Temporário**\n\nNão foi possível conectar ao serviço de análise IA.\n\nVerifique sua conexão com a internet e tente novamente.';
+      return '⚠️ **Temporary Error**\n\nCould not connect to AI analysis service.\n\nVerifique sua conexão with a internet e tente novamente.';
     }
   }
 }

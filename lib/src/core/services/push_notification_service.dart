@@ -55,7 +55,7 @@ class PushNotificationService {
       });
       print('💾 Token FCM salvo: ${token.substring(0, 20)}...');
     } catch (e) {
-      print('❌ Erro ao salvar token FCM: $e');
+      print('❌ Error saving FCM token: $e');
     }
   }
 
@@ -95,7 +95,7 @@ class PushNotificationService {
     
     final eventId = message.data['eventId'] as String?;
     if (eventId != null) {
-      print('📍 Navegar para evento: $eventId');
+      print('📍 Navigate to event: $eventId');
     }
   }
 
@@ -106,8 +106,8 @@ class PushNotificationService {
   }) async {
     const androidDetails = AndroidNotificationDetails(
       'climetry_events',
-      'Eventos Climetry',
-      channelDescription: 'Notificações de eventos e convites',
+      'Ewinds Climetry',
+      channelDescription: 'Notifications de ewinds e convites',
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
@@ -137,7 +137,7 @@ class PushNotificationService {
     print('🖱️ Notificação tocada: ${response.payload}');
     
     if (response.payload != null) {
-      print('📍 Navegar para evento: ${response.payload}');
+      print('📍 Navigate to event: ${response.payload}');
     }
   }
 
@@ -157,7 +157,7 @@ class PushNotificationService {
 
       final fcmToken = recipientDoc.data()?['fcmToken'] as String?;
       if (fcmToken == null) {
-        print('⚠️ Usuário $recipientUserId não tem token FCM');
+        print('⚠️ Usuário $recipientUserId has no FCM token');
         return;
       }
 
@@ -166,8 +166,8 @@ class PushNotificationService {
         'senderId': _userId,
         'type': 'event_invitation',
         'eventId': eventId,
-        'title': '📅 Novo convite de evento',
-        'body': '$inviterName convidou você para "$eventTitle"',
+        'title': '📅 Novo convite de ewind',
+        'body': '$inviterName invited you to "$eventTitle"',
         'data': {
           'eventId': eventId,
           'type': 'event_invitation',
@@ -179,7 +179,7 @@ class PushNotificationService {
 
       print('✅ Notificação de convite salva no Firestore');
     } catch (e) {
-      print('❌ Erro ao enviar notificação de convite: $e');
+      print('❌ Error sending invitation notification: $e');
     }
   }
 
@@ -199,7 +199,7 @@ class PushNotificationService {
 
       final fcmToken = recipientDoc.data()?['fcmToken'] as String?;
       if (fcmToken == null) {
-        print('⚠️ Usuário $recipientUserId não tem token FCM');
+        print('⚠️ Usuário $recipientUserId has no FCM token');
         return;
       }
 
@@ -208,8 +208,8 @@ class PushNotificationService {
         'senderId': _userId,
         'type': 'admin_promotion',
         'eventId': eventId,
-        'title': '👑 Você foi promovido a admin',
-        'body': '$promoterName promoveu você a administrador em "$eventTitle"',
+        'title': '👑 You were promoted to admin',
+        'body': '$promoterName promoted you to administrator in "$eventTitle"',
         'data': {
           'eventId': eventId,
           'type': 'admin_promotion',
@@ -221,7 +221,7 @@ class PushNotificationService {
 
       print('✅ Notificação de promoção salva no Firestore');
     } catch (e) {
-      print('❌ Erro ao enviar notificação de promoção: $e');
+      print('❌ Error sending promotion notification: $e');
     }
   }
 
@@ -235,7 +235,7 @@ class PushNotificationService {
       await _messaging.deleteToken();
       print('🗑️ Token FCM removido');
     } catch (e) {
-      print('❌ Erro ao remover token FCM: $e');
+      print('❌ Error ao remover token FCM: $e');
     }
   }
 }

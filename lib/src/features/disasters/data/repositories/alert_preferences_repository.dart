@@ -52,7 +52,7 @@ class AlertPreferencesRepository {
         'preferences.enabledAlerts': enabledList,
       });
     } catch (e) {
-      throw Exception('Erro ao salvar preferências: $e');
+      throw Exception('Error ao salvar preferências: $e');
     }
   }
 
@@ -101,7 +101,7 @@ class AlertPreferencesRepository {
         },
       });
     } catch (e) {
-      throw Exception('Erro ao salvar localização: $e');
+      throw Exception('Error ao salvar location: $e');
     }
   }
 }

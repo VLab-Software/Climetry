@@ -43,17 +43,17 @@ class _DisastersScreenState extends State<DisastersScreen>
     setState(() => _loading = true);
     try {
       final enabledAlerts = await _prefsRepo.getEnabledAlerts();
-      final locationData = await _prefsRepo.getMonitoringLocation();
+      final locationDate = await _prefsRepo.getMonitoringLocation();
 
       if (!mounted) return;
       setState(() {
         _enabledAlerts = enabledAlerts;
-        if (locationData != null) {
+        if (locationDate != null) {
           _monitoringLocation = LatLng(
-            locationData['latitude'],
-            locationData['longitude'],
+            locationDate['latitude'],
+            locationDate['longitude'],
           );
-          _locationName = locationData['name'];
+          _locationName = locationDate['name'];
         }
       });
 
@@ -151,7 +151,7 @@ class _DisastersScreenState extends State<DisastersScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('📍 Localização alterada para $_locationName'),
+              content: Text('📍 Location alterada para $_locationName'),
               backgroundColor: Color(0xFF3B82F6),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -297,7 +297,7 @@ class _DisastersScreenState extends State<DisastersScreen>
                       CircularProgressIndicator(color: Color(0xFF3B82F6)),
                       SizedBox(height: 16),
                       Text(
-                        'Carregando alertas...',
+                        'Loading alertas...',
                         style: TextStyle(
                           color: isDark ? Colors.white70 : Colors.black54,
                           fontSize: 14,

@@ -46,7 +46,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao importar contatos: $e'),
+            content: Text('Error ao importar contatos: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -129,7 +129,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao adicionar amigos: $e'),
+            content: Text('Error ao adicionar amigos: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -187,7 +187,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
               onChanged: _filterContacts,
               style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
-                hintText: 'Buscar contatos...',
+                hintText: 'Search contatos...',
                 hintStyle: const TextStyle(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF3B82F6)),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -251,7 +251,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
           Text(
             _searchQuery.isEmpty
                 ? 'Verifique as permissões do app'
-                : 'Tente buscar com outro termo',
+                : 'Tente search com outro termo',
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
           ),
         ],

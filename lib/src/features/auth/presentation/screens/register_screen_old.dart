@@ -17,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
-  final _userDataService = UserDataService();
+  final _userDateService = UserDateService();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (userCredential.user != null) {
-        await _userDataService.createUserProfile(userCredential.user!);
+        await _userDateService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
@@ -86,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final userCredential = await _authService.signInWithGoogle();
 
       if (userCredential.user != null) {
-        await _userDataService.createUserProfile(userCredential.user!);
+        await _userDateService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
@@ -131,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 20),
 
                 const Text(
-                  'Criar Conta',
+                  'Create Conta',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -259,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscureConfirmPassword,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Confirmar senha',
+                    labelText: 'Confirm senha',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(
                       Icons.lock_outline,
@@ -365,7 +365,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           )
                         : const Text(
-                            'Criar Conta',
+                            'Create Conta',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -420,7 +420,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
                     label: const Text(
-                      'Cadastrar com Google',
+                      'Register com Google',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -451,7 +451,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               );
                             },
                       child: const Text(
-                        'Entrar',
+                        'Login',
                         style: TextStyle(
                           color: Color(0xFF4A9EFF),
                           fontWeight: FontWeight.w600,

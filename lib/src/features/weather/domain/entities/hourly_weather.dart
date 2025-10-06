@@ -28,7 +28,7 @@ class HourlyWeather {
   }
 
   String get weatherCondition {
-    if (precipitation > 0.5) return 'Chuva';
+    if (precipitation > 0.5) return 'Rain';
     if (temperature > 30) return 'Ensolarado';
     if (temperature < 15) return 'Nublado';
     if (humidity > 80) return 'Nevoeiro';

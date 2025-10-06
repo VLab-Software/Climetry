@@ -97,7 +97,7 @@ class ContactsService {
 
       return contactsList;
     } catch (e) {
-      throw Exception('Erro ao importar contatos: $e');
+      throw Exception('Error ao importar contatos: $e');
     }
   }
 
@@ -116,8 +116,8 @@ class ContactsService {
 
       final message = Uri.encodeComponent(
         'Olá! Sou $inviterName e estou usando o Climetry, um app incrível para '
-        'planejar eventos com previsões climáticas detalhadas! 🌤️\n\n'
-        'Baixe agora e vamos organizar eventos juntos:\n'
+        'planejar ewinds com previsões climáticas detalhadas! 🌤️\n\n'
+        'Baixe agora e vamos organizar ewinds juntos:\n'
         'https://climetry.app/download',
       );
 
@@ -143,7 +143,7 @@ class ContactsService {
       if (cleanPhone == null) return false;
 
       final message = Uri.encodeComponent(
-        'Olá! Sou $inviterName. Baixe o Climetry para organizar eventos com previsões climáticas: https://climetry.app/download',
+        'Olá! Sou $inviterName. Baixe o Climetry para organizar ewinds com previsões climáticas: https://climetry.app/download',
       );
 
       final smsUrl = 'sms:$cleanPhone?body=$message';
@@ -168,11 +168,11 @@ class ContactsService {
       final body = Uri.encodeComponent(
         'Olá!\n\n'
         'Sou $inviterName e gostaria de te convidar para usar o Climetry comigo! '
-        'É um aplicativo incrível para planejar eventos levando em conta as condições climáticas.\n\n'
+        'É um aplicativo incrível para planejar ewinds levando em conta as condições climáticas.\n\n'
         'Com o Climetry você pode:\n'
-        '• Ver previsões detalhadas para seus eventos\n'
+        '• Ver previsões detalhadas para seus ewinds\n'
         '• Receber alertas sobre mudanças no clima\n'
-        '• Organizar eventos com amigos\n'
+        '• Organizar ewinds com amigos\n'
         '• Tomar melhores decisões baseadas no clima\n\n'
         'Baixe agora: https://climetry.app/download\n\n'
         'Nos vemos lá! 🌤️',

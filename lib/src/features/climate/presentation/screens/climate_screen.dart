@@ -18,7 +18,7 @@ class ClimateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Earth Data Analysis'),
+        title: const Text('Earth Date Analysis'),
         centerTitle: true,
       ),
       body: const SafeArea(child: _ResponsiveBody()),
@@ -277,7 +277,7 @@ Widget _analysisButton(
                     location: vm.locationController.text,
                     date: vm.userFriendlyDateRange,
                     coordinates: vm.currentLocation,
-                    weatherData: payload.raw,
+                    weatherDate: payload.raw,
                   ),
                 ),
               );

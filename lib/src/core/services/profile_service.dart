@@ -22,7 +22,7 @@ class ProfileService {
       );
       return image;
     } catch (e) {
-      throw Exception('Erro ao selecionar imagem: $e');
+      throw Exception('Error ao selecionar imagem: $e');
     }
   }
 
@@ -36,14 +36,14 @@ class ProfileService {
       );
       return image;
     } catch (e) {
-      throw Exception('Erro ao tirar foto: $e');
+      throw Exception('Error ao tirar foto: $e');
     }
   }
 
   Future<String> uploadProfilePhoto(XFile image) async {
     try {
       final user = currentUser;
-      if (user == null) throw Exception('Usuário não autenticado');
+      if (user == null) throw Exception('User not authenticated');
 
       final file = File(image.path);
       
@@ -71,18 +71,18 @@ class ProfileService {
 
       return downloadUrl;
     } catch (e) {
-      print('❌ Erro detalhado no upload: $e');
-      throw Exception('Erro ao fazer upload da foto: $e');
+      print('❌ Error detalhado no upload: $e');
+      throw Exception('Error ao fazer upload da foto: $e');
     }
   }
 
   Future<void> updateDisplayName(String newName) async {
     try {
       final user = currentUser;
-      if (user == null) throw Exception('Usuário não autenticado');
+      if (user == null) throw Exception('User not authenticated');
 
       if (newName.trim().isEmpty) {
-        throw Exception('Nome não pode ser vazio');
+        throw Exception('Name cannot be empty');
       }
 
       if (newName.trim().length < 3) {
@@ -98,17 +98,17 @@ class ProfileService {
 
       await user.reload();
     } catch (e) {
-      throw Exception('Erro ao atualizar nome: $e');
+      throw Exception('Error ao atualizar nome: $e');
     }
   }
 
   Future<void> updateEmail(String newEmail, String currentPassword) async {
     try {
       final user = currentUser;
-      if (user == null) throw Exception('Usuário não autenticado');
+      if (user == null) throw Exception('User not authenticated');
 
       if (newEmail.trim().isEmpty) {
-        throw Exception('Email não pode ser vazio');
+        throw Exception('Email cannot be empty');
       }
 
       if (!newEmail.contains('@')) {
@@ -130,11 +130,11 @@ class ProfileService {
 
       await user.reload();
     } catch (e) {
-      throw Exception('Erro ao atualizar email: $e');
+      throw Exception('Error ao atualizar email: $e');
     }
   }
 
-  Future<Map<String, dynamic>?> getProfileData() async {
+  Future<Map<String, dynamic>?> getProfileDate() async {
     try {
       final user = currentUser;
       if (user == null) return null;
@@ -142,13 +142,13 @@ class ProfileService {
       final doc = await _firestore.collection('users').doc(user.uid).get().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print('⏱️ Timeout ao obter dados do perfil');
+          print('⏱️ Timeout obtaining data do perfil');
           return _firestore.collection('_timeout_').doc('_default_').get();
         },
       );
       return doc.data();
     } catch (e) {
-      print('⚠️ Erro ao obter perfil: $e');
+      print('⚠️ Error obtaining perfil: $e');
       return null;
     }
   }
@@ -156,7 +156,7 @@ class ProfileService {
   Future<void> deleteProfilePhoto() async {
     try {
       final user = currentUser;
-      if (user == null) throw Exception('Usuário não autenticado');
+      if (user == null) throw Exception('User not authenticated');
 
       try {
         final ref = _storage.ref().child('profile_photos/${user.uid}.jpg');
@@ -173,7 +173,7 @@ class ProfileService {
 
       await user.reload();
     } catch (e) {
-      throw Exception('Erro ao deletar foto: $e');
+      throw Exception('Error ao deletar foto: $e');
     }
   }
 }

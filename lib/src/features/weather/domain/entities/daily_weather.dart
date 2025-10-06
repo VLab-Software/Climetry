@@ -37,7 +37,7 @@ class DailyWeather {
   }
 
   String get mainCondition {
-    if (precipitation > 30) return 'Chuva';
+    if (precipitation > 30) return 'Rain';
     if (maxTemp > 32) return 'Calor';
     if (minTemp < 10) return 'Frio';
     if (hail != null && hail! > 0) return 'Granizo';

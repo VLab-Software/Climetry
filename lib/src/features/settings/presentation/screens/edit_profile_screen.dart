@@ -20,10 +20,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserDate();
   }
 
-  void _loadUserData() {
+  void _loadUserDate() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       _nameController.text = user.displayName ?? '';
@@ -56,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Foto atualizada com sucesso!'),
+              content: Text('Foto atualizada com success!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -137,7 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveName() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nome não pode ser vazio')),
+        const SnackBar(content: Text('Name cannot be empty')),
       );
       return;
     }
@@ -150,7 +150,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Nome atualizado com sucesso!'),
+            content: Text('Nome atualizado com success!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -172,7 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF111827) : const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text('Editar Perfil'),
+        title: const Text('Edit Profile'),
         backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
         elevation: 0,
       ),
@@ -308,7 +308,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Salvar Alterações',
+                        'Save Alterações',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

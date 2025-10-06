@@ -188,7 +188,7 @@ class EventParticipant {
 }
 
 enum EventRole {
-  owner, // Criador do evento
+  owner, // Criador do ewind
   admin, // Pode editar e convidar
   moderator, // Pode convidar mas não editar
   participant, // Apenas participa

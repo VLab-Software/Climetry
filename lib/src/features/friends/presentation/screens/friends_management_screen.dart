@@ -42,7 +42,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar amigos: $e'),
+            content: Text('Error loading amigos: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -105,7 +105,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -135,7 +135,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Usuário não encontrado com esse email'),
+                content: Text('User not found com esse email'),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -150,7 +150,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Você não pode adicionar a si mesmo!'),
+                content: Text('Você cannot adicionar a si mesmo!'),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -196,7 +196,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           return;
         }
 
-        final currentUserData = await FirebaseFirestore.instance
+        final currentUserDate = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUserId)
             .get();
@@ -204,29 +204,29 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         final currentUser = FirebaseAuth.instance.currentUser;
         
         print('🔍 DEBUG Friend Request:');
-        print('  userData displayName: ${currentUserData.data()?['displayName']}');
-        print('  userData name: ${currentUserData.data()?['name']}');
+        print('  userDate displayName: ${currentUserDate.data()?['displayName']}');
+        print('  userDate name: ${currentUserDate.data()?['name']}');
         print('  currentUser displayName: ${currentUser?.displayName}');
         print('  currentUser email: ${currentUser?.email}');
         
         String fromUserName = currentUser?.displayName ?? 
-            currentUserData.data()?['displayName'] ??
-            currentUserData.data()?['name'] ??
+            currentUserDate.data()?['displayName'] ??
+            currentUserDate.data()?['name'] ??
             currentUser?.email?.split('@')[0] ??
             'Usuário';
         
         print('  ✅ Nome selecionado: $fromUserName');
         
         String? fromUserPhotoUrl = currentUser?.photoURL ?? 
-            currentUserData.data()?['photoUrl'] ??
-            currentUserData.data()?['photoURL'];
+            currentUserDate.data()?['photoUrl'] ??
+            currentUserDate.data()?['photoURL'];
 
         await FirebaseFirestore.instance.collection('friendRequests').add({
           'fromUserId': currentUserId,
           'fromUserName': fromUserName,
           'fromUserPhotoUrl': fromUserPhotoUrl,
           'fromUserEmail':
-              currentUserData.data()?['email'] ?? currentUser?.email,
+              currentUserDate.data()?['email'] ?? currentUser?.email,
           'toUserId': friendUserId,
           'toUserEmail': email,
           'status': 'pending',
@@ -245,7 +245,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao enviar pedido: $e'),
+              content: Text('Error ao enviar pedido: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -261,7 +261,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1F2937),
-        title: const Text('Editar Nome', style: TextStyle(color: Colors.white)),
+        title: const Text('Edit Nome', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: controller,
           style: const TextStyle(color: Colors.white),
@@ -276,14 +276,14 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3B82F6),
             ),
-            child: const Text('Salvar'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -297,7 +297,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Nome atualizado com sucesso!'),
+              content: Text('Nome atualizado com success!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -306,7 +306,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao atualizar nome: $e'),
+              content: Text('Error ao atualizar nome: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -331,7 +331,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -359,7 +359,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao remover amigo: $e'),
+              content: Text('Error ao remover amigo: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -400,7 +400,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
               },
               style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
-                hintText: 'Buscar amigos...',
+                hintText: 'Search amigos...',
                 hintStyle: const TextStyle(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF3B82F6)),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -572,7 +572,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
                 children: [
                   Icon(Icons.edit, size: 20),
                   SizedBox(width: 12),
-                  Text('Editar Nome'),
+                  Text('Edit Nome'),
                 ],
               ),
             ),

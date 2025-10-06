@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/activities/domain/entities/activity.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class UserDataService {
+class UserDateService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -32,12 +32,12 @@ class UserDataService {
         },
       );
     } catch (e) {
-      throw FirestoreException('Erro ao criar perfil: $e');
+      throw FirestoreException('Error ao criar perfil: $e');
     }
   }
 
   Future<void> updateUserProfile(Map<String, dynamic> data) async {
-    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+    if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
       await _firestore.collection('users').doc(_userId).update(data).timeout(
@@ -47,7 +47,7 @@ class UserDataService {
         },
       );
     } catch (e) {
-      throw FirestoreException('Erro ao atualizar perfil: $e');
+      throw FirestoreException('Error ao atualizar perfil: $e');
     }
   }
 
@@ -63,7 +63,7 @@ class UserDataService {
       );
       return doc.data();
     } catch (e) {
-      throw FirestoreException('Erro ao obter perfil: $e');
+      throw FirestoreException('Error obtaining perfil: $e');
     }
   }
 
@@ -78,7 +78,7 @@ class UserDataService {
   }
 
   Future<void> savePreferences(Map<String, dynamic> preferences) async {
-    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+    if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
       await _firestore.collection('users').doc(_userId).update({
@@ -90,7 +90,7 @@ class UserDataService {
         },
       );
     } catch (e) {
-      throw FirestoreException('Erro ao salvar preferências: $e');
+      throw FirestoreException('Error ao salvar preferências: $e');
     }
   }
 
@@ -110,7 +110,7 @@ class UserDataService {
       final data = doc.data();
       return data?['preferences'] ?? _defaultPreferences();
     } catch (e) {
-      print('⚠️ Erro ao obter preferências: $e - usando padrão');
+      print('⚠️ Error obtaining preferências: $e - usando padrão');
       return _defaultPreferences();
     }
   }
@@ -138,7 +138,7 @@ class UserDataService {
   }
 
   Future<void> saveActivity(Activity activity) async {
-    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+    if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
       await _firestore
@@ -163,12 +163,12 @@ class UserDataService {
             'updatedAt': FieldValue.serverTimestamp(),
           });
     } catch (e) {
-      throw FirestoreException('Erro ao salvar atividade: $e');
+      throw FirestoreException('Error ao salvar activity: $e');
     }
   }
 
   Future<void> updateActivity(Activity activity) async {
-    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+    if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
       await _firestore
@@ -197,7 +197,7 @@ class UserDataService {
             'updatedAt': FieldValue.serverTimestamp(),
           });
     } catch (e) {
-      throw FirestoreException('Erro ao atualizar atividade: $e');
+      throw FirestoreException('Error ao atualizar activity: $e');
     }
   }
 
@@ -234,7 +234,7 @@ class UserDataService {
         );
       }).toList();
     } catch (e) {
-      throw FirestoreException('Erro ao obter atividades: $e');
+      throw FirestoreException('Error obtaining activitys: $e');
     }
   }
 
@@ -273,7 +273,7 @@ class UserDataService {
   }
 
   Future<void> deleteActivity(String activityId) async {
-    if (_userId == null) throw FirestoreException('Usuário não autenticado');
+    if (_userId == null) throw FirestoreException('User not authenticated');
 
     try {
       await _firestore
@@ -283,11 +283,11 @@ class UserDataService {
           .doc(activityId)
           .delete();
     } catch (e) {
-      throw FirestoreException('Erro ao deletar atividade: $e');
+      throw FirestoreException('Error ao deletar activity: $e');
     }
   }
 
-  Future<void> deleteAllUserData() async {
+  Future<void> deleteAllUserDate() async {
     if (_userId == null) return;
 
     try {
@@ -299,7 +299,7 @@ class UserDataService {
           .timeout(
             const Duration(seconds: 8),
             onTimeout: () {
-              throw FirestoreException('⏱️ Timeout ao buscar atividades para deletar');
+              throw FirestoreException('⏱️ Timeout ao search activitys para deletar');
             },
           );
 
@@ -307,7 +307,7 @@ class UserDataService {
         await doc.reference.delete().timeout(
           const Duration(seconds: 3),
           onTimeout: () {
-            print('⏱️ Timeout ao deletar atividade ${doc.id}');
+            print('⏱️ Timeout ao deletar activity ${doc.id}');
           },
         );
       }
@@ -319,7 +319,7 @@ class UserDataService {
         },
       );
     } catch (e) {
-      throw FirestoreException('Erro ao deletar dados: $e');
+      throw FirestoreException('Error ao deletar dados: $e');
     }
   }
 }

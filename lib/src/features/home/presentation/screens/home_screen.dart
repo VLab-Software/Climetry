@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     
     try {
-      debugPrint('🔄 Iniciando carregamento de eventos...');
+      debugPrint('🔄 Iniciando carregamento de ewinds...');
       
       if (mounted) {
         setState(() => _loading = true);
@@ -77,12 +77,12 @@ class _HomeScreenState extends State<HomeScreen>
           .timeout(
             const Duration(seconds: 5), // Reduzido para 5s
             onTimeout: () {
-              debugPrint('⚠️ Timeout ao carregar eventos (5s)');
+              debugPrint('⚠️ Timeout ao carregar ewinds (5s)');
               return [];
             },
           );
 
-      debugPrint('✅ Eventos carregados: ${events.length}');
+      debugPrint('✅ Ewinds carregados: ${events.length}');
 
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen>
         return event.date.isAfter(now) && event.date.isBefore(sixMonthsLater);
       }).toList();
 
-      debugPrint('📅 Eventos futuros: ${upcomingEvents.length}');
+      debugPrint('📅 Ewinds futuros: ${upcomingEvents.length}');
 
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
 
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen>
       });
 
       final eventsToAnalyze = upcomingEvents.take(10).toList();
-      debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} eventos em background...');
+      debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} ewinds em background...');
 
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen>
           debugPrint('🌤️ Analisando clima para: ${event.title}');
           final analysis = await _predictionService.analyzeEvent(event)
               .timeout(
-                const Duration(seconds: 8), // Timeout por evento
+                const Duration(seconds: 8), // Timeout por ewind
                 onTimeout: () {
                   debugPrint('⏱️ Timeout ao analisar ${event.title}');
                   throw TimeoutException('Análise timeout');
@@ -128,14 +128,14 @@ class _HomeScreenState extends State<HomeScreen>
             });
           }
         } catch (e) {
-          debugPrint('⚠️ Erro ao analisar evento ${event.title}: $e');
+          debugPrint('⚠️ Error ao analisar ewind ${event.title}: $e');
         }
       }
 
       debugPrint('✅ Análises completadas: ${analyses.length}');
       
     } catch (e, stackTrace) {
-      debugPrint('❌ Erro ao carregar previsões: $e');
+      debugPrint('❌ Error loading previsões: $e');
       debugPrint('Stack trace: $stackTrace');
       if (!mounted) return;
       setState(() {
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen>
                       CircularProgressIndicator(color: Color(0xFF3B82F6)),
                       SizedBox(height: 16),
                       Text(
-                        'Analisando eventos...',
+                        'Analisando ewinds...',
                         style: TextStyle(
                           color: isDark ? Colors.white70 : Colors.black54,
                           fontSize: 14,
@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 24),
                       Text(
-                        'Nenhum evento próximo',
+                        'Nenhum ewind próximo',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -246,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Adicione eventos na aba Eventos',
+                        'Adicione ewinds na aba Ewinds',
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
@@ -384,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             children: [
               Text(
-                'Seus Eventos',
+                'Seus Ewinds',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ordenar eventos',
+                    'Ordenar ewinds',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -490,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _buildFilterOption(
                     icon: Icons.access_time,
                     title: 'Proximidade de tempo',
-                    subtitle: 'Eventos mais próximos primeiro',
+                    subtitle: 'Ewinds mais próximos primeiro',
                     value: 'time',
                     isDark: isDark,
                   ),
@@ -498,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _buildFilterOption(
                     icon: Icons.location_on,
                     title: 'Proximidade de distância',
-                    subtitle: 'Eventos mais perto de você',
+                    subtitle: 'Ewinds mais perto de você',
                     value: 'distance',
                     isDark: isDark,
                   ),
@@ -506,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _buildFilterOption(
                     icon: Icons.priority_high,
                     title: 'Por prioridade',
-                    subtitle: 'Eventos urgentes primeiro',
+                    subtitle: 'Ewinds urgentes primeiro',
                     value: 'priority',
                     isDark: isDark,
                   ),
@@ -522,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildFilterOption({
-    required IconData icon,
+    required IconDate icon,
     required String title,
     required String subtitle,
     required String value,
@@ -813,7 +813,7 @@ class _HomeScreenState extends State<HomeScreen>
           metrics.add(
             _buildWeatherMetric(
               Icons.thermostat,
-              '${weather.meanTemp.toStringAsFixed(0)}°C',
+              '${weather.meanTemp.toStringAsFixed(0)}°F',
               isDark,
             ),
           );
@@ -831,7 +831,7 @@ class _HomeScreenState extends State<HomeScreen>
           metrics.add(
             _buildWeatherMetric(
               Icons.air,
-              '${weather.windSpeed.toStringAsFixed(0)} km/h',
+              '${weather.windSpeed.toStringAsFixed(0)} mph',
               isDark,
             ),
           );
@@ -861,7 +861,7 @@ class _HomeScreenState extends State<HomeScreen>
       metrics.add(
         _buildWeatherMetric(
           Icons.thermostat,
-          '${weather.meanTemp.toStringAsFixed(0)}°C',
+          '${weather.meanTemp.toStringAsFixed(0)}°F',
           isDark,
         ),
       );
@@ -877,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen>
     return metrics;
   }
 
-  Widget _buildWeatherMetric(IconData icon, String value, bool isDark) {
+  Widget _buildWeatherMetric(IconDate icon, String value, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -917,14 +917,14 @@ class _HomeScreenState extends State<HomeScreen>
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
 
-    if (difference == 0) return 'Hoje';
-    if (difference == 1) return 'Amanhã';
+    if (difference == 0) return 'Today';
+    if (difference == 1) return 'Tomorrow';
     if (difference < 7) return 'Em $difference dias';
     if (difference < 30) return 'Em ${(difference / 7).floor()} semanas';
     return 'Em ${(difference / 30).floor()} meses';
   }
 
-  IconData _getAlertIcon(WeatherAlertType type) {
+  IconDate _getAlertIcon(WeatherAlertType type) {
     return switch (type) {
       WeatherAlertType.heavyRain => Icons.water_drop,
       WeatherAlertType.severeStorm => Icons.thunderstorm,
@@ -940,13 +940,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   String _getAlertName(WeatherAlertType type) {
     return switch (type) {
-      WeatherAlertType.heavyRain => 'Chuva Forte',
+      WeatherAlertType.heavyRain => 'Rain Forte',
       WeatherAlertType.severeStorm => 'Tempestade',
       WeatherAlertType.heatWave => 'Onda de Calor',
       WeatherAlertType.thermalDiscomfort => 'Desconforto',
       WeatherAlertType.intenseCold => 'Frio Intenso',
       WeatherAlertType.frostRisk => 'Geada',
-      WeatherAlertType.strongWind => 'Vento Forte',
+      WeatherAlertType.strongWind => 'Wind Forte',
       WeatherAlertType.floodRisk => 'Enchente',
       WeatherAlertType.hailRisk => 'Granizo',
     };

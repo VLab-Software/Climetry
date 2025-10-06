@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ClimateVariable {
   final String name;
   final String apiParam;
-  final IconData icon;
+  final IconDate icon;
   final bool isSelected;
   const ClimateVariable(this.name, this.apiParam, this.icon, this.isSelected);
 

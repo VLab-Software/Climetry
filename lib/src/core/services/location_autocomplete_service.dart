@@ -60,7 +60,7 @@ class LocationAutocompleteService {
         return [];
       }
     } catch (e) {
-      print('Erro ao buscar localizações: $e');
+      print('Error searching localizações: $e');
       return [];
     }
   }

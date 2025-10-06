@@ -3,7 +3,7 @@ import '../../domain/repositories/weather_repository.dart';
 import '../../data/datasources/meteomatics_remote_ds.dart';
 
 class WeatherRepositoryImpl implements WeatherRepository {
-  final MeteomaticsRemoteDataSource remote;
+  final MeteomaticsRemoteDateSource remote;
   WeatherRepositoryImpl({required this.remote});
 
   @override

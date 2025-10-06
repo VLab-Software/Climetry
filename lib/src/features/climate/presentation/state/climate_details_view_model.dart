@@ -20,7 +20,7 @@ class ClimateDetailsViewModel extends ChangeNotifier {
     _load();
   }
 
-  List<VariableData> variables = const [];
+  List<VariableDate> variables = const [];
   AlertInfo alert = AlertInfo.analyzing;
   bool ready = false;
 

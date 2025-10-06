@@ -40,7 +40,7 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
-      print('Erro ao obter localização: $e');
+      print('Error obtaining location: $e');
       return null;
     }
   }
@@ -49,7 +49,7 @@ class LocationService {
     try {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
 
-      if (placemarks.isEmpty) return 'Localização desconhecida';
+      if (placemarks.isEmpty) return 'Location desconhecida';
 
       final place = placemarks.first;
 
@@ -58,10 +58,10 @@ class LocationService {
           place.subAdministrativeArea ??
           place.administrativeArea;
 
-      return city ?? 'Localização desconhecida';
+      return city ?? 'Location desconhecida';
     } catch (e) {
-      print('Erro ao obter nome da cidade: $e');
-      return 'Localização desconhecida';
+      print('Error obtaining city name: $e');
+      return 'Location desconhecida';
     }
   }
 
@@ -69,7 +69,7 @@ class LocationService {
     try {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
 
-      if (placemarks.isEmpty) return 'Localização desconhecida';
+      if (placemarks.isEmpty) return 'Location desconhecida';
 
       final place = placemarks.first;
 
@@ -84,10 +84,10 @@ class LocationService {
         return state;
       }
 
-      return 'Localização desconhecida';
+      return 'Location desconhecida';
     } catch (e) {
-      print('Erro ao obter nome completo: $e');
-      return 'Localização desconhecida';
+      print('Error obtaining full name: $e');
+      return 'Location desconhecida';
     }
   }
 
@@ -208,7 +208,7 @@ class LocationService {
       final locations = await locationFromAddress(query);
       return locations;
     } catch (e) {
-      print('Erro ao buscar localização: $e');
+      print('Error searching location: $e');
       return [];
     }
   }
@@ -218,7 +218,7 @@ class LocationService {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
       return placemarks.isNotEmpty ? placemarks.first : null;
     } catch (e) {
-      print('Erro ao obter placemark: $e');
+      print('Error obtaining placemark: $e');
       return null;
     }
   }

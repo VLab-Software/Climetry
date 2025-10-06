@@ -21,12 +21,12 @@ class FriendsService {
 
       return snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
     } catch (e) {
-      throw Exception('Erro ao buscar amigos: $e');
+      throw Exception('Error searching amigos: $e');
     }
   }
 
   Future<void> addFriend(Friend friend) async {
-    if (_userId == null) throw Exception('Usuário não autenticado');
+    if (_userId == null) throw Exception('User not authenticated');
 
     try {
       await _firestore
@@ -36,12 +36,12 @@ class FriendsService {
           .doc(friend.id)
           .set(friend.toFirestore());
     } catch (e) {
-      throw Exception('Erro ao adicionar amigo: $e');
+      throw Exception('Error ao adicionar amigo: $e');
     }
   }
 
   Future<void> removeFriend(String friendId) async {
-    if (_userId == null) throw Exception('Usuário não autenticado');
+    if (_userId == null) throw Exception('User not authenticated');
 
     try {
       await _firestore
@@ -51,12 +51,12 @@ class FriendsService {
           .doc(friendId)
           .delete();
     } catch (e) {
-      throw Exception('Erro ao remover amigo: $e');
+      throw Exception('Error ao remover amigo: $e');
     }
   }
 
   Future<void> updateFriendName(String friendId, String newName) async {
-    if (_userId == null) throw Exception('Usuário não autenticado');
+    if (_userId == null) throw Exception('User not authenticated');
 
     try {
       await _firestore
@@ -66,7 +66,7 @@ class FriendsService {
           .doc(friendId)
           .update({'name': newName});
     } catch (e) {
-      throw Exception('Erro ao atualizar nome: $e');
+      throw Exception('Error ao atualizar nome: $e');
     }
   }
 
@@ -74,7 +74,7 @@ class FriendsService {
     required String toUserId,
     String? message,
   }) async {
-    if (_userId == null) throw Exception('Usuário não autenticado');
+    if (_userId == null) throw Exception('User not authenticated');
 
     final currentUser = _auth.currentUser!;
 
@@ -92,7 +92,7 @@ class FriendsService {
 
       await _firestore.collection('friendRequests').add(request.toFirestore());
     } catch (e) {
-      throw Exception('Erro ao enviar solicitação: $e');
+      throw Exception('Error ao enviar solicitação: $e');
     }
   }
 
@@ -111,12 +111,12 @@ class FriendsService {
           .map((doc) => FriendRequest.fromFirestore(doc))
           .toList();
     } catch (e) {
-      throw Exception('Erro ao buscar solicitações: $e');
+      throw Exception('Error searching solicitações: $e');
     }
   }
 
   Future<void> acceptFriendRequest(FriendRequest request) async {
-    if (_userId == null) throw Exception('Usuário não autenticado');
+    if (_userId == null) throw Exception('User not authenticated');
 
     try {
       final friend = Friend(
@@ -145,7 +145,7 @@ class FriendsService {
         'status': FriendRequestStatus.accepted.name,
       });
     } catch (e) {
-      throw Exception('Erro ao aceitar solicitação: $e');
+      throw Exception('Error ao aceitar solicitação: $e');
     }
   }
 
@@ -155,7 +155,7 @@ class FriendsService {
         'status': FriendRequestStatus.rejected.name,
       });
     } catch (e) {
-      throw Exception('Erro ao rejeitar solicitação: $e');
+      throw Exception('Error ao rejeitar solicitação: $e');
     }
   }
 

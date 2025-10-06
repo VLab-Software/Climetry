@@ -47,7 +47,7 @@ class AuthService {
     try {
       await _auth.signOut();
     } catch (e) {
-      throw AuthException('Erro ao fazer logout: $e');
+      throw AuthException('Error ao fazer logout: $e');
     }
   }
 
@@ -64,7 +64,7 @@ class AuthService {
       await _auth.currentUser?.updateDisplayName(displayName);
       await _auth.currentUser?.reload();
     } catch (e) {
-      throw AuthException('Erro ao atualizar nome: $e');
+      throw AuthException('Error ao atualizar nome: $e');
     }
   }
 
@@ -88,7 +88,7 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user == null || user.email == null) {
-        throw AuthException('Usuário não autenticado');
+        throw AuthException('User not authenticated');
       }
 
       final credential = EmailAuthProvider.credential(
@@ -132,13 +132,13 @@ class AuthService {
         message = 'Email inválido.';
         break;
       case 'operation-not-allowed':
-        message = 'Operação não permitida.';
+        message = 'Operation not allowed.';
         break;
       case 'user-disabled':
         message = 'Esta conta foi desativada.';
         break;
       case 'user-not-found':
-        message = 'Usuário não encontrado.';
+        message = 'User not found.';
         break;
       case 'wrong-password':
         message = 'Senha incorreta.';
@@ -154,10 +154,10 @@ class AuthService {
             'Esta operação requer autenticação recente. Faça login novamente.';
         break;
       case 'network-request-failed':
-        message = 'Erro de conexão. Verifique sua internet.';
+        message = 'Error de conexão. Verifique sua internet.';
         break;
       default:
-        message = 'Erro de autenticação: ${e.message ?? e.code}';
+        message = 'Error de autenticação: ${e.message ?? e.code}';
     }
 
     return AuthException(message, code: e.code);

@@ -48,7 +48,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactCard(ThemeData theme, bool isDark) {
+  Widget _buildCompactCard(ThemeDate theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -112,7 +112,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeDate theme) {
     return Row(
       children: [
         Container(
@@ -161,9 +161,9 @@ class EventWeatherCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     analysis.daysUntilEvent == 0
-                        ? 'Hoje'
+                        ? 'Today'
                         : analysis.daysUntilEvent == 1
-                        ? 'Amanhã'
+                        ? 'Tomorrow'
                         : 'Em ${analysis.daysUntilEvent} dias',
                     style: theme.textTheme.bodyMedium,
                   ),
@@ -176,7 +176,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRiskIndicator(ThemeData theme) {
+  Widget _buildRiskIndicator(ThemeDate theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -215,7 +215,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAIInsight(ThemeData theme, bool isDark) {
+  Widget _buildAIInsight(ThemeDate theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -267,7 +267,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSuggestions(ThemeData theme, bool isDark) {
+  Widget _buildSuggestions(ThemeDate theme, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,7 +288,7 @@ class EventWeatherCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSuggestionItem(EventSuggestion suggestion, ThemeData theme) {
+  Widget _buildSuggestionItem(EventSuggestion suggestion, ThemeDate theme) {
     Color priorityColor;
     switch (suggestion.priority) {
       case SuggestionPriority.high:

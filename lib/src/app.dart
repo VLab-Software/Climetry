@@ -15,8 +15,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final apiClient = ApiClient();
-    final geocodingDs = GeocodingRemoteDataSource(client: apiClient);
-    final meteomaticsDs = MeteomaticsRemoteDataSource(client: apiClient);
+    final geocodingDs = GeocodingRemoteDateSource(client: apiClient);
+    final meteomaticsDs = MeteomaticsRemoteDateSource(client: apiClient);
 
     return MultiProvider(
       providers: [
@@ -28,7 +28,7 @@ class App extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Earth Data Analysis',
+        title: 'Earth Date Analysis',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
         home: const ClimateScreen(),

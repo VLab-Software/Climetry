@@ -18,7 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
-  final _userDataService = UserDataService();
+  final _userDateService = UserDateService();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -70,15 +70,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (userCredential.user != null) {
         try {
           debugPrint('📝 Criando perfil no Firestore...');
-          await _userDataService.createUserProfile(userCredential.user!).timeout(
+          await _userDateService.createUserProfile(userCredential.user!).timeout(
             const Duration(seconds: 10),
             onTimeout: () {
               debugPrint('⏱️ Timeout ao criar perfil - continuando mesmo assim');
             },
           );
-          debugPrint('✅ Perfil criado com sucesso');
+          debugPrint('✅ Profile criado com success');
         } catch (e) {
-          debugPrint('⚠️ Erro ao criar perfil (não crítico): $e');
+          debugPrint('⚠️ Error ao criar perfil (não crítico): $e');
         }
       }
 
@@ -88,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ Conta criada com sucesso!'),
+          content: Text('✅ Conta criada com success!'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
@@ -107,7 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       
     } catch (e) {
-      debugPrint('❌ Erro no registro: $e');
+      debugPrint('❌ Error no registro: $e');
       
       if (!mounted) return;
 
@@ -241,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         SizedBox(height: isLarge ? 16 : 12),
         Text(
-          'Crie sua conta e comece a\nplanejar eventos com\ninteligência climática',
+          'Crie sua conta e comece a\nplanejar ewinds com\ninteligência climática',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Criar nova conta',
+              'Create nova conta',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -343,7 +343,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             _buildTextField(
               controller: _confirmPasswordController,
-              label: 'Confirmar senha',
+              label: 'Confirm senha',
               hint: '••••••••',
               icon: Icons.lock_outline,
               obscureText: _obscureConfirmPassword,
@@ -413,7 +413,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       )
                     : const Text(
-                        'Criar conta',
+                        'Create conta',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -435,7 +435,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     children: const [
                       TextSpan(
-                        text: 'Entrar',
+                        text: 'Login',
                         style: TextStyle(
                           color: Color(0xFF4A9EFF),
                           fontWeight: FontWeight.w600,
@@ -456,7 +456,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    required IconDate icon,
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,

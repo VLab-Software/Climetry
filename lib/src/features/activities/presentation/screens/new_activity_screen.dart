@@ -175,7 +175,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         children: [
           _buildTextField(
             controller: _titleController,
-            label: 'Nome da Atividade',
+            label: 'Nome da Activity',
             hint: 'Churrasco com Amigos',
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -195,7 +195,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           const SizedBox(height: 16),
           _buildTextField(
             controller: _descriptionController,
-            label: 'Descrição (Opcional)',
+            label: 'Description (Opcional)',
             hint: 'Adicione mais detalhes...',
             maxLines: 3,
           ),
@@ -211,7 +211,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Participantes do Evento',
+            'Participants do Ewind',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -220,7 +220,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           ),
           const SizedBox(height: 8),
           Text(
-            'Convide amigos para participar deste evento',
+            'Convide amigos para participar deste ewind',
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -305,7 +305,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
               minimumSize: const Size(double.infinity, 56),
             ),
             child: const Text(
-              'Criar Evento',
+              'Create Ewind',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -334,7 +334,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Nova Atividade',
+          'Nova Activity',
           style: TextStyle(color: isDark ? Colors.white : Colors.black),
         ),
         centerTitle: true,
@@ -381,7 +381,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     required TextEditingController controller,
     required String label,
     required String hint,
-    IconData? prefixIcon,
+    IconDate? prefixIcon,
     Widget? suffixIcon,
     String? Function(String?)? validator,
     int maxLines = 1,
@@ -449,7 +449,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Participantes',
+          'Participants',
           style: TextStyle(
             color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
@@ -546,7 +546,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Localização',
+          'Location',
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -556,7 +556,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         const SizedBox(height: 8),
         LocationAutocompleteField(
           controller: _locationController,
-          hintText: 'Digite o nome da cidade...',
+          hintText: 'Digite o city name...',
           prefixIcon: Icons.search,
           suffixIcon: IconButton(
             icon: const Icon(Icons.map, color: Color(0xFF4A9EFF)),
@@ -576,7 +576,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Localização selecionada: ${suggestion.displayName}',
+                        'Location selecionada: ${suggestion.displayName}',
                       ),
                     ),
                   ],
@@ -590,7 +590,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           textColor: Colors.white,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Por favor, insira uma localização';
+              return 'Por favor, insira uma location';
             }
             return null;
           },
@@ -604,7 +604,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Data e Horário',
+          'Date e Horário',
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -626,7 +626,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
             Expanded(
               child: _buildPickerButton(
                 icon: Icons.access_time,
-                label: _startTime?.format(context) ?? 'Hora',
+                label: _startTime?.format(context) ?? 'Time',
                 onTap: _selectStartTime,
               ),
             ),
@@ -643,7 +643,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tipo de Atividade',
+          'Tipo de Activity',
           style: TextStyle(
             color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
@@ -694,7 +694,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
   }
 
   Widget _buildPickerButton({
-    required IconData icon,
+    required IconDate icon,
     required String label,
     required VoidCallback onTap,
   }) {

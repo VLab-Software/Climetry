@@ -113,7 +113,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                   isDark: isDark,
                   icon: Icons.thermostat,
                   iconColor: Color(0xFFEF4444),
-                  title: 'Alertas de Temperatura',
+                  title: 'Alertas de Temperature',
                   enabled: _settings['enableTemperatureAlerts'] ?? true,
                   onToggle: (value) {
                     setState(() {
@@ -125,11 +125,11 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 12),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Temperatura Mínima',
+                        label: 'Temperature Mínima',
                         value: _settings['temperatureMin'] ?? 10.0,
                         min: -10,
                         max: 30,
-                        unit: '°C',
+                        unit: '°F',
                         onChanged: (value) {
                           setState(() {
                             _settings['temperatureMin'] = value;
@@ -139,11 +139,11 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 16),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Temperatura Máxima',
+                        label: 'Temperature Máxima',
                         value: _settings['temperatureMax'] ?? 35.0,
                         min: 20,
                         max: 50,
-                        unit: '°C',
+                        unit: '°F',
                         onChanged: (value) {
                           setState(() {
                             _settings['temperatureMax'] = value;
@@ -160,7 +160,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                   isDark: isDark,
                   icon: Icons.water_drop,
                   iconColor: Color(0xFF3B82F6),
-                  title: 'Alertas de Chuva',
+                  title: 'Alertas de Rain',
                   enabled: _settings['enableRainAlerts'] ?? true,
                   onToggle: (value) {
                     setState(() {
@@ -172,7 +172,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 12),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Limite de Precipitação',
+                        label: 'Limite de Precipitation',
                         value: _settings['rainThreshold'] ?? 50.0,
                         min: 0,
                         max: 100,
@@ -193,7 +193,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                   isDark: isDark,
                   icon: Icons.air,
                   iconColor: Color(0xFF10B981),
-                  title: 'Alertas de Vento',
+                  title: 'Alertas de Wind',
                   enabled: _settings['enableWindAlerts'] ?? true,
                   onToggle: (value) {
                     setState(() {
@@ -205,7 +205,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 12),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Velocidade Máxima do Vento',
+                        label: 'Velocidade Máxima do Wind',
                         value: _settings['windThreshold'] ?? 30.0,
                         min: 0,
                         max: 100,
@@ -226,7 +226,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                   isDark: isDark,
                   icon: Icons.opacity,
                   iconColor: Color(0xFF8B5CF6),
-                  title: 'Alertas de Umidade',
+                  title: 'Alertas de Humidity',
                   enabled: _settings['enableHumidityAlerts'] ?? false,
                   onToggle: (value) {
                     setState(() {
@@ -238,7 +238,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 12),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Umidade Mínima',
+                        label: 'Humidity Mínima',
                         value: _settings['humidityMin'] ?? 30.0,
                         min: 0,
                         max: 70,
@@ -252,7 +252,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       SizedBox(height: 16),
                       _buildSlider(
                         isDark: isDark,
-                        label: 'Umidade Máxima',
+                        label: 'Humidity Máxima',
                         value: _settings['humidityMax'] ?? 90.0,
                         min: 50,
                         max: 100,
@@ -301,7 +301,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                'Como admin, você pode definir essas configurações como padrão para todos os participantes',
+                                'Como admin, você pode definir essas configurações como padrão para todos os participants',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: isDark ? Colors.white60 : Colors.black54,
@@ -358,7 +358,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Salvar Configurações',
+                      'Save Settings',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -376,7 +376,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
   Widget _buildToggleSection({
     required bool isDark,
-    required IconData icon,
+    required IconDate icon,
     required Color iconColor,
     required String title,
     required bool enabled,
@@ -467,7 +467,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
         ),
         SizedBox(height: 8),
         SliderTheme(
-          data: SliderThemeData(
+          data: SliderThemeDate(
             activeTrackColor: Color(0xFF3B82F6),
             inactiveTrackColor: Color(0xFF3B82F6).withOpacity(0.2),
             thumbColor: Color(0xFF3B82F6),

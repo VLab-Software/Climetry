@@ -100,7 +100,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 _buildCleanTabItem(
                   icon: Icons.calendar_today_outlined,
                   activeIcon: Icons.calendar_today,
-                  label: 'Eventos',
+                  label: 'Ewinds',
                   index: 1,
                   isDark: isDark,
                 ),
@@ -120,8 +120,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   }
 
   Widget _buildCleanTabItem({
-    required IconData icon,
-    required IconData activeIcon,
+    required IconDate icon,
+    required IconDate activeIcon,
     required String label,
     required int index,
     required bool isDark,

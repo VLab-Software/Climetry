@@ -64,7 +64,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
         });
       }
     } catch (e) {
-      debugPrint('Erro ao buscar endereço: $e');
+      debugPrint('Error searching endereço: $e');
       if (mounted) {
         setState(() => _isLoadingAddress = false);
       }
@@ -155,7 +155,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       appBar: AppBar(
         backgroundColor: cardColor,
         elevation: 0,
-        title: Text('Selecionar Localização', style: TextStyle(color: textColor)),
+        title: Text('Selecionar Location', style: TextStyle(color: textColor)),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.close, color: textColor),
@@ -186,7 +186,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Buscar Localização',
+                  'Search Location',
                   style: TextStyle(
                     color: secondaryTextColor,
                     fontSize: 12,
@@ -415,7 +415,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   onPressed: _confirm,
                   icon: const Icon(Icons.check_circle, size: 20),
                   label: const Text(
-                    'Confirmar Localização',
+                    'Confirm Location',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -440,7 +440,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   Widget _buildMapControlButton({
-    required IconData icon,
+    required IconDate icon,
     required VoidCallback onPressed,
     required bool isDark,
     required String heroTag,

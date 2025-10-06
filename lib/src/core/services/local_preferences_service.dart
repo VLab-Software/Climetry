@@ -25,7 +25,7 @@ class LocalPreferencesService {
   Future<void> setTemperatureUnit(String unit) async {
     final prefs = await _prefs;
     await prefs.setString(_keyTemperatureUnit, unit);
-    debugPrint('📝 Temperatura unit saved: $unit');
+    debugPrint('📝 Temperature unit saved: $unit');
   }
 
   Future<String> getWindUnit() async {

@@ -9,7 +9,7 @@ class EventSharingService {
     try {
       final Event event = Event(
         title: activity.title,
-        description: activity.description ?? 'Evento criado no Climetry',
+        description: activity.description ?? 'Ewind criado no Climetry',
         location: activity.location,
         startDate: activity.date,
         endDate: activity.endTime != null
@@ -26,7 +26,7 @@ class EventSharingService {
 
       return await Add2Calendar.addEvent2Cal(event);
     } catch (e) {
-      print('Erro ao adicionar ao calendário: $e');
+      print('Error ao adicionar ao calendário: $e');
       return false;
     }
   }
@@ -45,7 +45,7 @@ class EventSharingService {
         await _shareGenericWhatsApp(message);
       }
     } catch (e) {
-      print('Erro ao compartilhar no WhatsApp: $e');
+      print('Error ao compartilhar no WhatsApp: $e');
       await Share.share(message);
     }
   }
@@ -86,7 +86,7 @@ class EventSharingService {
     final timeFormat = activity.startTime ?? 'Horário não definido';
 
     return '''
-🎉 *Você foi convidado para um evento!*
+🎉 *Você foi convidado para um ewind!*
 
 📅 *${activity.title}*
 📍 ${activity.location}
@@ -109,9 +109,9 @@ _Não tem conta? Clique no link para criar gratuitamente e participar!_
 📅 Convite: ${activity.title}
 
 📍 Local: ${activity.location}
-🕐 Data: ${dateFormat.format(activity.date)}
+🕐 Date: ${dateFormat.format(activity.date)}
 
-${activity.description != null ? 'Descrição: ${activity.description}\n\n' : ''}Aceite o convite: $inviteLink
+${activity.description != null ? 'Description: ${activity.description}\n\n' : ''}Aceite o convite: $inviteLink
 
 Não tem conta? Cadastre-se gratuitamente no Climetry!
 ''';

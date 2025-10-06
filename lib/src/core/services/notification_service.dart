@@ -108,7 +108,7 @@ class NotificationService {
         'data': data,
       });
     } catch (e) {
-      throw Exception('Erro ao criar notificação: $e');
+      throw Exception('Error ao criar notificação: $e');
     }
   }
 
@@ -138,7 +138,7 @@ class NotificationService {
           .map((doc) => AppNotification.fromFirestore(doc))
           .toList();
     } catch (e) {
-      throw Exception('Erro ao buscar notificações: $e');
+      throw Exception('Error searching notificações: $e');
     }
   }
 
@@ -164,7 +164,7 @@ class NotificationService {
         'read': true,
       });
     } catch (e) {
-      throw Exception('Erro ao marcar notificação como lida: $e');
+      throw Exception('Error ao marcar notificação como lida: $e');
     }
   }
 
@@ -185,7 +185,7 @@ class NotificationService {
 
       await batch.commit();
     } catch (e) {
-      throw Exception('Erro ao marcar todas as notificações como lidas: $e');
+      throw Exception('Error ao marcar todas as notificações como lidas: $e');
     }
   }
 
@@ -193,7 +193,7 @@ class NotificationService {
     try {
       await _firestore.collection('notifications').doc(notificationId).delete();
     } catch (e) {
-      throw Exception('Erro ao deletar notificação: $e');
+      throw Exception('Error ao deletar notificação: $e');
     }
   }
 
@@ -271,8 +271,8 @@ class NotificationService {
     await createNotification(
       userId: toUserId,
       type: NotificationType.eventInvitation,
-      title: 'Convite para evento',
-      message: '$inviterName convidou você para "$eventTitle"',
+      title: 'Convite para ewind',
+      message: '$inviterName invited you to "$eventTitle"',
       data: {
         'eventId': eventId,
         'eventTitle': eventTitle,
@@ -290,7 +290,7 @@ class NotificationService {
     await createNotification(
       userId: toUserId,
       type: NotificationType.eventUpdate,
-      title: 'Evento atualizado',
+      title: 'Ewind atualizado',
       message: '$eventTitle: $updateMessage',
       data: {'eventId': eventId, 'eventTitle': eventTitle},
     );

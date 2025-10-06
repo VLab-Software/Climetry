@@ -12,46 +12,46 @@ enum WeatherAlertType {
   String get label {
     switch (this) {
       case WeatherAlertType.heatWave:
-        return 'Onda de Calor';
+        return 'Heat Wave';
       case WeatherAlertType.thermalDiscomfort:
-        return 'Desconforto Térmico Elevado';
+        return 'High Thermal Discomfort';
       case WeatherAlertType.intenseCold:
-        return 'Frio Intenso';
+        return 'Intense Cold';
       case WeatherAlertType.frostRisk:
-        return 'Risco de Geada';
+        return 'Frost Risk';
       case WeatherAlertType.heavyRain:
-        return 'Chuva Intensa';
+        return 'Heavy Rain';
       case WeatherAlertType.floodRisk:
-        return 'Risco de Enchente';
+        return 'Flood Risk';
       case WeatherAlertType.severeStorm:
-        return 'Tempestade Severa';
+        return 'Severe Storm';
       case WeatherAlertType.hailRisk:
-        return 'Risco de Granizo';
+        return 'Hail Risk';
       case WeatherAlertType.strongWind:
-        return 'Ventania Forte';
+        return 'Strong Wind';
     }
   }
 
   String get description {
     switch (this) {
       case WeatherAlertType.heatWave:
-        return 'Temperaturas elevadas por 3 ou mais dias seguidos (≥35°C)';
+        return 'High temperatures for 3 or more consecutive days (≥95°F)';
       case WeatherAlertType.thermalDiscomfort:
-        return 'Alta temperatura combinada com umidade elevada';
+        return 'High temperature combined with elevated humidity';
       case WeatherAlertType.intenseCold:
-        return 'Temperatura mínima ≤5°C';
+        return 'Minimum temperature ≤41°F';
       case WeatherAlertType.frostRisk:
-        return 'Temperatura mínima ≤3°C - Perigo para agricultura';
+        return 'Minimum temperature ≤37°F - Danger to agriculture';
       case WeatherAlertType.heavyRain:
-        return 'Precipitação >30mm - Risco de alagamentos pontuais';
+        return 'Precipitation >1.2 inches - Risk of localized flooding';
       case WeatherAlertType.floodRisk:
-        return 'Precipitação >50mm - Alto risco de enchentes e deslizamentos';
+        return 'Precipitation >2 inches - High risk of floods and landslides';
       case WeatherAlertType.severeStorm:
-        return 'CAPE >2000 J/kg - Alto potencial para tempestades';
+        return 'CAPE >2000 J/kg - High potential for severe storms';
       case WeatherAlertType.hailRisk:
-        return 'Previsão de queda de granizo';
+        return 'Hail forecast';
       case WeatherAlertType.strongWind:
-        return 'Ventos ≥60 km/h';
+        return 'Winds ≥37 mph';
     }
   }
 }

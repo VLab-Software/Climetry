@@ -12,11 +12,11 @@ class ActivityRepository {
   Future<List<Activity>> getAll() async {
     try {
       if (_userId == null) {
-        print('⚠️ ActivityRepository: Usuário não autenticado');
+        print('⚠️ ActivityRepository: User not authenticated');
         return [];
       }
 
-      print('🔍 ActivityRepository: Buscando atividades para $_userId');
+      print('🔍 ActivityRepository: Buscando activitys para $_userId');
 
       final query = await _firestore
           .collection('activities')
@@ -37,16 +37,16 @@ class ActivityRepository {
           final data = doc.data();
           return Activity.fromJson(data);
         } catch (e) {
-          print('⚠️ Erro ao parsear atividade ${doc.id}: $e');
+          print('⚠️ Error ao parsear activity ${doc.id}: $e');
           return null;
         }
       }).whereType<Activity>().toList();
 
-      print('✅ ActivityRepository: ${activities.length} atividades válidas');
+      print('✅ ActivityRepository: ${activities.length} activitys válidas');
       return activities;
     } catch (e) {
       print('❌ ActivityRepository erro: $e');
-      throw Exception('Erro ao carregar atividades: $e');
+      throw Exception('Error loading activitys: $e');
     }
   }
 
@@ -70,7 +70,7 @@ class ActivityRepository {
       final doc = await _firestore.collection('activities').doc(id).get().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print('⏱️ Timeout ao buscar atividade $id');
+          print('⏱️ Timeout ao search activity $id');
           return _firestore.collection('_timeout_').doc('_default_').get();
         },
       );
@@ -79,7 +79,7 @@ class ActivityRepository {
       
       return Activity.fromJson(doc.data()!);
     } catch (e) {
-      print('⚠️ Erro ao buscar atividade: $e');
+      print('⚠️ Error searching activity: $e');
       return null;
     }
   }
@@ -88,9 +88,9 @@ class ActivityRepository {
     try {
       if (_userId == null) throw Exception('User not authenticated');
 
-      final activityData = activity.toJson();
+      final activityDate = activity.toJson();
       
-      activityData['participantIds'] = [
+      activityDate['participantIds'] = [
         activity.ownerId,
         ...activity.participants.map((p) => p.userId),
       ];
@@ -98,9 +98,9 @@ class ActivityRepository {
       await _firestore
           .collection('activities')
           .doc(activity.id)
-          .set(activityData);
+          .set(activityDate);
     } catch (e) {
-      throw Exception('Erro ao salvar atividade: $e');
+      throw Exception('Error ao salvar activity: $e');
     }
   }
 
@@ -108,9 +108,9 @@ class ActivityRepository {
     try {
       if (_userId == null) throw Exception('User not authenticated');
 
-      final activityData = activity.toJson();
+      final activityDate = activity.toJson();
       
-      activityData['participantIds'] = [
+      activityDate['participantIds'] = [
         activity.ownerId,
         ...activity.participants.map((p) => p.userId),
       ];
@@ -118,9 +118,9 @@ class ActivityRepository {
       await _firestore
           .collection('activities')
           .doc(activity.id)
-          .update(activityData);
+          .update(activityDate);
     } catch (e) {
-      throw Exception('Erro ao atualizar atividade: $e');
+      throw Exception('Error ao atualizar activity: $e');
     }
   }
 
@@ -130,11 +130,11 @@ class ActivityRepository {
 
       await _firestore.collection('activities').doc(id).delete();
     } catch (e) {
-      throw Exception('Erro ao deletar atividade: $e');
+      throw Exception('Error ao deletar activity: $e');
     }
   }
 
   Future<void> clear() async {
-    throw UnimplementedError('Use delete() para remover atividades individuais');
+    throw UnimplementedError('Use delete() para remover activitys individuais');
   }
 }

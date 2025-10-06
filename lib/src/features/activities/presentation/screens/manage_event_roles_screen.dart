@@ -63,7 +63,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atualizar permissão: $e'),
+            content: Text('Error ao atualizar permissão: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -112,7 +112,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Convide amigos para o evento',
+                        'Convide amigos para o ewind',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[500],
@@ -142,7 +142,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Defina quem pode editar e gerenciar este evento',
+                              'Defina quem pode editar e gerenciar este ewind',
                               style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black87,
                                 fontSize: 14,
@@ -276,7 +276,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
 
   Widget _buildRoleBadge(EventRole role) {
     Color color;
-    IconData icon;
+    IconDate icon;
 
     switch (role) {
       case EventRole.owner:
@@ -327,7 +327,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
     EventRole role,
     String title,
     String subtitle,
-    IconData icon,
+    IconDate icon,
   ) {
     final isSelected = participant.role == role;
 

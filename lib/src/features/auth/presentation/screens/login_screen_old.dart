@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
-  final _userDataService = UserDataService();
+  final _userDateService = UserDateService();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final userCredential = await _authService.signInWithGoogle();
 
       if (userCredential.user != null) {
-        await _userDataService.createUserProfile(userCredential.user!);
+        await _userDateService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : const Text(
-                            'Entrar',
+                            'Login',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -293,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     label: const Text(
-                      'Entrar com Google',
+                      'Login com Google',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -380,7 +380,7 @@ class _LoginScreenState extends State<LoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {

@@ -37,7 +37,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         debugPrint('📱 AuthWrapper build - State: $connectionState, User: ${user?.email ?? "null"}');
         
         if (user != null) {
-          debugPrint('✅ Usuário detectado, carregando MainScaffold');
+          debugPrint('✅ Usuário detectado, loading MainScaffold');
           return const MainScaffold(key: ValueKey('main'));
         }
         
@@ -81,7 +81,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
                   const Icon(Icons.error_outline, color: Colors.red, size: 60),
                   const SizedBox(height: 16),
                   const Text(
-                    'Erro ao carregar',
+                    'Error loading',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -122,7 +122,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           return const MainScaffold(key: ValueKey('main'));
         }
 
-        debugPrint('🚪 Sem usuário, mostrando WelcomeScreen');
+        debugPrint('🚪 No user, mostrando WelcomeScreen');
         return const WelcomeScreen(key: ValueKey('welcome'));
       },
     );

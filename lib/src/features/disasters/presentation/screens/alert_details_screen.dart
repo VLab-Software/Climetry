@@ -43,7 +43,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
       final insights = await _aiService.generateAlertInsights(
         alert: widget.alert,
         weather: alertWeather,
-        location: 'São Paulo, SP', // TODO: pegar localização real
+        location: 'São Paulo, SP', // TODO: pegar location real
       );
 
       setState(() {
@@ -96,7 +96,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
     }
   }
 
-  List<FlSpot> _getChartData() {
+  List<FlSpot> _getChartDate() {
     final data = <FlSpot>[];
 
     for (int i = 0; i < widget.forecast.length && i < 7; i++) {
@@ -133,15 +133,15 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
     switch (widget.alert.type) {
       case WeatherAlertType.heatWave:
       case WeatherAlertType.thermalDiscomfort:
-        return 'Temperatura Máxima (°C)';
+        return 'Temperature Máxima (°F)';
       case WeatherAlertType.intenseCold:
       case WeatherAlertType.frostRisk:
-        return 'Temperatura Mínima (°C)';
+        return 'Temperature Mínima (°F)';
       case WeatherAlertType.heavyRain:
       case WeatherAlertType.floodRisk:
-        return 'Precipitação (mm)';
+        return 'Precipitation (mm)';
       case WeatherAlertType.strongWind:
-        return 'Velocidade do Vento (km/h)';
+        return 'Velocidade do Wind (km/h)';
       default:
         return 'Valor';
     }
@@ -285,8 +285,8 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(
+                LineChartDate(
+                  gridDate: FlGridDate(
                     show: true,
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) => FlLine(
@@ -294,7 +294,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       strokeWidth: 1,
                     ),
                   ),
-                  titlesData: FlTitlesData(
+                  titlesDate: FlTitlesDate(
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -339,16 +339,16 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     ),
                   ),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _getChartData(),
+                  borderDate: FlBorderDate(show: false),
+                  lineBarsDate: [
+                    LineChartBarDate(
+                      spots: _getChartDate(),
                       isCurved: true,
                       color: alertColor,
                       barWidth: 3,
-                      dotData: FlDotData(
+                      dotDate: FlDotDate(
                         show: true,
-                        getDotPainter: (spot, percent, barData, index) =>
+                        getDotPainter: (spot, percent, barDate, index) =>
                             FlDotCirclePainter(
                               radius: 5,
                               color: alertColor,
@@ -356,7 +356,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                               strokeColor: const Color(0xFF2A3A4D),
                             ),
                       ),
-                      belowBarData: BarAreaData(
+                      belowBarDate: BarAreaDate(
                         show: true,
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -369,8 +369,8 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     ),
                   ],
-                  lineTouchData: LineTouchData(
-                    touchTooltipData: LineTouchTooltipData(
+                  lineTouchDate: LineTouchDate(
+                    touchTooltipDate: LineTouchTooltipDate(
                       getTooltipColor: (_) => const Color(0xFF2A3A4D),
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((spot) {
@@ -508,14 +508,14 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
           {'icon': '🚗', 'text': 'Cuidado com gelo nas estradas pela manhã'},
           {
             'icon': '☕',
-            'text': 'Consuma bebidas quentes para manter a temperatura',
+            'text': 'Consuma bebidas quentes para manter a temperature',
           },
         ]);
         break;
       case WeatherAlertType.heavyRain:
       case WeatherAlertType.floodRisk:
         recommendations.addAll([
-          {'icon': '☔', 'text': 'Leve guarda-chuva e capa de chuva'},
+          {'icon': '☔', 'text': 'Leve guarda-rain e capa de rain'},
           {'icon': '🚗', 'text': 'Evite áreas propensas a alagamentos'},
           {'icon': '🏠', 'text': 'Limpe calhas e ralos preventivamente'},
           {'icon': '📱', 'text': 'Mantenha-se informado sobre alertas locais'},
@@ -535,7 +535,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
           {'icon': '🪟', 'text': 'Feche janelas e portas bem'},
           {'icon': '🌳', 'text': 'Evite áreas com árvores altas'},
           {'icon': '📦', 'text': 'Prenda objetos que possam voar'},
-          {'icon': '🚗', 'text': 'Dirija com cuidado, ventos laterais fortes'},
+          {'icon': '🚗', 'text': 'Dirija com cuidado, winds laterais fortes'},
         ]);
         break;
     }

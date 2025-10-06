@@ -10,7 +10,7 @@ enum EventWeatherRisk {
   safe, // Verde - Sem problemas
   warning, // Amarelo - Atenção necessária
   critical, // Vermelho - Risco alto
-  unknown, // Cinza - Sem dados ainda
+  unknown, // Gray - No data yet
 }
 
 class EventWeatherAnalysis {
@@ -65,7 +65,7 @@ class EventWeatherAnalysis {
     }
   }
 
-  IconData get riskIcon {
+  IconDate get riskIcon {
     switch (risk) {
       case EventWeatherRisk.safe:
         return Icons.check_circle;
@@ -134,7 +134,7 @@ class EventSuggestion {
 enum SuggestionType {
   reschedule, // Reagendar horário
   relocate, // Mudar local
-  prepare, // Preparação necessária
+  prepare, // Preparation needed
   cancel, // Considerar cancelamento
   other, // Outras sugestões
 }
@@ -204,7 +204,7 @@ class EventWeatherPredictionService {
         daysUntilEvent: daysUntil,
       );
     } catch (e) {
-      debugPrint('Erro ao analisar evento ${activity.title}: $e');
+      debugPrint('Error ao analisar ewind ${activity.title}: $e');
 
       return EventWeatherAnalysis(
         activity: activity,
@@ -251,7 +251,7 @@ class EventWeatherPredictionService {
           type: WeatherAlertType.heatWave,
           date: weather.date,
           value: weather.maxTemp,
-          unit: '°C',
+          unit: '°F',
         ),
       );
     }
@@ -264,7 +264,7 @@ class EventWeatherPredictionService {
               : WeatherAlertType.intenseCold,
           date: weather.date,
           value: weather.minTemp,
-          unit: '°C',
+          unit: '°F',
         ),
       );
     }
@@ -348,7 +348,7 @@ class EventWeatherPredictionService {
 
   String _getRiskDescription(EventWeatherRisk risk, List<WeatherAlert> alerts) {
     if (alerts.isEmpty) {
-      return 'Condições climáticas favoráveis para o evento';
+      return 'Favorable weather conditions for the event';
     }
 
     final problems = alerts.map((a) => a.type.description).join(', ');
@@ -375,20 +375,20 @@ class EventWeatherPredictionService {
     try {
       final prompt =
           '''
-Você é um assistente especializado em análise climática para eventos.
+Você é um assistente especializado em análise climática para ewinds.
 
 **EVENTO:**
 - Nome: ${activity.title}
 - Tipo: ${activity.type.label}
-- Data: ${activity.date.day}/${activity.date.month}/${activity.date.year}
+- Date: ${activity.date.day}/${activity.date.month}/${activity.date.year}
 - Faltam: $daysUntil dias
 - Local: ${activity.location}
 
 **PREVISÃO CLIMÁTICA:**
-- Temperatura: ${weather.minTemp.round()}°C - ${weather.maxTemp.round()}°C
-- Chuva: ${weather.precipitation.round()}mm (${weather.precipitationProbability.round()}% chance)
-- Vento: ${weather.windSpeed.round()} km/h
-- Umidade: ${weather.humidity.round()}%
+- Temperature: ${weather.minTemp.round()}°F - ${weather.maxTemp.round()}°F
+- Rain: ${weather.precipitation.round()}mm (${weather.precipitationProbability.round()}% chance)
+- Wind: ${weather.windSpeed.round()} mph
+- Humidity: ${weather.humidity.round()}%
 - UV: ${weather.uvIndex.round()}
 - Condição: ${weather.mainCondition}
 
@@ -399,7 +399,7 @@ ${alerts.isEmpty ? 'Nenhum alerta' : alerts.map((a) => '- ${a.type.label}: ${a.v
 
 RESPONDA EM JSON:
 {
-  "insight": "Uma análise inteligente e específica sobre o impacto do clima neste evento. Seja direto e prático.",
+  "insight": "Uma análise inteligente e específica sobre o impacto do clima neste ewind. Seja direto e prático.",
   "suggestions": [
     {
       "title": "Título curto",
@@ -413,7 +413,7 @@ RESPONDA EM JSON:
 
 REGRAS:
 - Se risco crítico: sugira mudanças sérias (reagendar, mudar local)
-- Se risco médio: sugira preparação (guarda-chuva, protetor solar, etc)
+- Se risco médio: sugira preparação (guarda-rain, protetor solar, etc)
 - Se seguro: dê dicas de otimização
 - Máximo 3 sugestões, sempre práticas e acionáveis
 - Considere que faltam $daysUntil dias (tempo para agir)
@@ -441,7 +441,7 @@ REGRAS:
         };
       }
     } catch (e) {
-      debugPrint('Erro ao gerar análise IA: $e');
+      debugPrint('Error ao gerar análise IA: $e');
     }
 
     return {
@@ -473,8 +473,8 @@ REGRAS:
     if (alerts.any((a) => a.type == WeatherAlertType.heavyRain)) {
       suggestions.add(
         EventSuggestion(
-          title: 'Prepare-se para Chuva',
-          description: 'Leve guarda-chuva e considere local coberto',
+          title: 'Prepare-se para Rain',
+          description: 'Leve guarda-rain e considere local coberto',
           type: SuggestionType.prepare,
           priority: SuggestionPriority.medium,
           icon: '☔',
