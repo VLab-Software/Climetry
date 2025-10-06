@@ -380,7 +380,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    'Aceito os termos de uso e política de privacidade',
+                    'I accept the terms of use and privacy policy',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 14,

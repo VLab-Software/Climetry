@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Adicione ewinds na aba Ewinds',
+                        'Add ewinds in the Ewinds tab',
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],

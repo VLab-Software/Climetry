@@ -175,7 +175,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         children: [
           _buildTextField(
             controller: _titleController,
-            label: 'Nome da Activity',
+            label: 'Event Name',
             hint: 'Churrasco com Amigos',
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -196,7 +196,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           _buildTextField(
             controller: _descriptionController,
             label: 'Description (Opcional)',
-            hint: 'Adicione mais detalhes...',
+            hint: 'Add more details...',
             maxLines: 3,
           ),
         ],
@@ -249,7 +249,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           ),
           const SizedBox(height: 8),
           Text(
-            'Selecione as condições climáticas que você deseja monitorar',
+            'Select the weather conditions you want to monitor',
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -282,7 +282,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
+          color: isDark ? const Color(0xFF374151) : Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -411,7 +411,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: isDark ? Colors.white.withOpacity(0.3) : Colors.grey[500],
+              color: isDark ? Colors.white.withOpacity(0.5) : Colors.grey[500],
               fontSize: 15,
             ),
             prefixIcon: prefixIcon != null
@@ -422,7 +422,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
+            fillColor: isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -462,7 +462,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
+              color: isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _selectedParticipants.isNotEmpty
@@ -525,7 +525,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                     '${participant.name} ${participant.role == EventRole.admin ? "👑" : participant.role == EventRole.moderator ? "🎖️" : ""}',
                     style: const TextStyle(fontSize: 12),
                   ),
-                  backgroundColor: const Color(0xFF2A3A4D),
+                  backgroundColor: const Color(0xFF374151),
                   labelStyle: const TextStyle(color: Colors.white),
                   deleteIcon: const Icon(Icons.close, size: 16, color: Colors.white60),
                   onDeleted: () {
@@ -556,7 +556,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         const SizedBox(height: 8),
         LocationAutocompleteField(
           controller: _locationController,
-          hintText: 'Digite o city name...',
+          hintText: 'Enter city name...',
           prefixIcon: Icons.search,
           suffixIcon: IconButton(
             icon: const Icon(Icons.map, color: Color(0xFF4A9EFF)),
@@ -582,11 +582,11 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                   ],
                 ),
                 duration: const Duration(seconds: 2),
-                backgroundColor: const Color(0xFF2A3A4D),
+                backgroundColor: const Color(0xFF374151),
               ),
             );
           },
-          backgroundColor: const Color(0xFF2A3A4D),
+          backgroundColor: const Color(0xFF374151),
           textColor: Colors.white,
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -654,14 +654,14 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
+            color: isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButton<ActivityType>(
             value: _selectedType,
             isExpanded: true,
             underline: const SizedBox.shrink(),
-            dropdownColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
+            dropdownColor: isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6),
             style: TextStyle(
               color: isDark ? Colors.white : Colors.white,
               fontSize: 16,
@@ -704,7 +704,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF2A3A4D),
+          color: const Color(0xFF374151),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -837,7 +837,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A3A4D) : Colors.white,
+            color: isDark ? const Color(0xFF374151) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[300]!,
@@ -907,7 +907,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                 controller: _tagsController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Digite uma tag e pressione Enter',
+                  hintText: 'Enter a tag and press Enter',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
