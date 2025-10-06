@@ -189,8 +189,8 @@ class EventParticipant {
 
 enum EventRole {
   owner, // Criador do ewind
-  admin, // Pode editar e convidar
-  moderator, // Pode convidar mas não editar
+  admin, // Can edit and invite
+  moderator, // Can invite but not edit
   participant, // Apenas participa
 }
 
@@ -230,7 +230,7 @@ extension ParticipantStatusExtension on ParticipantStatus {
       case ParticipantStatus.rejected:
         return 'Recusou';
       case ParticipantStatus.maybe:
-        return 'Talvez';
+        return 'Maybe';
     }
   }
 

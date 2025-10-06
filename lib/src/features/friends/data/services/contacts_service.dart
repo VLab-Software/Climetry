@@ -8,7 +8,7 @@ class ContactInfo {
   final String? phoneNumber;
   final String? email;
   final bool isRegistered; // Se já está registrado no app
-  final String? userId; // ID do usuário se já estiver registrado
+  final String? userId; // User ID if already registered
 
   const ContactInfo({
     required this.id,
@@ -116,8 +116,8 @@ class ContactsService {
 
       final message = Uri.encodeComponent(
         'Olá! Sou $inviterName e estou usando o Climetry, um app incrível para '
-        'planejar ewinds com previsões climáticas detalhadas! 🌤️\n\n'
-        'Baixe agora e vamos organizar ewinds juntos:\n'
+        'planning events with previsões climáticas detalhadas! 🌤️\n\n'
+        'Download now and let's organize events together:\n'
         'https://climetry.app/download',
       );
 
@@ -170,11 +170,11 @@ class ContactsService {
         'Sou $inviterName e gostaria de te convidar para usar o Climetry comigo! '
         'É um aplicativo incrível para planejar ewinds levando em conta as condições climáticas.\n\n'
         'Com o Climetry você pode:\n'
-        '• Ver previsões detalhadas para seus ewinds\n'
+        '• Ver previsões detalhadas for your events\n'
         '• Receber alertas sobre mudanças no clima\n'
         '• Organizar ewinds com amigos\n'
         '• Tomar melhores decisões baseadas no clima\n\n'
-        'Baixe agora: https://climetry.app/download\n\n'
+        'Download now: https://climetry.app/download\n\n'
         'Nos vemos lá! 🌤️',
       );
 

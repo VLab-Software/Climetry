@@ -210,7 +210,7 @@ class EventWeatherPredictionService {
         activity: activity,
         weather: null,
         risk: EventWeatherRisk.unknown,
-        riskDescription: 'Não foi possível obter previsão do tempo',
+        riskDescription: 'Could not get weather forecast',
         alerts: [],
         suggestions: [],
         analyzedAt: DateTime.now(),
@@ -393,7 +393,7 @@ Você é um assistente especializado em análise climática para ewinds.
 - Condição: ${weather.mainCondition}
 
 **ALERTAS DETECTADOS:**
-${alerts.isEmpty ? 'Nenhum alerta' : alerts.map((a) => '- ${a.type.label}: ${a.value?.round() ?? 0} ${a.unit ?? ''}').join('\n')}
+${alerts.isEmpty ? 'No alerts' : alerts.map((a) => '- ${a.type.label}: ${a.value?.round() ?? 0} ${a.unit ?? ''}').join('\n')}
 
 **NÍVEL DE RISCO:** ${risk.name}
 

@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen>
           .timeout(
             const Duration(seconds: 5), // Reduzido para 5s
             onTimeout: () {
-              debugPrint('⚠️ Timeout ao carregar ewinds (5s)');
+              debugPrint('⚠️ Timeout loading ewinds (5s)');
               return [];
             },
           );
@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 24),
                       Text(
-                        'Nenhum ewind próximo',
+                        'No upcoming events',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Início',
+                      'Home',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -384,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             children: [
               Text(
-                'Seus Ewinds',
+                'Your Events',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ordenar ewinds',
+                    'Sort events',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -490,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _buildFilterOption(
                     icon: Icons.access_time,
                     title: 'Proximidade de tempo',
-                    subtitle: 'Ewinds mais próximos primeiro',
+                    subtitle: 'Events closest first',
                     value: 'time',
                     isDark: isDark,
                   ),

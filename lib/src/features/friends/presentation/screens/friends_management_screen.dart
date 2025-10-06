@@ -69,14 +69,14 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
         title: Text(
-          'Adicionar Amigo',
+          'Add Friend',
           style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Digite o email do seu amigo:',
+              'Enter your friend's email:',
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -150,7 +150,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Você cannot adicionar a si mesmo!'),
+                content: Text('You cannot add yourself!'),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -213,7 +213,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
             currentUserDate.data()?['displayName'] ??
             currentUserDate.data()?['name'] ??
             currentUser?.email?.split('@')[0] ??
-            'Usuário';
+            'User';
         
         print('  ✅ Nome selecionado: $fromUserName');
         
@@ -306,7 +306,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error ao atualizar nome: $e'),
+              content: Text('Error updating name: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -321,11 +321,11 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1F2937),
         title: const Text(
-          'Remover Amigo',
+          'Remove Friend',
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          'Deseja realmente remover ${friend.name} da sua lista de amigos?',
+          'Do you really want to remove ${friend.name} from your friends list?',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -336,7 +336,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Remover'),
+            child: const Text('Remove'),
           ),
         ],
       ),
@@ -359,7 +359,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error ao remover amigo: $e'),
+              content: Text('Error removing friend: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -379,13 +379,13 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
         elevation: 0,
-        title: const Text('Meus Amigos'),
+        title: const Text('My Friends'),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add),
             onPressed: _showAddFriendDialog,
-            tooltip: 'Adicionar amigo por email',
+            tooltip: 'Add friend by email',
           ),
         ],
       ),
@@ -445,7 +445,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           Icon(Icons.people_outline, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 24),
           Text(
-            'Nenhum amigo ainda',
+            'No friends yet',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -454,7 +454,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Use o botão + acima para adicionar amigos pelo email',
+            'Use the + button above to add friends by email',
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -469,7 +469,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
     if (filtered.isEmpty) {
       return Center(
         child: Text(
-          'Nenhum amigo encontrado com "$_searchQuery"',
+          'No friends found with "$_searchQuery"',
           style: TextStyle(color: Colors.grey[600]),
         ),
       );
@@ -582,7 +582,7 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
                 children: [
                   Icon(Icons.delete, size: 20, color: Colors.red),
                   SizedBox(width: 12),
-                  Text('Remover', style: TextStyle(color: Colors.red)),
+                  Text('Remove', style: TextStyle(color: Colors.red)),
                 ],
               ),
             ),

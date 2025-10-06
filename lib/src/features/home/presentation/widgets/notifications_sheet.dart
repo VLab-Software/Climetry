@@ -132,7 +132,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
                 Icon(Icons.notifications_off, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'Nenhuma notificação',
+                  'No notifications',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -177,7 +177,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
                 Icon(Icons.person_off, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'Nenhuma solicitação pendente',
+                  'No pending requests',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -356,7 +356,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
                       if (currentUser != null) {
                         await _notificationService.notifyFriendRequestAccepted(
                           toUserId: request.fromUserId,
-                          friendName: currentUser.displayName ?? 'Usuário',
+                          friendName: currentUser.displayName ?? 'User',
                         );
                       }
 
@@ -413,7 +413,7 @@ class _NotificationsSheetState extends State<NotificationsSheet>
     final difference = now.difference(date);
 
     if (difference.inMinutes < 1) {
-      return 'Agora mesmo';
+      return 'Just now';
     } else if (difference.inHours < 1) {
       return '${difference.inMinutes}m atrás';
     } else if (difference.inDays < 1) {

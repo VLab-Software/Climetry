@@ -93,7 +93,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 _buildCleanTabItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'Início',
+                  label: 'Home',
                   index: 0,
                   isDark: isDark,
                 ),

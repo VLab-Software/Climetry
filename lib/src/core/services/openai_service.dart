@@ -501,7 +501,7 @@ Responda APENAS with JSON válido neste formato:
         );
       }
     } catch (e) {
-      return '⚠️ **Temporary Error**\n\nCould not connect to AI analysis service.\n\nVerifique sua conexão with a internet e tente novamente.';
+      return '⚠️ **Temporary Error**\n\nCould not connect to AI analysis service.\n\nCheck your internet connection and try again.';
     }
   }
 }

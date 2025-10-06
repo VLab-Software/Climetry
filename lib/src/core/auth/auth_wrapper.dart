@@ -37,7 +37,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         debugPrint('📱 AuthWrapper build - State: $connectionState, User: ${user?.email ?? "null"}');
         
         if (user != null) {
-          debugPrint('✅ Usuário detectado, loading MainScaffold');
+          debugPrint('✅ User detected, loading MainScaffold');
           return const MainScaffold(key: ValueKey('main'));
         }
         
@@ -118,7 +118,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         final currentUser = snapshot.data;
         if (currentUser != null) {
-          debugPrint('✅ Usuário detectado: ${currentUser.email}');
+          debugPrint('✅ User detected: ${currentUser.email}');
           return const MainScaffold(key: ValueKey('main'));
         }
 

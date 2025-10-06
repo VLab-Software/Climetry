@@ -128,7 +128,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         ),
         content: Text(
-          'Deseja realmente excluir "${activity.title}"?',
+          'Do you really want to delete "${activity.title}"?',
           style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
         ),
         actions: [
@@ -464,8 +464,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   String _getFilterLabel() {
-    final time = _selectedFilter == 'all' ? 'Todos' : (_selectedFilter == 'upcoming' ? 'Próximos' : 'Passados');
-    final recurrence = _recurrenceFilter == 'all' ? 'Todos' : (_recurrenceFilter == 'single' ? 'Únicos' : 'Recorrentes');
+    final time = _selectedFilter == 'all' ? 'All' : (_selectedFilter == 'upcoming' ? 'Upcoming' : 'Past');
+    final recurrence = _recurrenceFilter == 'all' ? 'All' : (_recurrenceFilter == 'single' ? 'Single' : 'Recurring');
     return '$time • $recurrence';
   }
 
@@ -497,7 +497,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ordenar ewinds',
+                    'Sort events',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -507,7 +507,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   SizedBox(height: 20),
                   
                   Text(
-                    'Ordenar por',
+                    'Sort by',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -519,7 +519,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.access_time,
                     title: 'Proximidade de tempo',
-                    subtitle: 'Ewinds mais próximos primeiro',
+                    subtitle: 'Events closest first',
                     value: 'time',
                     filterType: 'sort',
                     isDark: isDark,
@@ -528,7 +528,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   _buildFilterOption(
                     icon: Icons.location_on,
                     title: 'Proximidade de distância',
-                    subtitle: 'Ewinds mais próximos de você',
+                    subtitle: 'Events closest to you',
                     value: 'distance',
                     filterType: 'sort',
                     isDark: isDark,
@@ -559,7 +559,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   
                   _buildFilterOption(
                     icon: Icons.all_inclusive,
-                    title: 'Todos',
+                    title: 'All',
                     subtitle: 'Únicos e recorrentes',
                     value: 'all',
                     filterType: 'recurrence',
@@ -659,11 +659,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
         children: [
           Row(
             children: [
-              _buildFilterChip('Todos', 'all', isDark),
+              _buildFilterChip('All', 'all', isDark),
               SizedBox(width: 8),
-              _buildFilterChip('Próximos', 'upcoming', isDark),
+              _buildFilterChip('Upcoming', 'upcoming', isDark),
               SizedBox(width: 8),
-              _buildFilterChip('Passados', 'past', isDark),
+              _buildFilterChip('Past', 'past', isDark),
             ],
           ),
         ],
@@ -1107,7 +1107,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             
             _buildActionButton(
               icon: Icons.calendar_today,
-              label: 'Adicionar ao Calendário',
+              label: 'Add to Calendar',
               color: const Color(0xFF3B82F6),
               isDark: isDark,
               onTap: () async {
@@ -1119,7 +1119,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                       content: Text(
                         success
                             ? '✅ Ewind adicionado ao calendário!'
-                            : '❌ Error ao adicionar ao calendário',
+                            : '❌ Error adding to calendar',
                       ),
                       backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
                     ),
@@ -1223,7 +1223,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
             SizedBox(height: 24),
             Text(
-              'Nenhum ewind',
+              'No events',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -1233,10 +1233,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             SizedBox(height: 8),
             Text(
               _selectedFilter == 'all'
-                  ? 'Adicione seu primeiro ewind'
+                  ? 'Add your first event'
                   : _selectedFilter == 'past'
-                  ? 'Nenhum ewind passado ainda'
-                  : 'Nenhum ewind nesta categoria',
+                  ? 'No events passado ainda'
+                  : 'No events nesta categoria',
               style: TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),

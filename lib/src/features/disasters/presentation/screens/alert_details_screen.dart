@@ -52,7 +52,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
       });
     } catch (e) {
       setState(() {
-        _aiInsights = 'Não foi possível gerar insights da IA no momento.';
+        _aiInsights = 'Could not generate AI insights at the moment.';
         _loadingInsights = false;
       });
     }
@@ -260,7 +260,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
             const SizedBox(height: 24),
 
             const Text(
-              'Evolução nos Próximos Dias',
+              'Evolution in the Next Days',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -456,7 +456,7 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
                       ),
                     )
                   : Text(
-                      _aiInsights ?? 'Insights não disponíveis',
+                      _aiInsights ?? 'Insights not available',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

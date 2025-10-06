@@ -51,7 +51,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${participant.name} agora é ${newRole.label}',
+              '${participant.name} is now ${newRole.label}',
             ),
             backgroundColor: Colors.green,
           ),
@@ -63,7 +63,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error ao atualizar permissão: $e'),
+            content: Text('Error updating permission: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -104,7 +104,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Nenhum participante',
+                        'No participants',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],
@@ -142,7 +142,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Defina quem pode editar e gerenciar este ewind',
+                              'Define who can edit and manage this event',
                               style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black87,
                                 fontSize: 14,
@@ -249,7 +249,7 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                   participant,
                   EventRole.admin,
                   'Administrador',
-                  'Pode editar e convidar',
+                  'Can edit and invite',
                   Icons.admin_panel_settings,
                 ),
                 _buildRoleButton(

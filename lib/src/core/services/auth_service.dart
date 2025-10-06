@@ -64,7 +64,7 @@ class AuthService {
       await _auth.currentUser?.updateDisplayName(displayName);
       await _auth.currentUser?.reload();
     } catch (e) {
-      throw AuthException('Error ao atualizar nome: $e');
+      throw AuthException('Error updating name: $e');
     }
   }
 
@@ -141,7 +141,7 @@ class AuthService {
         message = 'User not found.';
         break;
       case 'wrong-password':
-        message = 'Senha incorreta.';
+        message = 'Password incorreta.';
         break;
       case 'invalid-credential':
         message = 'Credenciais inválidas.';
@@ -154,7 +154,7 @@ class AuthService {
             'Esta operação requer autenticação recente. Faça login novamente.';
         break;
       case 'network-request-failed':
-        message = 'Error de conexão. Verifique sua internet.';
+        message = 'Connection error. Check your internet.';
         break;
       default:
         message = 'Error de autenticação: ${e.message ?? e.code}';

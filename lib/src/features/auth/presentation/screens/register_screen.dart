@@ -65,20 +65,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         },
       );
 
-      debugPrint('✅ Usuário criado no Auth: ${userCredential.user?.uid}');
+      debugPrint('✅ User created in Auth: ${userCredential.user?.uid}');
 
       if (userCredential.user != null) {
         try {
-          debugPrint('📝 Criando perfil no Firestore...');
+          debugPrint('📝 Creating profile in Firestore...');
           await _userDateService.createUserProfile(userCredential.user!).timeout(
             const Duration(seconds: 10),
             onTimeout: () {
-              debugPrint('⏱️ Timeout ao criar perfil - continuando mesmo assim');
+              debugPrint('⏱️ Timeout creating profile - continuing anyway');
             },
           );
           debugPrint('✅ Profile criado com success');
         } catch (e) {
-          debugPrint('⚠️ Error ao criar perfil (não crítico): $e');
+          debugPrint('⚠️ Error creating profile (non-critical): $e');
         }
       }
 
@@ -95,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
       
-      debugPrint('🎉 Registro completo! Usuário: ${userCredential.user?.email}');
+      debugPrint('🎉 Registration complete! Usuário: ${userCredential.user?.email}');
       
       await Future.delayed(const Duration(milliseconds: 500));
       
@@ -241,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         SizedBox(height: isLarge ? 16 : 12),
         Text(
-          'Crie sua conta e comece a\nplanejar ewinds com\ninteligência climática',
+          'Create your account and start\nplanning events with\nweather intelligence',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
@@ -288,7 +288,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               icon: Icons.person_outline,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Digite seu nome';
+                  return 'Enter your name';
                 }
                 if (value.length < 3) {
                   return 'Nome deve ter no mínimo 3 caracteres';
@@ -301,12 +301,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _buildTextField(
               controller: _emailController,
               label: 'Email',
-              hint: 'seu@email.com',
+              hint: 'your@email.com',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Digite seu email';
+                  return 'Enter your email';
                 }
                 if (!value.contains('@')) {
                   return 'Email inválido';
@@ -318,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             _buildTextField(
               controller: _passwordController,
-              label: 'Senha',
+              label: 'Password',
               hint: '••••••••',
               icon: Icons.lock_outline,
               obscureText: _obscurePassword,
@@ -331,10 +331,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Digite sua senha';
+                  return 'Enter your password';
                 }
                 if (value.length < 6) {
-                  return 'Senha deve ter no mínimo 6 caracteres';
+                  return 'Password deve ter no mínimo 6 caracteres';
                 }
                 return null;
               },
@@ -343,7 +343,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             _buildTextField(
               controller: _confirmPasswordController,
-              label: 'Confirm senha',
+              label: 'Confirm Password',
               hint: '••••••••',
               icon: Icons.lock_outline,
               obscureText: _obscureConfirmPassword,
@@ -356,10 +356,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Confirme sua senha';
+                  return 'Confirm your password';
                 }
                 if (value != _passwordController.text) {
-                  return 'As senhas não coincidem';
+                  return 'Passwords do not match';
                 }
                 return null;
               },

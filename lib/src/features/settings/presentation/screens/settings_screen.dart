@@ -49,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           final prefs = await _userDateService.getPreferences().timeout(
             const Duration(seconds: 2),
             onTimeout: () {
-              debugPrint('⏱️ Timeout ao carregar preferências - usando padrão');
+              debugPrint('⏱️ Timeout loading preferências - using default');
               return {
                 'temperatureUnit': 'celsius',
                 'windUnit': 'kmh',
@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           _windUnit = prefs['windUnit'] ?? 'kmh';
           _precipitationUnit = prefs['precipitationUnit'] ?? 'mm';
         } catch (e) {
-          debugPrint('⚠️ Error loading preferências: $e - usando padrão');
+          debugPrint('⚠️ Error loading preferências: $e - using default');
           _temperatureUnit = 'celsius';
           _windUnit = 'kmh';
           _precipitationUnit = 'mm';
@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Logout da Conta', style: TextStyle(color: Colors.white)),
         content: Text(
-          'Deseja realmente sair?',
+          'Do you really want to log out?',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -185,7 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           ],
         ),
         content: Text(
-          'Esta ação é PERMANENTE!\n\nTodos os seus dados serão excluídos e cannotrão ser recuperados.',
+          'This action is PERMANENT!\n\nAll your data will be deleted and will not be recovered.',
           style: TextStyle(color: Colors.white70, height: 1.5),
         ),
         actions: [
@@ -352,7 +352,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _currentUser?.displayName ?? 'Usuário',
+                  _currentUser?.displayName ?? 'User',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -500,7 +500,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           isDark,
           icon: Icons.group,
           title: 'Gerenciar Amigos',
-          subtitle: 'Ver, adicionar e remover amigos',
+          subtitle: 'View, add and remove friends',
           trailing: const Icon(
             Icons.arrow_forward_ios,
             size: 16,
@@ -537,7 +537,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           isDark,
           icon: Icons.delete_forever,
           title: 'Delete Conta',
-          subtitle: 'Remover permanentemente',
+          subtitle: 'Remove permanently',
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
           onTap: _deleteAccount,
           textColor: Colors.red,

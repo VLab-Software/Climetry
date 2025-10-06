@@ -746,7 +746,7 @@ class _DisastersScreenState extends State<DisastersScreen>
           ),
           SizedBox(height: 24),
           Text(
-            'Nenhum alerta ativo',
+            'No active alerts',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

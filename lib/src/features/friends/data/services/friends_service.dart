@@ -51,7 +51,7 @@ class FriendsService {
           .doc(friendId)
           .delete();
     } catch (e) {
-      throw Exception('Error ao remover amigo: $e');
+      throw Exception('Error removing friend: $e');
     }
   }
 
@@ -66,7 +66,7 @@ class FriendsService {
           .doc(friendId)
           .update({'name': newName});
     } catch (e) {
-      throw Exception('Error ao atualizar nome: $e');
+      throw Exception('Error updating name: $e');
     }
   }
 
@@ -82,7 +82,7 @@ class FriendsService {
       final request = FriendRequest(
         id: '',
         fromUserId: _userId!,
-        fromUserName: currentUser.displayName ?? 'Usuário',
+        fromUserName: currentUser.displayName ?? 'User',
         fromUserPhotoUrl: currentUser.photoURL,
         toUserId: toUserId,
         createdAt: DateTime.now(),
@@ -135,7 +135,7 @@ class FriendsService {
           .collection('friends')
           .doc(_userId)
           .set({
-            'name': currentUser.displayName ?? 'Usuário',
+            'name': currentUser.displayName ?? 'User',
             'photoUrl': currentUser.photoURL,
             'addedAt': FieldValue.serverTimestamp(),
             'isFromContacts': false,

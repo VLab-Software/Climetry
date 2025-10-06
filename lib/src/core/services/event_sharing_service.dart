@@ -26,7 +26,7 @@ class EventSharingService {
 
       return await Add2Calendar.addEvent2Cal(event);
     } catch (e) {
-      print('Error ao adicionar ao calendário: $e');
+      print('Error adding to calendar: $e');
       return false;
     }
   }
@@ -83,7 +83,7 @@ class EventSharingService {
 
   String _buildWhatsAppMessage(Activity activity, String inviteLink) {
     final dateFormat = DateFormat('dd/MM/yyyy');
-    final timeFormat = activity.startTime ?? 'Horário não definido';
+    final timeFormat = activity.startTime ?? 'Time not set';
 
     return '''
 🎉 *Você foi convidado para um ewind!*
@@ -92,13 +92,13 @@ class EventSharingService {
 📍 ${activity.location}
 🕐 ${dateFormat.format(activity.date)} às $timeFormat
 
-${activity.description != null ? '📝 ${activity.description}\n\n' : ''}🔗 *Aceite o convite aqui:*
+${activity.description != null ? '📝 ${activity.description}\n\n' : ''}🔗 *Accept the invitation here:*
 $inviteLink
 
 ${_getWeatherAlertEmoji(activity)} Monitoramento climático ativo!
 
 ---
-_Não tem conta? Clique no link para criar gratuitamente e participar!_
+_Don't have an account? Click the link to create one for free and join!_
 ''';
   }
 
@@ -113,7 +113,7 @@ _Não tem conta? Clique no link para criar gratuitamente e participar!_
 
 ${activity.description != null ? 'Description: ${activity.description}\n\n' : ''}Aceite o convite: $inviteLink
 
-Não tem conta? Cadastre-se gratuitamente no Climetry!
+Don't have an account? Sign up for free on Climetry!
 ''';
   }
 
@@ -127,7 +127,7 @@ Não tem conta? Cadastre-se gratuitamente no Climetry!
     if (await canLaunchUrl(whatsappUrl)) {
       await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
     } else {
-      throw Exception('WhatsApp não está instalado');
+      throw Exception('WhatsApp is not installed');
     }
   }
 

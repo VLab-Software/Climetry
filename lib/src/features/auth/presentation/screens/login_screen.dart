@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         SizedBox(height: isLarge ? 16 : 12),
         Text(
-          'Análise climática inteligente\npara seus ewinds',
+          'Intelligent weather analysis\nfor your events',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white60,
@@ -212,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Acesse sua conta para continuar',
+              'Access your account to continue',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white60,
@@ -224,12 +224,12 @@ class _LoginScreenState extends State<LoginScreen> {
             _buildTextField(
               controller: _emailController,
               label: 'Email',
-              hint: 'seu@email.com',
+              hint: 'your@email.com',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Digite seu email';
+                  return 'Enter your email';
                 }
                 if (!value.contains('@')) {
                   return 'Email inválido';
@@ -241,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             _buildTextField(
               controller: _passwordController,
-              label: 'Senha',
+              label: 'Password',
               hint: '••••••••',
               icon: Icons.lock_outline,
               obscureText: _obscurePassword,
@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Digite sua senha';
+                  return 'Enter your password';
                 }
                 return null;
               },

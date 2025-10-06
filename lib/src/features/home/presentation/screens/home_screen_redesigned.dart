@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 24),
                       Text(
-                        'Nenhum ewind próximo',
+                        'No upcoming events',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

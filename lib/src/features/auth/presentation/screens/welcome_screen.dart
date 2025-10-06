@@ -46,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               Text(
-                'Previsão do tempo inteligente\npara suas activitys',
+                'Intelligent weather forecast\nfor your activities',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,

@@ -119,7 +119,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ),
                 child: const Icon(Icons.calendar_today, color: Color(0xFF3B82F6)),
               ),
-              title: const Text('Adicionar ao Calendário'),
+              title: const Text('Add to Calendar'),
               subtitle: const Text('Google Calendar ou Apple Calendar'),
               onTap: () async {
                 Navigator.pop(context);
@@ -130,7 +130,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       content: Text(
                         success
                             ? '✅ Ewind adicionado ao calendário!'
-                            : '❌ Error ao adicionar ao calendário',
+                            : '❌ Error adding to calendar',
                       ),
                       backgroundColor: success ? const Color(0xFF10B981) : Colors.red,
                     ),
@@ -205,7 +205,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Logout do Ewind'),
-        content: Text('Tem certeza que deseja sair deste ewind? Você não receberá mais atualizações sobre ele.'),
+        content: Text('Are you sure you want to leave this event? You will no longer receive updates about it.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -304,8 +304,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 SnackBar(
                   content: Text(
                     applyToAll 
-                        ? 'Settings aplicadas para todos os participants'
-                        : 'Suas configurações de alerta foram salvas',
+                        ? 'Settings applied to all participants'
+                        : 'Your alert settings have been saved',
                   ),
                   backgroundColor: Colors.green,
                 ),
@@ -1170,7 +1170,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       case ParticipantStatus.rejected:
         return 'Recusou';
       case ParticipantStatus.maybe:
-        return 'Talvez';
+        return 'Maybe';
     }
   }
 

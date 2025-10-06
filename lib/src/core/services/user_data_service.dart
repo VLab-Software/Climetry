@@ -15,7 +15,7 @@ class UserDateService {
     try {
       await _firestore.collection('users').doc(_userId).set({
         'email': user.email,
-        'displayName': user.displayName ?? 'Usuário',
+        'displayName': user.displayName ?? 'User',
         'photoURL': user.photoURL,
         'createdAt': FieldValue.serverTimestamp(),
         'preferences': {
@@ -28,11 +28,11 @@ class UserDateService {
       }, SetOptions(merge: true)).timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          throw FirestoreException('⏱️ Timeout ao criar perfil');
+          throw FirestoreException('⏱️ Timeout creating profile');
         },
       );
     } catch (e) {
-      throw FirestoreException('Error ao criar perfil: $e');
+      throw FirestoreException('Error creating profile: $e');
     }
   }
 
@@ -43,11 +43,11 @@ class UserDateService {
       await _firestore.collection('users').doc(_userId).update(data).timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          throw FirestoreException('⏱️ Timeout ao atualizar perfil');
+          throw FirestoreException('⏱️ Timeout updating profile');
         },
       );
     } catch (e) {
-      throw FirestoreException('Error ao atualizar perfil: $e');
+      throw FirestoreException('Error updating profile: $e');
     }
   }
 
@@ -58,7 +58,7 @@ class UserDateService {
       final doc = await _firestore.collection('users').doc(_userId).get().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          throw FirestoreException('⏱️ Timeout ao obter perfil');
+          throw FirestoreException('⏱️ Timeout getting profile');
         },
       );
       return doc.data();
@@ -103,14 +103,14 @@ class UserDateService {
       final doc = await _firestore.collection('users').doc(_userId).get().timeout(
         const Duration(seconds: 3),
         onTimeout: () {
-          print('⏱️ Timeout ao obter preferências - usando padrão');
+          print('⏱️ Timeout ao obter preferências - using default');
           return _firestore.collection('_timeout_').doc('_default_').get();
         },
       );
       final data = doc.data();
       return data?['preferences'] ?? _defaultPreferences();
     } catch (e) {
-      print('⚠️ Error obtaining preferências: $e - usando padrão');
+      print('⚠️ Error obtaining preferências: $e - using default');
       return _defaultPreferences();
     }
   }
@@ -197,7 +197,7 @@ class UserDateService {
             'updatedAt': FieldValue.serverTimestamp(),
           });
     } catch (e) {
-      throw FirestoreException('Error ao atualizar activity: $e');
+      throw FirestoreException('Error updating activity: $e');
     }
   }
 
@@ -315,7 +315,7 @@ class UserDateService {
       await _firestore.collection('users').doc(_userId).delete().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          throw FirestoreException('⏱️ Timeout ao deletar perfil');
+          throw FirestoreException('⏱️ Timeout deleting profile');
         },
       );
     } catch (e) {

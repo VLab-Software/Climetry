@@ -170,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite seu nome';
+                      return 'Enter your name';
                     }
                     if (value.length < 3) {
                       return 'Nome muito curto';
@@ -201,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite seu email';
+                      return 'Enter your email';
                     }
                     if (!value.contains('@')) {
                       return 'Email inválido';
@@ -217,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscurePassword,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Senha',
+                    labelText: 'Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(
                       Icons.lock_outline,
@@ -243,10 +243,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite uma senha';
+                      return 'Enter a password';
                     }
                     if (value.length < 6) {
-                      return 'A senha deve ter pelo menos 6 caracteres';
+                      return 'Password must have at least 6 characters';
                     }
                     return null;
                   },
@@ -259,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscureConfirmPassword,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Confirm senha',
+                    labelText: 'Confirm Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(
                       Icons.lock_outline,
@@ -288,10 +288,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Confirme sua senha';
+                      return 'Confirm your password';
                     }
                     if (value != _passwordController.text) {
-                      return 'As senhas não coincidem';
+                      return 'Passwords do not match';
                     }
                     return null;
                   },

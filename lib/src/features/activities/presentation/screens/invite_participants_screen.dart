@@ -144,8 +144,8 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
                         const SizedBox(height: 16),
                         Text(
                           _searchQuery.isEmpty
-                              ? 'Nenhum amigo disponível'
-                              : 'Nenhum amigo encontrado',
+                              ? 'No friends available'
+                              : 'No friends found',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[600],

@@ -98,7 +98,7 @@ class ProfileService {
 
       await user.reload();
     } catch (e) {
-      throw Exception('Error ao atualizar nome: $e');
+      throw Exception('Error updating name: $e');
     }
   }
 

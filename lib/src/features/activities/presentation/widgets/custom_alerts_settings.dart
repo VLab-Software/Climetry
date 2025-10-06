@@ -86,7 +86,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'Configure seus limites de alerta',
+                        'Configure your alert limits',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.white60 : Colors.black54,
@@ -292,7 +292,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Aplicar para Todos',
+                                'Apply to All',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -301,7 +301,7 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                'Como admin, você pode definir essas configurações como padrão para todos os participants',
+                                'As admin, you can set these settings as default for all participants',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: isDark ? Colors.white60 : Colors.black54,

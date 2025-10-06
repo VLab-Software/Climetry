@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite seu email';
+                      return 'Enter your email';
                     }
                     if (!value.contains('@')) {
                       return 'Email inválido';
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Senha',
+                    labelText: 'Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(
                       Icons.lock_outline,
@@ -191,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite sua senha';
+                      return 'Enter your password';
                     }
                     return null;
                   },
@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: TextButton(
                     onPressed: _isLoading ? null : _showForgotPasswordDialog,
                     child: const Text(
-                      'Esqueceu a senha?',
+                      'Forgot password?',
                       style: TextStyle(
                         color: Color(0xFF4A9EFF),
                         fontWeight: FontWeight.w600,
@@ -309,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Não tem uma conta? ',
+                      'Don't have an account? ',
                       style: TextStyle(color: Colors.white.withOpacity(0.7)),
                     ),
                     TextButton(
@@ -349,14 +349,14 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A3A4D),
         title: const Text(
-          'Recuperar Senha',
+          'Recuperar Password',
           style: TextStyle(color: Colors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Digite seu email para receber instruções de recuperação',
+              'Enter your email para receber instruções de recuperação',
               style: TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 16),

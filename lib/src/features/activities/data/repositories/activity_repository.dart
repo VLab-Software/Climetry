@@ -120,7 +120,7 @@ class ActivityRepository {
           .doc(activity.id)
           .update(activityDate);
     } catch (e) {
-      throw Exception('Error ao atualizar activity: $e');
+      throw Exception('Error updating activity: $e');
     }
   }
 
@@ -135,6 +135,6 @@ class ActivityRepository {
   }
 
   Future<void> clear() async {
-    throw UnimplementedError('Use delete() para remover activitys individuais');
+    throw UnimplementedError('Use delete() to remove individual activities');
   }
 }

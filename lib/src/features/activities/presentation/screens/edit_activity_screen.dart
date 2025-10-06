@@ -143,7 +143,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error ao atualizar ewind: $e'),
+              content: Text('Error updating event: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -526,7 +526,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Início',
+                'Home',
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,
@@ -575,7 +575,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Fim (Opcional)',
+                'End (Optional)',
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,

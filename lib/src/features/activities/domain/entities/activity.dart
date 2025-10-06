@@ -86,7 +86,7 @@ enum RecurrenceType {
   String get label {
     switch (this) {
       case RecurrenceType.none:
-        return 'Não se repete';
+        return 'Does not repeat';
       case RecurrenceType.weekly:
         return 'Toda semana';
       case RecurrenceType.monthly:

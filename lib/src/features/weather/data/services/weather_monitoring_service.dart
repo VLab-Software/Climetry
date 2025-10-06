@@ -227,7 +227,7 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
         }
       }
 
-      print('✅ Notifications enviadas para ${participants.length} usuários');
+      print('✅ Notifications sent to ${participants.length} users');
     } catch (e) {
       print('❌ Error ao enviar notificações: $e');
     }

@@ -257,7 +257,7 @@ class NotificationService {
       userId: toUserId,
       type: NotificationType.friendRequestAccepted,
       title: 'Solicitação aceita',
-      message: '$friendName aceitou sua solicitação de amizade',
+      message: '$friendName accepted your friend request',
       data: {'friendName': friendName},
     );
   }

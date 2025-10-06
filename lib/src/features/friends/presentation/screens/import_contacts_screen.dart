@@ -129,7 +129,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error ao adicionar amigos: $e'),
+            content: Text('Error adding friends: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -169,7 +169,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      'Adicionar (${_selectedContacts.length})',
+                      'Add (${_selectedContacts.length})',
                       style: const TextStyle(
                         color: Color(0xFF3B82F6),
                         fontWeight: FontWeight.bold,
@@ -243,8 +243,8 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
           const SizedBox(height: 16),
           Text(
             _searchQuery.isEmpty
-                ? 'Nenhum contato encontrado'
-                : 'Nenhum resultado para "$_searchQuery"',
+                ? 'No contacts found'
+                : 'No results for "$_searchQuery"',
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),

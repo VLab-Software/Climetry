@@ -111,7 +111,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     final hours = difference.inHours % 24;
 
     if (days == 0) {
-      if (hours == 0) return 'Agora';
+      if (hours == 0) return 'Now';
       return 'Em $hours horas';
     } else if (days == 1) {
       return 'Tomorrow';
@@ -788,7 +788,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
 📍 ${widget.activity.location}
 📅 ${DateFormat('d MMM yyyy', 'pt_BR').format(widget.activity.date)}
-⏰ ${widget.activity.startTime ?? 'Horário não definido'}
+⏰ ${widget.activity.startTime ?? 'Time not set'}
 
 ${weather != null ? '🌡️ ${weather.minTemp.toInt()}°F - ${weather.maxTemp.toInt()}°F\n☔ Rain: ${weather.precipitationProbability.toInt()}%' : ''}$alertsText
 

@@ -160,7 +160,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Nenhum amigo encontrado',
+                              'No friends found',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -323,7 +323,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                               friend.id,
                                               EventRole.admin,
                                               '👑 Admin',
-                                              'Pode editar e gerenciar',
+                                              'Can edit and manage',
                                               role == EventRole.admin,
                                               isDark,
                                             ),
@@ -331,7 +331,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                               friend.id,
                                               EventRole.participant,
                                               '👤 Convidado',
-                                              'Apenas visualiza',
+                                              'View only',
                                               role == EventRole.participant,
                                               isDark,
                                             ),
