@@ -1799,8 +1799,8 @@ MIT License - see [LICENSE](LICENSE)
 
 ## 👥 Credits
 
-- **Developer**: Rodrigo Soares
-- **Organization**: VLab Software
+- **Developer**: Rodrigo Soares, Victor Freitas, Amanda Malaman e Camila Malaman
+- **Organization**: VLab Software (BUNDLE ID / APPLE DEVELOPER ACCOUNT AND GOOGLE DEVELOPER AND GITHUB TEAM )
 - **Event**: NASA Space Apps Challenge 2024
 
 ---
