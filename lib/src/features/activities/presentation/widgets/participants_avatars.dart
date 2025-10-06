@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../friends/domain/entities/friend.dart';
 import '../../domain/entities/activity.dart';
 
-/// Widget que exibe avatares dos participantes no estilo Instagram
 class ParticipantsAvatars extends StatelessWidget {
   final Activity activity;
   final int maxAvatars;
@@ -22,12 +21,10 @@ class ParticipantsAvatars extends StatelessWidget {
   Widget build(BuildContext context) {
     final confirmedCount = activity.confirmedParticipantsCount;
 
-    // Não mostrar se não houver participantes confirmados (nem owner)
     if (confirmedCount == 0) {
       return const SizedBox.shrink();
     }
 
-    // Se for apenas 1 pessoa (owner), mostrar de forma simplificada
     if (confirmedCount == 1) {
       return InkWell(
         onTap: onTap,
@@ -57,7 +54,6 @@ class ParticipantsAvatars extends StatelessWidget {
       );
     }
 
-    // Pegar os primeiros participantes confirmados
     final confirmed = activity.participants
         .where((p) => p.status == ParticipantStatus.accepted)
         .take(maxAvatars)
@@ -77,7 +73,6 @@ class ParticipantsAvatars extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Stack de avatares
             if (confirmed.isNotEmpty)
               SizedBox(
                 height: avatarSize,
@@ -95,7 +90,6 @@ class ParticipantsAvatars extends StatelessWidget {
 
             const SizedBox(width: 8),
 
-            // Texto com contagem
             Text(
               '$confirmedCount pessoas',
               style: TextStyle(

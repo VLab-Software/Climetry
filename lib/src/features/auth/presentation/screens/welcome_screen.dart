@@ -17,7 +17,6 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              // Logo/Icon
               Container(
                 width: 120,
                 height: 120,
@@ -34,7 +33,6 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              // App Name
               const Text(
                 'Climetry',
                 style: TextStyle(
@@ -47,7 +45,6 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Subtitle
               Text(
                 'Previsão do tempo inteligente\npara suas atividades',
                 textAlign: TextAlign.center,
@@ -60,7 +57,6 @@ class WelcomeScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // Login Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -91,7 +87,6 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Register Button
               SizedBox(
                 width: double.infinity,
                 height: 56,

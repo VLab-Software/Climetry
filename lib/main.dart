@@ -15,15 +15,12 @@ import 'src/core/services/fcm_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Carregar variáveis de ambiente do .env
   await dotenv.load(fileName: ".env");
   
   debugPrint('✅ Variáveis de ambiente carregadas');
 
-  // Inicializar Firebase
   try {
     if (kIsWeb) {
-      // Configuração Firebase para Web (nasa-climetry)
       await Firebase.initializeApp(
         options: const FirebaseOptions(
           apiKey: "AIzaSyA4GGNIowmIZTF_MHaJPte0-TzSJ_xNmcs",
@@ -36,8 +33,6 @@ void main() async {
         ),
       );
       
-      // ✅ FIRESTORE: Cache em memória apenas (não persistente em disco)
-      // Isso evita travamentos mas mantém performance razoável
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: false, // Sem disco
         cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache em memória
@@ -45,30 +40,24 @@ void main() async {
       
       debugPrint('🔥 Firestore: Cache em memória (não persistente)');
     } else {
-      // Para Android e iOS, usa os arquivos de configuração nativos
       await Firebase.initializeApp();
     }
     
     debugPrint('✅ Firebase inicializado com sucesso');
     
-    // Inicializar FCM (Notificações Push) - apenas para mobile
     if (!kIsWeb) {
       final fcmService = FCMService();
       await fcmService.initialize();
     }
   } catch (e) {
-    // Se Firebase não estiver configurado, continuar sem ele
     debugPrint('⚠️ Firebase não configurado: $e');
   }
 
-  // Inicializar formatação de datas em português
   await initializeDateFormatting('pt_BR', null);
 
   runApp(
     MultiProvider(
       providers: [
-        // ThemeProvider mantido apenas para compatibilidade
-        // mas não é mais usado - tema fixo light
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => EventRefreshNotifier()),
       ],
@@ -82,7 +71,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TEMA FIXO LIGHT - SEM CONSUMER, SEM CARREGAMENTO
     return MaterialApp(
       title: 'Climetry',
       debugShowCheckedModeBanner: false,

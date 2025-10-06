@@ -40,7 +40,6 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    // Garantir que o widget está completamente inicializado
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -60,7 +59,6 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Mostrar splash enquanto inicializa
     if (!_isInitialized) {
       return const Scaffold(
         backgroundColor: Color(0xFF1E2A3A),
@@ -74,7 +72,6 @@ class _MainScaffoldState extends State<MainScaffold> {
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
-      // Bottom Navigation Bar estática, clean e moderna
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: isDark ? Color(0xFF1F2937) : Colors.white,

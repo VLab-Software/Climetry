@@ -53,7 +53,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       debugPrint('🔐 Iniciando registro...');
       
-      // TIMEOUT DE 15s PARA REGISTRO COMPLETO
       final userCredential = await _authService.registerWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
@@ -68,7 +67,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       debugPrint('✅ Usuário criado no Auth: ${userCredential.user?.uid}');
 
-      // CRIAR PERFIL NO FIRESTORE (COM TIMEOUT)
       if (userCredential.user != null) {
         try {
           debugPrint('📝 Criando perfil no Firestore...');
@@ -76,22 +74,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const Duration(seconds: 10),
             onTimeout: () {
               debugPrint('⏱️ Timeout ao criar perfil - continuando mesmo assim');
-              // NÃO LANÇA ERRO - usuário já foi criado no Auth
             },
           );
           debugPrint('✅ Perfil criado com sucesso');
         } catch (e) {
-          // SE FALHAR NO PERFIL, NÃO IMPORTA - usuário já foi criado
           debugPrint('⚠️ Erro ao criar perfil (não crítico): $e');
         }
       }
 
       if (!mounted) return;
       
-      // SUCESSO - remover loading
       setState(() => _isLoading = false);
       
-      // Mostrar sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('✅ Conta criada com sucesso!'),
@@ -103,13 +97,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
       debugPrint('🎉 Registro completo! Usuário: ${userCredential.user?.email}');
       
-      // ✅ NAVEGAÇÃO EXPLÍCITA: Aguardar 1s e navegar para home
-      // O AuthWrapper deveria detectar automaticamente, mas garantimos navegação
       await Future.delayed(const Duration(milliseconds: 500));
       
       if (!mounted) return;
       
-      // Forçar navegação para AuthWrapper que detectará o usuário logado
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AuthWrapper()),
         (route) => false,
@@ -290,7 +281,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 40),
 
-            // Campo Nome
             _buildTextField(
               controller: _nameController,
               label: 'Nome completo',
@@ -308,7 +298,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo Email
             _buildTextField(
               controller: _emailController,
               label: 'Email',
@@ -327,7 +316,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo Senha
             _buildTextField(
               controller: _passwordController,
               label: 'Senha',
@@ -353,7 +341,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo Confirmar Senha
             _buildTextField(
               controller: _confirmPasswordController,
               label: 'Confirmar senha',
@@ -379,7 +366,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Checkbox Termos
             Row(
               children: [
                 Checkbox(
@@ -405,7 +391,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Botão Criar Conta
             SizedBox(
               height: 56,
               child: ElevatedButton(
@@ -438,7 +423,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Link para login
             Center(
               child: TextButton(
                 onPressed: _isLoading ? null : () => Navigator.pop(context),

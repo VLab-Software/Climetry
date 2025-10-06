@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../network/api_client.dart';
 
-/// Modelo para sugestões de localização
 class LocationSuggestion {
   final String displayName;
   final double lat;
@@ -25,7 +24,6 @@ class LocationSuggestion {
   }
 }
 
-/// Serviço de autocomplete de localização usando Nominatim (OpenStreetMap)
 class LocationAutocompleteService {
   final ApiClient _client;
   Timer? _debounceTimer;
@@ -33,8 +31,6 @@ class LocationAutocompleteService {
   LocationAutocompleteService({ApiClient? client})
     : _client = client ?? ApiClient();
 
-  /// Busca sugestões de localização baseado na query
-  /// Retorna até 10 resultados
   Future<List<LocationSuggestion>> searchLocations(String query) async {
     if (query.trim().length < 3) {
       return [];
@@ -69,7 +65,6 @@ class LocationAutocompleteService {
     }
   }
 
-  /// Busca sugestões com debounce para evitar muitas requisições
   Future<List<LocationSuggestion>> searchWithDebounce(
     String query,
     Duration delay,
@@ -89,7 +84,6 @@ class LocationAutocompleteService {
     return completer.future;
   }
 
-  /// Cancela timers pendentes
   void dispose() {
     _debounceTimer?.cancel();
   }

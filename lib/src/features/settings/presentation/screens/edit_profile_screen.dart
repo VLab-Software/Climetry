@@ -182,7 +182,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Foto de perfil
                   Center(
                     child: Stack(
                       children: [
@@ -242,7 +241,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Campo de nome
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1F2937) : Colors.white,
@@ -261,7 +259,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Email (apenas leitura)
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1F2937) : Colors.white,
@@ -299,7 +296,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Botão salvar
                   SizedBox(
                     width: double.infinity,
                     height: 50,

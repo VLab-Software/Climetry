@@ -40,14 +40,12 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     });
 
     try {
-      // Buscar previsão do tempo
       final forecast = await _weatherService.getWeeklyForecast(
         widget.activity.coordinates,
       );
 
       if (!mounted) return;
 
-      // Encontrar previsão para o dia da atividade
       final activityDate = widget.activity.date;
       final activityWeather = forecast.firstWhere(
         (w) => _isSameDay(w.date, activityDate),
@@ -55,10 +53,8 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
             forecast.isNotEmpty ? forecast.first : _createDefaultWeather(),
       );
 
-      // Calcular alertas para toda a previsão
       final allAlerts = _weatherService.calculateWeatherAlerts(forecast);
 
-      // Filtrar alertas para o dia da atividade
       final activityAlerts = allAlerts
           .where((alert) => _isSameDay(alert.date, activityDate))
           .toList();
@@ -172,31 +168,26 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     final weather = _weatherForecast!;
     final recommendations = <String>[];
 
-    // Chuva
     if (weather.precipitationProbability > 70) {
       recommendations.add('☔ Leve guarda-chuva e capa de chuva');
     } else if (weather.precipitationProbability > 30) {
       recommendations.add('🌂 Risco de chuva - leve guarda-chuva');
     }
 
-    // Temperatura
     if (weather.maxTemp > 30) {
       recommendations.add('🌡️ Muito calor - use protetor solar e hidrate-se');
     } else if (weather.maxTemp < 15) {
       recommendations.add('🧥 Frio - leve casaco');
     }
 
-    // UV
     if (weather.uvIndex > 7) {
       recommendations.add('🕶️ UV alto - use protetor e óculos');
     }
 
-    // Vento
     if (weather.windSpeed > 40) {
       recommendations.add('💨 Vento forte - cuidado com objetos soltos');
     }
 
-    // Sem problemas
     if (recommendations.isEmpty) {
       recommendations.add('✅ Clima ideal para o evento!');
     }
@@ -206,7 +197,6 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Verificar se o usuário atual é o dono do evento
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     final isOwner = currentUserId == widget.activity.ownerId;
 
@@ -218,7 +208,6 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
         title: const Text('Detalhes da Atividade'),
         centerTitle: true,
         actions: [
-          // Botão de gerenciar permissões (apenas para o dono)
           if (isOwner && widget.activity.participants.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),

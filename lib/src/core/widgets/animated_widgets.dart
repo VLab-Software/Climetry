@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-/// Card animado com efeito de entrada e glassmorphism
 class AnimatedGlassCard extends StatefulWidget {
   final Widget child;
   final double delay;
@@ -122,7 +121,6 @@ class _AnimatedGlassCardState extends State<AnimatedGlassCard>
   }
 }
 
-/// Card com gradiente animado
 class GradientCard extends StatelessWidget {
   final Widget child;
   final List<Color> colors;
@@ -174,7 +172,6 @@ class GradientCard extends StatelessWidget {
   }
 }
 
-/// Badge com animação de pulse
 class PulseBadge extends StatefulWidget {
   final String text;
   final Color color;
@@ -234,7 +231,6 @@ class _PulseBadgeState extends State<PulseBadge>
   }
 }
 
-/// Botão com efeito shimmer
 class ShimmerButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
@@ -340,7 +336,6 @@ class _ShimmerButtonState extends State<ShimmerButton>
   }
 }
 
-/// Icon animado rotacionando
 class RotatingIcon extends StatefulWidget {
   final IconData icon;
   final Color color;

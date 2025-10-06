@@ -41,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       
-      // ✅ Mostrar sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('✅ Login realizado com sucesso!'),
@@ -51,12 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
       
-      // ✅ NAVEGAÇÃO EXPLÍCITA: Aguardar 500ms e navegar
       await Future.delayed(const Duration(milliseconds: 500));
       
       if (!mounted) return;
       
-      // Forçar navegação para AuthWrapper
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AuthWrapper()),
         (route) => false,
@@ -104,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildResponsiveLayout(bool isDesktop, bool isTablet, bool isWeb) {
     if (isDesktop) {
-      // Layout Desktop (centralizado com max width)
       return Container(
         constraints: const BoxConstraints(maxWidth: 1000),
         child: Row(
@@ -124,7 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else if (isTablet) {
-      // Layout Tablet (centralizado)
       return Container(
         constraints: const BoxConstraints(maxWidth: 450),
         child: Column(
@@ -138,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      // Layout Mobile (centralizado)
       return Container(
         constraints: const BoxConstraints(maxWidth: 400),
         child: Column(
@@ -207,7 +201,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Título do formulário
             Text(
               'Entrar na conta',
               textAlign: TextAlign.center,
@@ -228,7 +221,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 40),
 
-            // Campo Email
             _buildTextField(
               controller: _emailController,
               label: 'Email',
@@ -247,7 +239,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo Senha - SEM validação de tamanho mínimo no login
             _buildTextField(
               controller: _passwordController,
               label: 'Senha',
@@ -265,13 +256,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (value == null || value.isEmpty) {
                   return 'Digite sua senha';
                 }
-                // Removido: validação de tamanho mínimo no login
                 return null;
               },
             ),
             const SizedBox(height: 32),
 
-            // Botão Entrar
             SizedBox(
               height: 56,
               child: ElevatedButton(
@@ -304,7 +293,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Divisor
             Row(
               children: [
                 Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
@@ -320,7 +308,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Botão Criar Conta
             SizedBox(
               height: 56,
               child: OutlinedButton(

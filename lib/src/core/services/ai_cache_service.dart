@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Serviço de cache para insights de IA no Firestore
-/// Evita chamadas desnecessárias à API quando as condições climáticas não mudaram
 class AICacheService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,7 +9,6 @@ class AICacheService {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Gera ID de cache baseado nas condições climáticas
   String _generateCacheId({
     required String eventId,
     required double temperature,
@@ -19,7 +16,6 @@ class AICacheService {
     required double windSpeed,
     required int uvIndex,
   }) {
-    // Arredondar valores para criar chaves mais genéricas
     final tempRounded = (temperature / 5).round() * 5;
     final precipRounded = (precipitation / 10).round() * 10;
     final windRounded = (windSpeed / 10).round() * 10;
@@ -27,7 +23,6 @@ class AICacheService {
     return '${eventId}_${tempRounded}_${precipRounded}_${windRounded}_$uvIndex';
   }
 
-  /// Verifica se existe cache válido para as condições atuais
   Future<String?> getCachedInsight({
     required String eventId,
     required double temperature,
@@ -58,9 +53,7 @@ class AICacheService {
       final data = doc.data()!;
       final timestamp = (data['timestamp'] as Timestamp).toDate();
 
-      // Verificar se o cache ainda é válido
       if (DateTime.now().difference(timestamp) > _cacheDuration) {
-        // Cache expirado, remover
         await doc.reference.delete();
         return null;
       }
@@ -71,7 +64,6 @@ class AICacheService {
     }
   }
 
-  /// Salva insight no cache
   Future<void> cacheInsight({
     required String eventId,
     required double temperature,
@@ -102,11 +94,9 @@ class AICacheService {
         'eventId': eventId,
       });
     } catch (e) {
-      // Falha silenciosa no cache
     }
   }
 
-  /// Limpa todo o cache de insights
   Future<void> clearCache() async {
     try {
       if (_userId == null) return;
@@ -121,11 +111,9 @@ class AICacheService {
         await doc.reference.delete();
       }
     } catch (e) {
-      // Falha silenciosa
     }
   }
 
-  /// Limpa cache de um evento específico
   Future<void> clearEventCache(String eventId) async {
     try {
       if (_userId == null) return;
@@ -141,7 +129,6 @@ class AICacheService {
         await doc.reference.delete();
       }
     } catch (e) {
-      // Falha silenciosa
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/location_autocomplete_service.dart';
 
-/// Widget reutilizável de autocomplete para busca de localização
 class LocationAutocompleteField extends StatefulWidget {
   final TextEditingController controller;
   final String? labelText;

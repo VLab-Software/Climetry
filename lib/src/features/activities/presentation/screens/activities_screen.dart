@@ -63,10 +63,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     final now = DateTime.now();
     List<Activity> filtered = List.from(_allActivities);
 
-    // Filtrar apenas eventos futuros
     filtered = filtered.where((a) => a.date.isAfter(now)).toList();
 
-    // Filtro de busca (nome ou tags)
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((a) {
         final matchesTitle = a.title.toLowerCase().contains(_searchQuery);
@@ -77,7 +75,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       }).toList();
     }
 
-    // Filtro de recorrência
     if (_recurrenceFilter == 'single') {
       filtered = filtered
           .where((a) => a.recurrence == RecurrenceType.none)
@@ -88,21 +85,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           .toList();
     }
 
-    // Aplicar ordenação baseada no filtro selecionado
     switch (_selectedFilter) {
       case 'time':
-        // Ordenar por proximidade de tempo (data mais próxima primeiro)
         filtered.sort((a, b) => a.date.compareTo(b.date));
         break;
       
       case 'distance':
-        // TODO: Ordenar por proximidade geográfica (requer localização do usuário)
-        // Por enquanto, manter ordem por data
         filtered.sort((a, b) => a.date.compareTo(b.date));
         break;
       
       case 'priority':
-        // Ordenar por prioridade (Urgente > Alta > Média > Baixa)
         filtered.sort((a, b) {
           final priorityOrder = {
             ActivityPriority.urgent: 0,
@@ -113,7 +105,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           final priorityCompare = (priorityOrder[a.priority] ?? 999)
               .compareTo(priorityOrder[b.priority] ?? 999);
           
-          // Se mesma prioridade, ordenar por data
           if (priorityCompare == 0) {
             return a.date.compareTo(b.date);
           }
@@ -188,22 +179,17 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       body: StreamBuilder<List<Activity>>(
         stream: _activityRepository.watchAll(),
         builder: (context, snapshot) {
-          // ✅ CORREÇÃO URGENTE: Não chamar setState durante build!
-          // Agendar atualização para APÓS o build
           if (snapshot.hasData) {
             final newActivities = snapshot.data!;
             
-            // Verificar se houve mudança antes de agendar setState
             if (_allActivities.length != newActivities.length ||
                 !_allActivities.every((a) => newActivities.any((n) => n.id == a.id))) {
               
-              // Agendar setState para APÓS o build
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) return;
                 _allActivities = newActivities;
                 _filterActivities();
                 
-                // Analyze future events in background (only if not already analyzing)
                 if (!_isAnalyzing) {
                   final now = DateTime.now();
                   final futureEvents = _allActivities
@@ -222,13 +208,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
           return CustomScrollView(
             slivers: [
-              // Header
               SliverToBoxAdapter(child: _buildHeader(isDark)),
 
-              // Filtros
               SliverToBoxAdapter(child: _buildFilters(isDark)),
 
-              // Loading
               if (isLoading)
                 SliverFillRemaining(
                   child: Center(
@@ -245,10 +228,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     ),
                   ),
                 )
-              // Empty State
               else if (!hasData)
                 SliverFillRemaining(child: _buildEmptyState(isDark))
-              // Lista de eventos
               else
                 SliverPadding(
                   padding: EdgeInsets.all(20),
@@ -324,7 +305,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ],
                 ),
               ),
-              // Botão de adicionar evento (substituindo o FAB)
               Container(
                 decoration: BoxDecoration(
                   color: Color(0xFF3B82F6),
@@ -344,10 +324,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                               ),
                             );
                             if (result != null) {
-                              // Salvar no Firebase usando ActivityRepository
                               await _activityRepository.save(result);
                               
-                              // Enviar notificações para participantes convidados
                               if (result.participants.isNotEmpty) {
                                 final notificationService = EventNotificationService();
                                 await notificationService.notifyEventInvitation(
@@ -356,7 +334,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                 );
                               }
                               
-                              // Mostrar diálogo de compartilhamento
                               if (mounted) {
                                 _showEventCreatedDialog(result);
                               }
@@ -404,7 +381,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ],
           ),
 
-          // Barra de busca
           SizedBox(height: 16),
           TextField(
             onChanged: (value) {
@@ -442,7 +418,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
           ),
 
-          // Botão de filtro
           SizedBox(height: 16),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
@@ -506,7 +481,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
             Container(
               margin: EdgeInsets.only(top: 12, bottom: 16),
               width: 40,
@@ -683,7 +657,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filtro de tempo
           Row(
             children: [
               _buildFilterChip('Todos', 'all', isDark),
@@ -748,7 +721,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     final isPast = activity.date.isBefore(now);
     final daysUntil = activity.date.difference(now).inDays;
     
-    // Determinar role do usuário atual
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     final isOwner = activity.isOwner(currentUserId ?? '');
     final participant = activity.participants
@@ -819,7 +791,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
               children: [
                 Row(
                   children: [
-                    // Ícone
                     Container(
                       width: 56,
                       height: 56,
@@ -838,7 +809,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                       ),
                     ),
                     SizedBox(width: 12),
-                    // Info
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -871,7 +841,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                               ),
                             ],
                           ),
-                          // Badge de Role
                           if (roleLabel != null && roleColor != null) ...[
                             SizedBox(height: 6),
                             Container(
@@ -922,7 +891,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                         ],
                       ),
                     ),
-                    // Status/Ações
                     Column(
                       children: [
                         if (!isPast && analysis != null)
@@ -981,7 +949,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ],
                 ),
 
-                // Alertas
                 if (!isPast &&
                     analysis != null &&
                     analysis.alerts.isNotEmpty) ...[
@@ -1019,7 +986,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ),
                 ],
 
-                // Sugestões da IA
                 if (!isPast &&
                     analysis != null &&
                     analysis.suggestions.isNotEmpty) ...[
@@ -1053,7 +1019,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ),
                 ],
 
-                // Badge de passado
                 if (isPast) ...[
                   SizedBox(height: 12),
                   Container(
@@ -1140,7 +1105,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
             const SizedBox(height: 16),
             
-            // Botão: Adicionar ao Calendário
             _buildActionButton(
               icon: Icons.calendar_today,
               label: 'Adicionar ao Calendário',
@@ -1165,7 +1129,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
             const SizedBox(height: 12),
             
-            // Botão: Compartilhar no WhatsApp
             _buildActionButton(
               icon: Icons.chat_bubble,
               label: 'Compartilhar no WhatsApp',
@@ -1178,7 +1141,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
             ),
             const SizedBox(height: 12),
             
-            // Botão: Compartilhar (genérico)
             _buildActionButton(
               icon: Icons.share,
               label: 'Compartilhar',
@@ -1278,7 +1240,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
               style: TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
-            // Botão só aparece se NÃO for filtro "Passados"
             if (_selectedFilter != 'past') ...[
               SizedBox(height: 24),
               ElevatedButton.icon(
@@ -1290,10 +1251,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     ),
                   );
                   if (result != null) {
-                    // Salvar no Firebase usando ActivityRepository
                     await _activityRepository.save(result);
-                    // StreamBuilder atualiza automaticamente
-                    // Mostrar sucesso com opções de compartilhamento
                     if (mounted) {
                       _showEventCreatedDialog(result);
                     }

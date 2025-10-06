@@ -1,19 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Serviço de autenticação com Firebase
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Stream de estado de autenticação
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Usuário atual
   User? get currentUser => _auth.currentUser;
 
-  // Verificar se está autenticado
   bool get isAuthenticated => _auth.currentUser != null;
 
-  /// Cadastro com email e senha
   Future<UserCredential> registerWithEmailAndPassword({
     required String email,
     required String password,
@@ -25,7 +20,6 @@ class AuthService {
         password: password,
       );
 
-      // Atualizar nome do usuário
       await userCredential.user?.updateDisplayName(displayName);
       await userCredential.user?.reload();
 
@@ -35,7 +29,6 @@ class AuthService {
     }
   }
 
-  /// Login com email e senha
   Future<UserCredential> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -50,7 +43,6 @@ class AuthService {
     }
   }
 
-  /// Logout
   Future<void> signOut() async {
     try {
       await _auth.signOut();
@@ -59,7 +51,6 @@ class AuthService {
     }
   }
 
-  /// Recuperar senha
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -68,7 +59,6 @@ class AuthService {
     }
   }
 
-  /// Atualizar nome do usuário
   Future<void> updateDisplayName(String displayName) async {
     try {
       await _auth.currentUser?.updateDisplayName(displayName);
@@ -78,7 +68,6 @@ class AuthService {
     }
   }
 
-  /// Atualizar email
   Future<void> updateEmail(String newEmail) async {
     try {
       await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail.trim());
@@ -87,7 +76,6 @@ class AuthService {
     }
   }
 
-  /// Atualizar senha
   Future<void> updatePassword(String newPassword) async {
     try {
       await _auth.currentUser?.updatePassword(newPassword);
@@ -96,7 +84,6 @@ class AuthService {
     }
   }
 
-  /// Reautenticar com email e senha (necessário para operações sensíveis)
   Future<void> reauthenticateWithPassword(String password) async {
     try {
       final user = _auth.currentUser;
@@ -115,7 +102,6 @@ class AuthService {
     }
   }
 
-  /// Deletar conta
   Future<void> deleteAccount() async {
     try {
       await _auth.currentUser?.delete();
@@ -124,7 +110,6 @@ class AuthService {
     }
   }
 
-  /// Enviar email de verificação
   Future<void> sendEmailVerification() async {
     try {
       await _auth.currentUser?.sendEmailVerification();
@@ -133,7 +118,6 @@ class AuthService {
     }
   }
 
-  /// Tratamento de exceções do Firebase Auth
   AuthException _handleAuthException(FirebaseAuthException e) {
     String message;
 
@@ -180,7 +164,6 @@ class AuthService {
   }
 }
 
-/// Exceção customizada para autenticação
 class AuthException implements Exception {
   final String message;
   final String? code;

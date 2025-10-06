@@ -3,8 +3,6 @@ import '../../../activities/domain/entities/activity.dart';
 import '../../../activities/data/repositories/activity_repository.dart';
 import '../../../friends/domain/entities/friend.dart';
 
-/// Tela para o DONO do evento gerenciar permissões dos participantes
-/// Permite promover participantes a Admin ou Moderator
 class ManageEventRolesScreen extends StatefulWidget {
   final Activity activity;
 
@@ -32,15 +30,12 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Atualizar role do participante
       final updatedParticipant = participant.copyWith(role: newRole);
       
-      // Substituir na lista
       final updatedParticipants = _participants.map((p) {
         return p.userId == participant.userId ? updatedParticipant : p;
       }).toList();
 
-      // Atualizar atividade
       final updatedActivity = widget.activity.copyWith(
         participants: updatedParticipants,
       );
@@ -129,7 +124,6 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    // Informações
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -160,7 +154,6 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Lista de participantes
                     ..._participants.map((participant) {
                       return _buildParticipantCard(participant, isDark);
                     }).toList(),
@@ -180,10 +173,8 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cabeçalho com foto e nome
           Row(
             children: [
-              // Foto do usuário
               CircleAvatar(
                 radius: 24,
                 backgroundColor: const Color(0xFF3B82F6),
@@ -203,7 +194,6 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Nome e status
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,13 +226,11 @@ class _ManageEventRolesScreenState extends State<ManageEventRolesScreen> {
             ],
           ),
 
-          // Botões de ação (se não for owner)
           if (participant.role != EventRole.owner) ...[
             const SizedBox(height: 16),
             const Divider(color: Colors.white24, height: 1),
             const SizedBox(height: 16),
 
-            // Opções de permissão
             const Text(
               'Alterar permissão:',
               style: TextStyle(

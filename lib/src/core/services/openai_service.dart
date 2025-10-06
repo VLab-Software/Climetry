@@ -6,15 +6,12 @@ import '../../features/weather/domain/entities/weather_alert.dart';
 import '../../features/activities/domain/entities/activity.dart';
 
 class OpenAIService {
-  // ✅ Carregar API key do .env (seguro e não vai para o Git)
   String get _apiKey => dotenv.env['OPENAI_API_KEY'] ?? '';
   
   static const String _baseUrl = 'https://api.openai.com/v1/chat/completions';
 
-  // ✅ Usar GPT-4o-mini - modelo mais barato e eficiente
   static const String _model = 'gpt-4o-mini';
 
-  /// Gera dicas personalizadas para uma atividade baseada no clima
   Future<String> generateActivityTips({
     required Activity activity,
     required DailyWeather weather,
@@ -54,7 +51,6 @@ Seja direto, útil e focado no que a pessoa precisa saber para aproveitar melhor
     return await _makeRequest(prompt, maxTokens: 300);
   }
 
-  /// Sugere locais alternativos cobertos quando o clima ameaça evento ao ar livre
   Future<Map<String, dynamic>> suggestAlternativeLocations({
     required Activity activity,
     required String cityName,
@@ -97,7 +93,6 @@ Responda APENAS em JSON válido:
     final response = await _makeRequest(prompt, maxTokens: 400);
 
     try {
-      // Extrai JSON da resposta
       final jsonStart = response.indexOf('{');
       final jsonEnd = response.lastIndexOf('}') + 1;
       if (jsonStart != -1 && jsonEnd > jsonStart) {
@@ -105,7 +100,6 @@ Responda APENAS em JSON válido:
         return jsonDecode(jsonStr);
       }
     } catch (e) {
-      // Fallback se JSON parsing falhar
     }
 
     return {
@@ -114,7 +108,6 @@ Responda APENAS em JSON válido:
     };
   }
 
-  /// Gera insights detalhados sobre um alerta climático
   Future<String> generateAlertInsights({
     required WeatherAlert alert,
     required DailyWeather weather,
@@ -146,7 +139,6 @@ Seja técnico mas acessível. Máximo 150 palavras.
     return await _makeRequest(prompt, maxTokens: 250);
   }
 
-  /// Gera cards dinâmicos de dicas baseados nas condições atuais
   Future<List<Map<String, String>>> generateWeatherInsightCards({
     required double temperature,
     required double humidity,
@@ -202,10 +194,8 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
         }
       }
     } catch (e) {
-      // Fallback
     }
 
-    // Cards padrão se API falhar
     return [
       {
         'icon': '☀️',
@@ -225,7 +215,6 @@ Foque em ações práticas que a pessoa pode tomar AGORA.
     ];
   }
 
-  /// Analisa tendência climática e gera previsão narrativa
   Future<String> generateWeatherNarrative({
     required List<DailyWeather> forecast,
     required String location,
@@ -257,7 +246,6 @@ Seja conversacional e amigável.
     return await _makeRequest(prompt, maxTokens: 100);
   }
 
-  /// Gera análise específica para um evento
   Future<String> generateEventAnalysis(
     String prompt, {
     int maxTokens = 600,
@@ -265,7 +253,6 @@ Seja conversacional e amigável.
     return await _makeRequest(prompt, maxTokens: maxTokens);
   }
 
-  /// Gera insights completos com dados estruturados para gráficos
   Future<Map<String, dynamic>> generateWeatherInsights({
     required Activity activity,
     required List<DailyWeather> forecast,
@@ -360,10 +347,8 @@ Responda APENAS com JSON válido neste formato:
         return jsonDecode(jsonStr);
       }
     } catch (e) {
-      // Se JSON parsing falhar, retorna dados padrão estruturados
     }
 
-    // Fallback com dados reais da previsão
     return {
       'title': 'Análise Climática - ${activity.title}',
       'description':
@@ -403,15 +388,12 @@ Responda APENAS com JSON válido neste formato:
   double _calculateRating(DailyWeather weather) {
     double rating = 10.0;
     
-    // Penalizar extremos de temperatura
     if (weather.maxTemp > 35 || weather.minTemp < 5) rating -= 2;
     if (weather.maxTemp > 38 || weather.minTemp < 0) rating -= 2;
     
-    // Penalizar chuva
     if (weather.precipitationProbability > 50) rating -= 2;
     if (weather.precipitationProbability > 80) rating -= 2;
     
-    // Penalizar vento forte
     if (weather.windSpeed > 40) rating -= 1;
     if (weather.windSpeed > 60) rating -= 2;
     
@@ -437,7 +419,6 @@ Responda APENAS com JSON válido neste formato:
       items.add('Roupas corta-vento');
     }
     
-    // Itens específicos por tipo de atividade
     if (type == ActivityType.sport) {
       items.add('Roupas esportivas adequadas');
     } else if (type == ActivityType.social) {
@@ -480,9 +461,7 @@ Responda APENAS com JSON válido neste formato:
     }).toList();
   }
 
-  /// Requisição genérica para OpenAI
   Future<String> _makeRequest(String prompt, {int maxTokens = 200}) async {
-    // Verificar se API key está configurada
     if (_apiKey.isEmpty) {
       return 'ℹ️ **Análise IA Indisponível**\n\nPara ativar análises inteligentes:\n• Configure a chave OpenAI API\n• Execute com: flutter run --dart-define=OPENAI_API_KEY=sua_chave';
     }
@@ -522,7 +501,6 @@ Responda APENAS com JSON válido neste formato:
         );
       }
     } catch (e) {
-      // Em caso de erro, retorna mensagem informativa
       return '⚠️ **Erro Temporário**\n\nNão foi possível conectar ao serviço de análise IA.\n\nVerifique sua conexão com a internet e tente novamente.';
     }
   }

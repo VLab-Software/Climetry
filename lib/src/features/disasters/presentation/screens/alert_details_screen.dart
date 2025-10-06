@@ -33,7 +33,6 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
     setState(() => _loadingInsights = true);
 
     try {
-      // Encontrar o clima do dia do alerta
       final alertWeather = widget.forecast.firstWhere(
         (w) =>
             w.date.day == widget.alert.date.day &&
@@ -175,7 +174,6 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header do Alerta
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -261,7 +259,6 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
             const SizedBox(height: 24),
 
-            // Gráfico de Evolução
             const Text(
               'Evolução nos Próximos Dias',
               style: TextStyle(
@@ -394,7 +391,6 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
             const SizedBox(height: 24),
 
-            // Insights da IA
             Row(
               children: [
                 const Text(
@@ -471,7 +467,6 @@ class _AlertDetailsScreenState extends State<AlertDetailsScreen> {
 
             const SizedBox(height: 24),
 
-            // Recomendações
             const Text(
               'Recomendações',
               style: TextStyle(

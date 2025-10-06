@@ -3,14 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/activities/domain/entities/activity.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-/// Serviço para gerenciar dados do usuário no Firestore
 class UserDataService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Criar perfil do usuário no Firestore
   Future<void> createUserProfile(User user) async {
     if (_userId == null) return;
 
@@ -38,7 +36,6 @@ class UserDataService {
     }
   }
 
-  /// Atualizar perfil do usuário
   Future<void> updateUserProfile(Map<String, dynamic> data) async {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
@@ -54,7 +51,6 @@ class UserDataService {
     }
   }
 
-  /// Obter dados do usuário
   Future<Map<String, dynamic>?> getUserProfile() async {
     if (_userId == null) return null;
 
@@ -71,7 +67,6 @@ class UserDataService {
     }
   }
 
-  /// Stream dos dados do usuário
   Stream<Map<String, dynamic>?> getUserProfileStream() {
     if (_userId == null) return Stream.value(null);
 
@@ -82,7 +77,6 @@ class UserDataService {
         .map((snapshot) => snapshot.data());
   }
 
-  /// Salvar preferências
   Future<void> savePreferences(Map<String, dynamic> preferences) async {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
@@ -100,7 +94,6 @@ class UserDataService {
     }
   }
 
-  /// Obter preferências
   Future<Map<String, dynamic>> getPreferences() async {
     if (_userId == null) {
       return _defaultPreferences();
@@ -122,7 +115,6 @@ class UserDataService {
     }
   }
 
-  /// Stream das preferências
   Stream<Map<String, dynamic>> getPreferencesStream() {
     if (_userId == null) return Stream.value(_defaultPreferences());
 
@@ -145,7 +137,6 @@ class UserDataService {
     };
   }
 
-  /// Salvar atividade
   Future<void> saveActivity(Activity activity) async {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
@@ -176,7 +167,6 @@ class UserDataService {
     }
   }
 
-  /// Atualizar atividade existente
   Future<void> updateActivity(Activity activity) async {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
@@ -211,7 +201,6 @@ class UserDataService {
     }
   }
 
-  /// Obter todas as atividades
   Future<List<Activity>> getActivities() async {
     if (_userId == null) return [];
 
@@ -249,7 +238,6 @@ class UserDataService {
     }
   }
 
-  /// Stream das atividades
   Stream<List<Activity>> getActivitiesStream() {
     if (_userId == null) return Stream.value([]);
 
@@ -284,7 +272,6 @@ class UserDataService {
         });
   }
 
-  /// Deletar atividade
   Future<void> deleteActivity(String activityId) async {
     if (_userId == null) throw FirestoreException('Usuário não autenticado');
 
@@ -300,12 +287,10 @@ class UserDataService {
     }
   }
 
-  /// Deletar todos os dados do usuário
   Future<void> deleteAllUserData() async {
     if (_userId == null) return;
 
     try {
-      // Deletar atividades
       final activitiesSnapshot = await _firestore
           .collection('users')
           .doc(_userId)
@@ -327,7 +312,6 @@ class UserDataService {
         );
       }
 
-      // Deletar perfil do usuário
       await _firestore.collection('users').doc(_userId).delete().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
@@ -340,7 +324,6 @@ class UserDataService {
   }
 }
 
-/// Exceção customizada para Firestore
 class FirestoreException implements Exception {
   final String message;
 

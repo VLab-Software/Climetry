@@ -161,13 +161,11 @@ class Activity {
   final bool notificationsEnabled;
   final DateTime createdAt;
 
-  // Novos campos
   final ActivityPriority priority;
   final List<String> tags;
   final RecurrenceType recurrence;
   final List<WeatherCondition> monitoredConditions;
 
-  // Participantes e permissões
   final String ownerId; // ID do criador do evento
   final List<EventParticipant> participants;
 
@@ -312,10 +310,8 @@ class Activity {
     );
   }
 
-  /// Verifica se um usuário é o dono do evento
   bool isOwner(String userId) => ownerId == userId;
 
-  /// Verifica se um usuário pode editar o evento
   bool canEdit(String userId) {
     if (isOwner(userId)) return true;
     final participant = participants.firstWhere(
@@ -331,7 +327,6 @@ class Activity {
     return participant.role.canEdit;
   }
 
-  /// Verifica se um usuário pode convidar outros
   bool canInvite(String userId) {
     if (isOwner(userId)) return true;
     final participant = participants.firstWhere(
@@ -347,14 +342,12 @@ class Activity {
     return participant.role.canInvite;
   }
 
-  /// Adiciona um participante ao evento
   Activity addParticipant(EventParticipant participant) {
     final updatedParticipants = List<EventParticipant>.from(participants);
     updatedParticipants.add(participant);
     return copyWith(participants: updatedParticipants);
   }
 
-  /// Remove um participante do evento
   Activity removeParticipant(String userId) {
     final updatedParticipants = participants
         .where((p) => p.userId != userId)
@@ -362,7 +355,6 @@ class Activity {
     return copyWith(participants: updatedParticipants);
   }
 
-  /// Atualiza o status de um participante
   Activity updateParticipantStatus(String userId, ParticipantStatus status) {
     final updatedParticipants = participants.map((p) {
       if (p.userId == userId) {
@@ -373,7 +365,6 @@ class Activity {
     return copyWith(participants: updatedParticipants);
   }
 
-  /// Atualiza o role de um participante
   Activity updateParticipantRole(String userId, EventRole role) {
     final updatedParticipants = participants.map((p) {
       if (p.userId == userId) {
@@ -384,7 +375,6 @@ class Activity {
     return copyWith(participants: updatedParticipants);
   }
   
-  /// Atualiza as configurações de alerta de um participante
   Activity updateParticipantAlertSettings(String userId, Map<String, dynamic> settings) {
     final updatedParticipants = participants.map((p) {
       if (p.userId == userId) {
@@ -395,7 +385,6 @@ class Activity {
     return copyWith(participants: updatedParticipants);
   }
 
-  /// Conta participantes confirmados
   int get confirmedParticipantsCount {
     return participants
             .where((p) => p.status == ParticipantStatus.accepted)

@@ -1,9 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
-/// Serviço de preferências LOCAL - SEM FIREBASE
-/// Preferências do usuário são armazenadas localmente no dispositivo
-/// Isso evita travamentos e delays causados pelo Firestore
 class LocalPreferencesService {
   static const String _keyTemperatureUnit = 'temperature_unit';
   static const String _keyWindUnit = 'wind_unit';
@@ -15,12 +12,10 @@ class LocalPreferencesService {
   static const String _keyLanguage = 'language';
   static const String _keyNotificationsEnabled = 'notifications_enabled';
 
-  /// Obter instância do SharedPreferences
   Future<SharedPreferences> get _prefs async {
     return await SharedPreferences.getInstance();
   }
 
-  // ============ UNIDADES DE MEDIDA ============
 
   Future<String> getTemperatureUnit() async {
     final prefs = await _prefs;
@@ -55,7 +50,6 @@ class LocalPreferencesService {
     debugPrint('📝 Precipitation unit saved: $unit');
   }
 
-  // ============ LOCALIZAÇÃO ============
 
   Future<bool> getUseCurrentLocation() async {
     final prefs = await _prefs;
@@ -103,7 +97,6 @@ class LocalPreferencesService {
     return null;
   }
 
-  // ============ IDIOMA ============
 
   Future<String> getLanguage() async {
     final prefs = await _prefs;
@@ -116,7 +109,6 @@ class LocalPreferencesService {
     debugPrint('📝 Language saved: $language');
   }
 
-  // ============ NOTIFICAÇÕES ============
 
   Future<bool> getNotificationsEnabled() async {
     final prefs = await _prefs;
@@ -129,7 +121,6 @@ class LocalPreferencesService {
     debugPrint('📝 Notifications enabled saved: $enabled');
   }
 
-  // ============ OBTER TODAS AS PREFERÊNCIAS ============
 
   Future<Map<String, dynamic>> getAllPreferences() async {
     return {
@@ -144,7 +135,6 @@ class LocalPreferencesService {
     };
   }
 
-  // ============ LIMPAR TODAS AS PREFERÊNCIAS ============
 
   Future<void> clearAllPreferences() async {
     final prefs = await _prefs;
@@ -152,7 +142,6 @@ class LocalPreferencesService {
     debugPrint('🗑️ All preferences cleared');
   }
 
-  // ============ RESETAR PARA PADRÃO ============
 
   Future<void> resetToDefaults() async {
     await setTemperatureUnit('celsius');

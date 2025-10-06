@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import '../../features/activities/domain/entities/activity.dart';
 import '../../features/weather/domain/entities/daily_weather.dart';
 
-/// Serviço para gerenciar alertas customizados baseados nas condições monitoradas pelo usuário
 class CustomAlertsService {
-  /// Verifica se um evento precisa de alerta baseado nas condições monitoradas
   Future<List<CustomAlert>> checkEventAlerts(
     Activity event,
     DailyWeather weather,
   ) async {
     final alerts = <CustomAlert>[];
 
-    // Verificar cada condição monitorada pelo usuário
     for (final condition in event.monitoredConditions) {
       final alert = _checkCondition(condition, event, weather);
       if (alert != null) {
@@ -22,7 +19,6 @@ class CustomAlertsService {
     return alerts;
   }
 
-  /// Verifica múltiplos eventos em paralelo
   Future<Map<String, List<CustomAlert>>> checkMultipleEvents(
     Map<Activity, DailyWeather> eventsWithWeather,
   ) async {
@@ -38,7 +34,6 @@ class CustomAlertsService {
     return allAlerts;
   }
 
-  /// Verifica uma condição específica
   CustomAlert? _checkCondition(
     WeatherCondition condition,
     Activity event,
@@ -58,9 +53,7 @@ class CustomAlertsService {
     }
   }
 
-  /// Verifica temperatura
   CustomAlert? _checkTemperature(Activity event, DailyWeather weather) {
-    // Temperatura muito alta (acima de 35°C)
     if (weather.maxTemp > 35) {
       return CustomAlert(
         eventId: event.id,
@@ -77,7 +70,6 @@ class CustomAlertsService {
       );
     }
 
-    // Temperatura muito baixa (abaixo de 5°C)
     if (weather.minTemp < 5) {
       return CustomAlert(
         eventId: event.id,
@@ -94,7 +86,6 @@ class CustomAlertsService {
       );
     }
 
-    // Amplitude térmica grande (diferença > 15°C)
     final amplitude = weather.maxTemp - weather.minTemp;
     if (amplitude > 15) {
       return CustomAlert(
@@ -115,9 +106,7 @@ class CustomAlertsService {
     return null;
   }
 
-  /// Verifica chuva
   CustomAlert? _checkRain(Activity event, DailyWeather weather) {
-    // Chuva forte (> 30mm)
     if (weather.precipitation > 30) {
       return CustomAlert(
         eventId: event.id,
@@ -136,7 +125,6 @@ class CustomAlertsService {
       );
     }
 
-    // Chuva moderada (10-30mm)
     if (weather.precipitation > 10) {
       return CustomAlert(
         eventId: event.id,
@@ -156,9 +144,7 @@ class CustomAlertsService {
     return null;
   }
 
-  /// Verifica vento
   CustomAlert? _checkWind(Activity event, DailyWeather weather) {
-    // Vento muito forte (> 60 km/h)
     if (weather.windSpeed > 60) {
       return CustomAlert(
         eventId: event.id,
@@ -175,7 +161,6 @@ class CustomAlertsService {
       );
     }
 
-    // Vento forte (40-60 km/h)
     if (weather.windSpeed > 40) {
       return CustomAlert(
         eventId: event.id,
@@ -195,9 +180,7 @@ class CustomAlertsService {
     return null;
   }
 
-  /// Verifica umidade
   CustomAlert? _checkHumidity(Activity event, DailyWeather weather) {
-    // Umidade muito alta (> 85%)
     if (weather.humidity > 85) {
       return CustomAlert(
         eventId: event.id,
@@ -214,7 +197,6 @@ class CustomAlertsService {
       );
     }
 
-    // Umidade muito baixa (< 30%)
     if (weather.humidity < 30) {
       return CustomAlert(
         eventId: event.id,
@@ -234,9 +216,7 @@ class CustomAlertsService {
     return null;
   }
 
-  /// Verifica índice UV
   CustomAlert? _checkUV(Activity event, DailyWeather weather) {
-    // UV muito alto (> 8)
     if (weather.uvIndex > 8) {
       return CustomAlert(
         eventId: event.id,
@@ -253,7 +233,6 @@ class CustomAlertsService {
       );
     }
 
-    // UV alto (6-8)
     if (weather.uvIndex > 6) {
       return CustomAlert(
         eventId: event.id,
@@ -274,7 +253,6 @@ class CustomAlertsService {
   }
 }
 
-/// Modelo de alerta customizado
 class CustomAlert {
   final String eventId;
   final String eventTitle;
@@ -336,7 +314,6 @@ class CustomAlert {
   }
 }
 
-/// Severidade do alerta
 enum AlertSeverity {
   low, // Informativo
   medium, // Atenção

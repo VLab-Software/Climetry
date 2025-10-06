@@ -125,7 +125,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
 
   void _saveActivity() {
     if (_formKey.currentState!.validate()) {
-      // Combinar data com horário de início, se disponível
       DateTime finalDateTime = _selectedDate;
 
       if (_startTime != null) {
@@ -158,7 +157,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         participants: _selectedParticipants,
       );
 
-      // Notificar que um novo evento foi criado
       Provider.of<EventRefreshNotifier>(
         context,
         listen: false,
@@ -168,7 +166,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     }
   }
 
-  // ============ TABS ============
 
   Widget _buildGeneralTab(bool isDark) {
     return SingleChildScrollView(
@@ -299,7 +296,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           child: ElevatedButton(
             onPressed: _saveActivity,
             style: ElevatedButton.styleFrom(
-              // ✅ AZUL VIBRANTE como na imagem
               backgroundColor: const Color(0xFF3B82F6),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
@@ -323,7 +319,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
     );
   }
 
-  // ============ HELPER WIDGETS ============
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -427,7 +422,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            // ✅ CORES ATUALIZADAS: Cinza escuro para tema light (como na imagem)
             fillColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -468,7 +462,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              // ✅ MESMA COR DOS CAMPOS: Cinza escuro
               color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
@@ -661,7 +654,6 @@ class _NewActivityScreenState extends State<NewActivityScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            // ✅ MESMA COR: Cinza escuro
             color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             borderRadius: BorderRadius.circular(12),
           ),

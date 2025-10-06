@@ -50,24 +50,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Criar conta
       final userCredential = await _authService.registerWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
         displayName: _nameController.text,
       );
 
-      // Criar perfil no Firestore
       if (userCredential.user != null) {
         await _userDataService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
 
-      // Desativar loading antes que o AuthWrapper navegue
       setState(() => _isLoading = false);
       
-      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
 
@@ -89,17 +85,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final userCredential = await _authService.signInWithGoogle();
 
-      // Criar perfil no Firestore se for novo usuário
       if (userCredential.user != null) {
         await _userDataService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
 
-      // Desativar loading antes que o AuthWrapper navegue
       setState(() => _isLoading = false);
       
-      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
 
@@ -137,7 +130,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 20),
 
-                // Título
                 const Text(
                   'Criar Conta',
                   style: TextStyle(
@@ -159,7 +151,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 40),
 
-                // Nome
                 TextFormField(
                   controller: _nameController,
                   style: const TextStyle(color: Colors.white),
@@ -190,7 +181,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -222,7 +212,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Senha
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -265,7 +254,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Confirmar Senha
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -311,7 +299,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Termos de uso
                 Row(
                   children: [
                     Checkbox(
@@ -355,7 +342,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Botão de Cadastro
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
@@ -391,7 +377,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Divider
                 Row(
                   children: [
                     Expanded(
@@ -412,7 +397,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Google Sign-Up
                 SizedBox(
                   height: 56,
                   child: OutlinedButton.icon(
@@ -448,7 +432,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 32),
 
-                // Link para login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

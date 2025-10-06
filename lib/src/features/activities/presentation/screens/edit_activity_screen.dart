@@ -40,7 +40,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   void initState() {
     super.initState();
 
-    // Pré-preencher com dados existentes
     _titleController = TextEditingController(text: widget.activity.title);
     _locationController = TextEditingController(text: widget.activity.location);
     _descriptionController = TextEditingController(
@@ -56,7 +55,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     _tags = List.from(widget.activity.tags);
     _monitoredConditions = List.from(widget.activity.monitoredConditions);
 
-    // Converter startTime string para TimeOfDay
     if (widget.activity.startTime != null) {
       try {
         final parts = widget.activity.startTime!.split(':');
@@ -69,7 +67,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       }
     }
 
-    // Converter endTime string para TimeOfDay
     if (widget.activity.endTime != null) {
       try {
         final parts = widget.activity.endTime!.split(':');
@@ -97,7 +94,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       setState(() => _isLoading = true);
 
       try {
-        // Combinar data com horário de início
         DateTime finalDateTime = _selectedDate;
         if (_startTime != null) {
           finalDateTime = DateTime(
@@ -129,7 +125,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         await _activityRepository.update(updatedActivity);
 
         if (mounted) {
-          // Notificar que o evento foi atualizado
           Provider.of<EventRefreshNotifier>(
             context,
             listen: false,
@@ -307,7 +302,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               color: isDark ? Colors.grey[600] : Colors.white70,
             ),
             filled: true,
-            // ✅ CORES ATUALIZADAS: Cinza escuro para ambos temas
             fillColor: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -343,7 +337,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            // ✅ MESMA COR: Cinza escuro
             color: isDark ? const Color(0xFF2A3A4D) : const Color(0xFF2D3E50),
             borderRadius: BorderRadius.circular(12),
           ),

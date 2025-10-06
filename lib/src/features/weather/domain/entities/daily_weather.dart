@@ -45,7 +45,6 @@ class DailyWeather {
     return 'Parcialmente Nublado';
   }
 
-  // Backward compatibility
   double get tempMin => minTemp;
   double get tempMax => maxTemp;
   double get tempMean => meanTemp;

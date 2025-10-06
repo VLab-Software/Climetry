@@ -1,6 +1,4 @@
-// ignore_for_file: prefer_const_constructors_in_immutables
 
-/// Modelo de insight de clima gerado pela OpenAI
 class WeatherInsight {
   final String title;
   final String description;
@@ -54,7 +52,6 @@ class WeatherInsight {
   }
 }
 
-/// Alerta de clima
 class WeatherAlert {
   final String type; // warning, danger, info
   final String message;
@@ -83,7 +80,6 @@ class WeatherAlert {
   }
 }
 
-/// Dados para gráficos
 class WeatherChartData {
   final List<ChartPoint> temperature;
   final List<ChartPoint> precipitation;
@@ -125,7 +121,6 @@ class WeatherChartData {
   }
 }
 
-/// Ponto do gráfico
 class ChartPoint {
   final DateTime time;
   final double value;

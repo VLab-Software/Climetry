@@ -32,7 +32,6 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
     try {
       final friends = await _friendsService.getFriends();
 
-      // Filtrar amigos que já são participantes
       final existingParticipantIds = widget.activity.participants
           .map((p) => p.userId)
           .toSet();
@@ -82,8 +81,6 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
     if (_selectedFriends.isEmpty) return;
 
     try {
-      // Aqui você pode adicionar lógica para enviar notificações
-      // Por enquanto, apenas navegamos de volta com os participantes
       Navigator.pop(context, _selectedFriends);
     } catch (e) {
       if (mounted) {
@@ -113,7 +110,6 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -132,7 +128,6 @@ class _InviteParticipantsScreenState extends State<InviteParticipantsScreen> {
             ),
           ),
 
-          // Friends list
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())

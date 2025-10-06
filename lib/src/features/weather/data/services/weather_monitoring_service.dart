@@ -5,24 +5,18 @@ import '../../../activities/domain/entities/activity.dart';
 import 'meteomatics_service.dart';
 import '../../../../core/services/openai_service.dart';
 
-/// Serviço de monitoramento contínuo de mudanças climáticas para eventos
-/// Envia notificações push quando detecta mudanças significativas
 class WeatherMonitoringService {
   final MeteomaticsService _meteomaticsService = MeteomaticsService();
   final OpenAIService _openAIService = OpenAIService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Inicia monitoramento para um evento
-  /// Salva a previsão inicial e agenda verificações diárias
   Future<void> startMonitoring(Activity activity) async {
     try {
-      // Buscar previsão inicial
       final forecast = await _meteomaticsService.getEventDayForecast(
         activity.coordinates,
         activity.date,
       );
 
-      // Salvar no Firestore
       await _firestore
           .collection('weather_monitoring')
           .doc(activity.id)
@@ -48,13 +42,10 @@ class WeatherMonitoringService {
     }
   }
 
-  /// Verifica mudanças climáticas para todos os eventos monitorados
-  /// Deve ser executado diariamente via Cloud Function ou Background Task
   Future<void> checkAllEvents() async {
     try {
       final now = DateTime.now();
       
-      // Buscar eventos ativos que precisam de verificação
       final snapshot = await _firestore
           .collection('weather_monitoring')
           .where('monitoring', isEqualTo: true)
@@ -73,7 +64,6 @@ class WeatherMonitoringService {
     }
   }
 
-  /// Verifica mudanças climáticas para um evento específico
   Future<void> _checkEventWeather(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) async {
@@ -88,35 +78,29 @@ class WeatherMonitoringService {
       final lat = location['latitude'] as double;
       final lon = location['longitude'] as double;
 
-      // Converter mapa para DailyWeather
       final lastForecast = _mapToForecast(lastForecastMap, eventDate);
 
-      // Buscar previsão atualizada
       final changes = await _meteomaticsService.detectWeatherChanges(
         location: LatLng(lat, lon),
         eventDate: eventDate,
         previousForecast: lastForecast,
       );
 
-      // Se houver mudanças significativas
       if (changes['hasChanges'] == true) {
         print('⚠️ Mudanças detectadas em: $activityTitle');
 
-        // Atualizar previsão salva
         await doc.reference.update({
           'lastForecast': _forecastToMap(changes['currentForecast']),
           'lastChecked': DateTime.now().toIso8601String(),
           'notificationsSent': FieldValue.increment(1),
         });
 
-        // Gerar novos insights com OpenAI
         await _generateUpdatedInsights(
           activityId,
           activityTitle,
           changes,
         );
 
-        // Enviar notificações
         await _sendChangeNotifications(
           activityId,
           activityTitle,
@@ -125,7 +109,6 @@ class WeatherMonitoringService {
           data['participants'] as List,
         );
       } else {
-        // Apenas atualizar timestamp
         await doc.reference.update({
           'lastChecked': DateTime.now().toIso8601String(),
         });
@@ -135,7 +118,6 @@ class WeatherMonitoringService {
     }
   }
 
-  /// Gera insights atualizados com OpenAI quando clima muda
   Future<void> _generateUpdatedInsights(
     String activityId,
     String activityTitle,
@@ -145,7 +127,6 @@ class WeatherMonitoringService {
       final significantChanges = changes['significantChanges'] as List;
       final currentForecast = changes['currentForecast'] as DailyWeather;
 
-      // Criar prompt para OpenAI
       final changesDescription = significantChanges.map((c) {
         return '- ${c['message']} (${c['severity']})';
       }).join('\n');
@@ -169,7 +150,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
         maxTokens: 300,
       );
 
-      // Salvar insights atualizados no Firestore
       await _firestore
           .collection('weather_insights')
           .doc(activityId)
@@ -187,7 +167,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
     }
   }
 
-  /// Envia notificações push para participantes sobre mudanças
   Future<void> _sendChangeNotifications(
     String activityId,
     String activityTitle,
@@ -199,7 +178,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
       final significantChanges = changes['significantChanges'] as List;
       final daysUntil = eventDate.difference(DateTime.now()).inDays;
 
-      // Criar mensagem resumida
       String getMainChange() {
         if (significantChanges.isEmpty) return 'Previsão atualizada';
         final first = significantChanges.first;
@@ -219,10 +197,8 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
               ? 'Amanhã: ${getMainChange()}'
               : 'Em $daysUntil dias: ${getMainChange()}';
 
-      // Enviar para cada participante
       for (var participantId in participants) {
         try {
-          // Buscar FCM token do usuário
           final userDoc = await _firestore
               .collection('users')
               .doc(participantId)
@@ -232,7 +208,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
             final fcmToken = userDoc.data()?['fcmToken'] as String?;
             
             if (fcmToken != null && fcmToken.isNotEmpty) {
-              // Enviar notificação via FCM (requer Cloud Function)
               await _firestore.collection('notifications').add({
                 'userId': participantId,
                 'activityId': activityId,
@@ -258,7 +233,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
     }
   }
 
-  /// Para monitoramento de um evento
   Future<void> stopMonitoring(String activityId) async {
     try {
       await _firestore
@@ -272,7 +246,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
     }
   }
 
-  /// Verifica clima do evento no dia (notificação matinal)
   Future<void> sendDayOfEventNotification(Activity activity) async {
     try {
       final summary = await _meteomaticsService.getEventWeatherSummary(
@@ -285,7 +258,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
         final title = '${summary['emoji']} ${summary['title']}';
         final body = '${summary['body']}\n${summary['recommendation']}';
 
-        // Enviar notificação para todos os participantes
         final participants = activity.participants.map((p) => p.userId).toList();
         
         for (var userId in participants) {
@@ -312,7 +284,6 @@ Forneça recomendações práticas e atualizadas (máximo 5 pontos):
     }
   }
 
-  // Helper methods
 
   Map<String, dynamic> _forecastToMap(DailyWeather forecast) {
     return {

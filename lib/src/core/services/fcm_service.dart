@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// Handler para mensagens em background (top-level)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -17,18 +16,13 @@ class FCMService {
       FlutterLocalNotificationsPlugin();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Inicializar FCM
   Future<void> initialize() async {
-    // Registrar handler de background
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // Solicitar permissões (iOS)
     await _requestPermissions();
 
-    // Configurar notificações locais
     await _configureLocalNotifications();
 
-    // Obter token FCM
     final token = await _fcm.getToken();
     if (token != null) {
       print('🔑 FCM Token obtido: ${token.substring(0, 20)}...');
@@ -38,21 +32,17 @@ class FCMService {
       print('⚠️ FCM Token is null');
     }
 
-    // Listener para refresh do token
     _fcm.onTokenRefresh.listen(_saveTokenToFirestore);
 
-    // Handlers de mensagens
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpened);
 
-    // Verificar mensagem inicial (app aberto via notificação)
     final initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       _handleMessageOpened(initialMessage);
     }
   }
 
-  /// Solicitar permissões
   Future<void> _requestPermissions() async {
     final settings = await _fcm.requestPermission(
       alert: true,
@@ -71,7 +61,6 @@ class FCMService {
       print('❌ User declined permission');
     }
     
-    // Tentar obter APNS token no iOS
     try {
       final apnsToken = await _fcm.getAPNSToken();
       if (apnsToken != null) {
@@ -84,7 +73,6 @@ class FCMService {
     }
   }
 
-  /// Configurar notificações locais
   Future<void> _configureLocalNotifications() async {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -101,12 +89,10 @@ class FCMService {
     await _localNotifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (details) {
-        // Handle notification tap
         print('Notification tapped: ${details.payload}');
       },
     );
 
-    // Criar canal de notificação (Android)
     const androidChannel = AndroidNotificationChannel(
       'climetry_channel',
       'Climetry Notifications',
@@ -120,7 +106,6 @@ class FCMService {
         ?.createNotificationChannel(androidChannel);
   }
 
-  /// Salvar token no Firestore
   Future<void> _saveTokenToFirestore(String token) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
@@ -139,7 +124,6 @@ class FCMService {
     }
   }
 
-  /// Handler para mensagens em foreground
   void _handleForegroundMessage(RemoteMessage message) {
     final notification = message.notification;
     final android = message.notification?.android;
@@ -164,13 +148,10 @@ class FCMService {
     }
   }
 
-  /// Handler quando usuário toca na notificação
   void _handleMessageOpened(RemoteMessage message) {
     print('Message opened: ${message.data}');
-    // Navegar para tela específica baseado em message.data
   }
 
-  /// Enviar notificação para usuário específico
   static Future<void> sendNotificationToUser({
     required String userId,
     required String title,
@@ -186,7 +167,6 @@ class FCMService {
       final fcmToken = userDoc.data()?['fcmToken'] as String?;
       if (fcmToken == null) return;
 
-      // Criar notificação no Firestore (Cloud Function enviará)
       await FirebaseFirestore.instance.collection('fcmMessages').add({
         'token': fcmToken,
         'notification': {

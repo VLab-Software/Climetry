@@ -4,9 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../features/activities/domain/entities/activity.dart';
 import 'package:intl/intl.dart';
 
-/// Service for sharing events to calendars and social media
 class EventSharingService {
-  /// Add event to device calendar (Google Calendar on Android, Apple Calendar on iOS)
   Future<bool> addToCalendar(Activity activity) async {
     try {
       final Event event = Event(
@@ -33,7 +31,6 @@ class EventSharingService {
     }
   }
 
-  /// Share event via WhatsApp with deep link for non-registered users
   Future<void> shareViaWhatsApp({
     required Activity activity,
     String? recipientPhone,
@@ -43,20 +40,16 @@ class EventSharingService {
 
     try {
       if (recipientPhone != null && recipientPhone.isNotEmpty) {
-        // Share to specific contact
         await _shareToWhatsAppContact(recipientPhone, message);
       } else {
-        // Generic share (user chooses contact)
         await _shareGenericWhatsApp(message);
       }
     } catch (e) {
       print('Erro ao compartilhar no WhatsApp: $e');
-      // Fallback: use generic share
       await Share.share(message);
     }
   }
 
-  /// Share event via generic share sheet (SMS, email, etc)
   Future<void> shareEvent(Activity activity) async {
     final String inviteLink = _generateInviteLink(activity);
     final String message = _buildShareMessage(activity, inviteLink);
@@ -67,7 +60,6 @@ class EventSharingService {
     );
   }
 
-  // ============ PRIVATE HELPERS ============
 
   DateTime _parseEndDateTime(DateTime date, String endTimeStr) {
     try {
@@ -85,8 +77,6 @@ class EventSharingService {
   }
 
   String _generateInviteLink(Activity activity) {
-    // Deep link format: climetry://event?id=xxx
-    // For web fallback: https://climetry.app/event?id=xxx
     final String eventId = activity.id;
     return 'https://climetry.app/join?event=$eventId';
   }
@@ -128,10 +118,8 @@ Não tem conta? Cadastre-se gratuitamente no Climetry!
   }
 
   Future<void> _shareToWhatsAppContact(String phone, String message) async {
-    // Remove caracteres não numéricos
     final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
     
-    // WhatsApp URL scheme
     final whatsappUrl = Uri.parse(
       'https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}',
     );
@@ -144,7 +132,6 @@ Não tem conta? Cadastre-se gratuitamente no Climetry!
   }
 
   Future<void> _shareGenericWhatsApp(String message) async {
-    // WhatsApp generic share
     final whatsappUrl = Uri.parse(
       'https://wa.me/?text=${Uri.encodeComponent(message)}',
     );
@@ -152,7 +139,6 @@ Não tem conta? Cadastre-se gratuitamente no Climetry!
     if (await canLaunchUrl(whatsappUrl)) {
       await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
     } else {
-      // Fallback to generic share
       await Share.share(message);
     }
   }

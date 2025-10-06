@@ -1,6 +1,3 @@
-// ==============================
-// 📁 lib/src/features/climate/presentation/screens/climate_screen.dart
-// ==============================
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +66,6 @@ class _DesktopLayout extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // 🔒 Congela o conteúdo de baixo quando o menu de localização estiver aberto
         Selector<ClimateViewModel, bool>(
           selector: (_, m) => m.locationMenuOpen,
           builder: (_, menuOpen, __) {
@@ -78,7 +74,6 @@ class _DesktopLayout extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Coluna esquerda: data + botão
                   Expanded(
                     flex: 5,
                     child: Column(
@@ -93,7 +88,6 @@ class _DesktopLayout extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Coluna direita: variáveis + mapa
                   Expanded(
                     flex: 7,
                     child: Column(
@@ -108,7 +102,6 @@ class _DesktopLayout extends StatelessWidget {
                         _section(
                           context,
                           'Map',
-                          // 🔒 Garante que o mapa não capture toques enquanto o menu está aberto
                           AbsorbPointer(
                             absorbing: menuOpen,
                             child: _Map(vm: vm),
@@ -122,7 +115,6 @@ class _DesktopLayout extends StatelessWidget {
             );
           },
         ),
-        // Location Field flutuando por cima - DESKTOP
         Positioned(
           top: 0,
           left: 0,
@@ -149,7 +141,6 @@ class _StackedLayout extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none, // Importante!
       children: [
-        // Conteúdo principal
         Padding(
           padding: const EdgeInsets.only(top: 120), // Espaço para Location card
           child: Selector<ClimateViewModel, bool>(
@@ -185,7 +176,6 @@ class _StackedLayout extends StatelessWidget {
             },
           ),
         ),
-        // Location Field - DEVE ser o último filho para ter z-index maior
         Positioned(
           top: 0,
           left: 0,
@@ -197,7 +187,6 @@ class _StackedLayout extends StatelessWidget {
   }
 }
 
-// 👇 Seção especial para Location com overflow completo
 Widget _locationSection(BuildContext context, ClimateViewModel vm) {
   return Material(
     color: Colors.transparent,

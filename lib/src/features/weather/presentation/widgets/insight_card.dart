@@ -70,7 +70,6 @@ class _InsightCardState extends State<InsightCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header - sempre visível
           InkWell(
             onTap: _toggleExpanded,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -78,7 +77,6 @@ class _InsightCardState extends State<InsightCard>
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Rating badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -110,7 +108,6 @@ class _InsightCardState extends State<InsightCard>
                   ),
                   const SizedBox(width: 12),
                   
-                  // Title
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +134,6 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
                   
-                  // Expand icon
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 300),
@@ -151,7 +147,6 @@ class _InsightCardState extends State<InsightCard>
             ),
           ),
 
-          // Description - sempre visível
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -164,7 +159,6 @@ class _InsightCardState extends State<InsightCard>
             ),
           ),
 
-          // Alerts - sempre visível se existirem
           if (widget.insight.alerts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -205,7 +199,6 @@ class _InsightCardState extends State<InsightCard>
               ),
             ),
 
-          // Expandable content
           SizeTransition(
             sizeFactor: _expandAnimation,
             child: Column(
@@ -213,7 +206,6 @@ class _InsightCardState extends State<InsightCard>
               children: [
                 const Divider(height: 1),
                 
-                // Recommendations
                 if (widget.insight.recommendations.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -265,7 +257,6 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
 
-                // What to bring
                 if (widget.insight.whatToBring.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -312,7 +303,6 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
 
-                // Charts
                 if (widget.insight.chartData != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -329,25 +319,21 @@ class _InsightCardState extends State<InsightCard>
                         ),
                         const SizedBox(height: 16),
                         
-                        // Temperature chart
                         if (widget.insight.chartData!.temperature.isNotEmpty)
                           _buildTemperatureChart(isDark),
                         
                         const SizedBox(height: 24),
                         
-                        // Precipitation chart
                         if (widget.insight.chartData!.precipitation.isNotEmpty)
                           _buildPrecipitationChart(isDark),
                         
                         const SizedBox(height: 24),
                         
-                        // Wind speed gauge
                         if (widget.insight.chartData!.windSpeed.isNotEmpty)
                           _buildWindSpeedGauge(isDark),
                         
                         const SizedBox(height: 24),
                         
-                        // UV Index
                         _buildUVIndex(isDark),
                       ],
                     ),
@@ -619,7 +605,6 @@ class _InsightCardState extends State<InsightCard>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Gauge background
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -631,7 +616,6 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
                 ),
-                // Gauge fill
                 Transform.rotate(
                   angle: -1.57, // Start from top
                   child: CircularProgressIndicator(
@@ -643,7 +627,6 @@ class _InsightCardState extends State<InsightCard>
                     ),
                   ),
                 ),
-                // Value
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

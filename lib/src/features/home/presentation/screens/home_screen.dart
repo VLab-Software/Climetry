@@ -30,10 +30,8 @@ class _HomeScreenState extends State<HomeScreen>
   List<EventWeatherAnalysis> _filteredAnalyses = [];
   bool _loading = true;
 
-  // Filtros
   String _selectedFilter = 'time'; // 'time', 'distance', 'priority'
 
-  // Manter estado ao trocar de tab
   @override
   bool get wantKeepAlive => true;
 
@@ -42,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _loadEventsPredictions();
 
-    // Escutar mudanças nos eventos
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final eventRefreshNotifier = Provider.of<EventRefreshNotifier>(
         context,
@@ -63,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _onEventsChanged() {
-    // Recarregar eventos quando notificado
     _loadEventsPredictions();
   }
 
@@ -71,10 +67,8 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     
     try {
-      // FASE 1: CARREGAR EVENTOS RAPIDAMENTE (SEM BLOQUEAR UI)
       debugPrint('🔄 Iniciando carregamento de eventos...');
       
-      // Mostrar loading IMEDIATAMENTE
       if (mounted) {
         setState(() => _loading = true);
       }
@@ -90,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen>
 
       debugPrint('✅ Eventos carregados: ${events.length}');
 
-      // Filtrar eventos futuros (até 6 meses)
       final now = DateTime.now();
       final sixMonthsLater = now.add(const Duration(days: 180));
 
@@ -100,10 +93,8 @@ class _HomeScreenState extends State<HomeScreen>
 
       debugPrint('📅 Eventos futuros: ${upcomingEvents.length}');
 
-      // Ordenar por data
       upcomingEvents.sort((a, b) => a.date.compareTo(b.date));
 
-      // FASE 2: PARAR LOADING E MOSTRAR TELA (MESMO SEM ANÁLISES)
       if (!mounted) return;
       setState(() {
         _analyses = []; // Vazio por enquanto
@@ -111,11 +102,9 @@ class _HomeScreenState extends State<HomeScreen>
         _loading = false; // LIBERA A UI IMEDIATAMENTE
       });
 
-      // FASE 3: ANALISAR CLIMA EM BACKGROUND (NÃO BLOQUEIA)
       final eventsToAnalyze = upcomingEvents.take(10).toList();
       debugPrint('🌤️ Iniciando análise de ${eventsToAnalyze.length} eventos em background...');
 
-      // Analisar cada evento individualmente com timeout por evento
       final analyses = <EventWeatherAnalysis>[];
       for (final event in eventsToAnalyze) {
         try {
@@ -131,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen>
           analyses.add(analysis);
           debugPrint('✅ Análise concluída para: ${event.title}');
           
-          // ATUALIZAR UI PROGRESSIVAMENTE (à medida que analisa)
           if (mounted) {
             setState(() {
               _analyses = List.from(analyses);
@@ -141,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen>
           }
         } catch (e) {
           debugPrint('⚠️ Erro ao analisar evento ${event.title}: $e');
-          // Continuar mesmo com erro em um evento específico
         }
       }
 
@@ -164,15 +151,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     switch (_selectedFilter) {
       case 'time':
-        // Ordenar por proximidade de tempo (já está ordenado por data)
         filtered.sort((a, b) => a.activity.date.compareTo(b.activity.date));
         break;
       case 'distance':
-        // TODO: Ordenar por proximidade geográfica (requer localização do usuário)
-        // Por enquanto, manter ordem atual
         break;
       case 'priority':
-        // Ordenar por prioridade (Crítica > Alta > Média > Baixa)
         filtered.sort((a, b) {
           final priorityOrder = {
             ActivityPriority.urgent: 0,
@@ -211,12 +194,10 @@ class _HomeScreenState extends State<HomeScreen>
         color: const Color(0xFF3B82F6),
         child: CustomScrollView(
           slivers: [
-            // Header moderno e clean (consistente com outras telas)
             SliverToBoxAdapter(
               child: _buildModernHeader(isDark, themeProvider),
             ),
 
-            // Lista de eventos
             if (_loading)
               SliverFillRemaining(
                 child: Center(
@@ -285,7 +266,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-            // Espaço para tab bar
             SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
@@ -314,7 +294,6 @@ class _HomeScreenState extends State<HomeScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header clean e minimalista
           Row(
             children: [
               Container(
@@ -345,7 +324,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
-              // Botão de notificações
               StreamBuilder<int>(
                 stream: NotificationService().getUnreadCountStream(),
                 builder: (context, snapshot) {
@@ -401,10 +379,8 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
 
-          // Espaçamento
           SizedBox(height: 20),
 
-          // Título "Seus Eventos" com contador e botão de filtro
           Row(
             children: [
               Text(
@@ -421,7 +397,6 @@ class _HomeScreenState extends State<HomeScreen>
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
               Spacer(),
-              // Botão de filtro
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -487,7 +462,6 @@ class _HomeScreenState extends State<HomeScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
             Container(
               margin: EdgeInsets.only(top: 12, bottom: 16),
               width: 40,
@@ -628,7 +602,6 @@ class _HomeScreenState extends State<HomeScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header do card com risco
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -673,13 +646,11 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
 
-            // Conteúdo do card
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Título
                   Text(
                     event.title,
                     style: TextStyle(
@@ -690,7 +661,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   const SizedBox(height: 8),
 
-                  // Data e hora
                   Row(
                     children: [
                       Icon(
@@ -749,7 +719,6 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
 
-                  // Previsão do clima (customizada baseada em monitoredConditions)
                   if (analysis.weather != null) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -773,7 +742,6 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
 
-                  // Alertas
                   if (analysis.alerts.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Wrap(
@@ -817,7 +785,6 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
 
-                  // Participantes
                   const SizedBox(height: 12),
                   ParticipantsAvatars(
                     activity: event,
@@ -840,7 +807,6 @@ class _HomeScreenState extends State<HomeScreen>
   ) {
     final List<Widget> metrics = [];
 
-    // Verificar quais condições o usuário quer monitorar
     for (final condition in event.monitoredConditions) {
       switch (condition) {
         case WeatherCondition.temperature:
@@ -891,7 +857,6 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
 
-    // Se nenhuma condição foi selecionada, mostrar temperatura e chuva por padrão
     if (metrics.isEmpty) {
       metrics.add(
         _buildWeatherMetric(

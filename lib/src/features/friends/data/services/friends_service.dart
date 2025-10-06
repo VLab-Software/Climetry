@@ -2,14 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/friend.dart';
 
-/// Serviço para gerenciar amigos e solicitações de amizade
 class FriendsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Buscar todos os amigos do usuário
   Future<List<Friend>> getFriends() async {
     if (_userId == null) return [];
 
@@ -27,7 +25,6 @@ class FriendsService {
     }
   }
 
-  /// Adicionar um amigo
   Future<void> addFriend(Friend friend) async {
     if (_userId == null) throw Exception('Usuário não autenticado');
 
@@ -43,7 +40,6 @@ class FriendsService {
     }
   }
 
-  /// Remover um amigo
   Future<void> removeFriend(String friendId) async {
     if (_userId == null) throw Exception('Usuário não autenticado');
 
@@ -59,7 +55,6 @@ class FriendsService {
     }
   }
 
-  /// Atualizar nome do amigo
   Future<void> updateFriendName(String friendId, String newName) async {
     if (_userId == null) throw Exception('Usuário não autenticado');
 
@@ -75,7 +70,6 @@ class FriendsService {
     }
   }
 
-  /// Enviar solicitação de amizade
   Future<void> sendFriendRequest({
     required String toUserId,
     String? message,
@@ -102,7 +96,6 @@ class FriendsService {
     }
   }
 
-  /// Buscar solicitações recebidas
   Future<List<FriendRequest>> getReceivedRequests() async {
     if (_userId == null) return [];
 
@@ -122,12 +115,10 @@ class FriendsService {
     }
   }
 
-  /// Aceitar solicitação de amizade
   Future<void> acceptFriendRequest(FriendRequest request) async {
     if (_userId == null) throw Exception('Usuário não autenticado');
 
     try {
-      // Adicionar amigo para ambos os usuários
       final friend = Friend(
         id: request.fromUserId,
         name: request.fromUserName,
@@ -135,10 +126,8 @@ class FriendsService {
         addedAt: DateTime.now(),
       );
 
-      // Adicionar para o usuário atual
       await addFriend(friend);
 
-      // Adicionar o usuário atual como amigo do solicitante
       final currentUser = _auth.currentUser!;
       await _firestore
           .collection('users')
@@ -152,7 +141,6 @@ class FriendsService {
             'isFromContacts': false,
           });
 
-      // Atualizar status da solicitação
       await _firestore.collection('friendRequests').doc(request.id).update({
         'status': FriendRequestStatus.accepted.name,
       });
@@ -161,7 +149,6 @@ class FriendsService {
     }
   }
 
-  /// Rejeitar solicitação de amizade
   Future<void> rejectFriendRequest(String requestId) async {
     try {
       await _firestore.collection('friendRequests').doc(requestId).update({
@@ -172,7 +159,6 @@ class FriendsService {
     }
   }
 
-  /// Buscar usuário por email
   Future<Map<String, dynamic>?> findUserByEmail(String email) async {
     try {
       final snapshot = await _firestore
@@ -195,7 +181,6 @@ class FriendsService {
     }
   }
 
-  /// Contar solicitações pendentes
   Future<int> getPendingRequestsCount() async {
     if (_userId == null) return 0;
 
@@ -213,7 +198,6 @@ class FriendsService {
     }
   }
 
-  /// Obter solicitações pendentes
   Future<List<FriendRequest>> getPendingRequests() async {
     if (_userId == null) return [];
 
@@ -233,7 +217,6 @@ class FriendsService {
     }
   }
 
-  /// Stream de solicitações pendentes
   Stream<List<FriendRequest>> getPendingRequestsStream() {
     if (_userId == null) return Stream.value([]);
 

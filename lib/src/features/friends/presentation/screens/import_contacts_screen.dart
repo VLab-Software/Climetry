@@ -89,11 +89,8 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
       for (final contactId in _selectedContacts) {
         final contact = _contacts.firstWhere((c) => c.id == contactId);
 
-        // TODO: Verificar se o contato está registrado no app
-        // Por enquanto, todos vão para convites
 
         if (contact.isRegistered && contact.userId != null) {
-          // Adicionar como amigo direto
           await _friendsService.addFriend(
             Friend(
               id: contact.userId!,
@@ -106,7 +103,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
           );
           added++;
         } else {
-          // Enviar convite
           final currentUser = FirebaseAuth.instance.currentUser;
           final inviterName = currentUser?.displayName ?? 'Um amigo';
 
@@ -184,7 +180,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
       ),
       body: Column(
         children: [
-          // Barra de busca
           Container(
             padding: const EdgeInsets.all(16),
             color: isDark ? const Color(0xFF1F2937) : Colors.white,
@@ -216,7 +211,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
             ),
           ),
 
-          // Lista de contatos
           Expanded(
             child: _isLoading
                 ? const Center(
@@ -300,7 +294,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Avatar
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
@@ -317,7 +310,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
                 ),
                 const SizedBox(width: 12),
 
-                // Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +333,6 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
                   ),
                 ),
 
-                // Checkbox
                 Checkbox(
                   value: isSelected,
                   onChanged: (value) {

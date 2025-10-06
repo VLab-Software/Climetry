@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // ========== LIGHT THEME COLORS ==========
   static const lightPrimary = Color(0xFF4A9EFF);
   static const lightSecondary = Color(0xFF6C5CE7);
   static const lightBackground = Color(0xFFF8F9FA);
@@ -14,7 +13,6 @@ class AppTheme {
   static const lightSuccess = Color(0xFF10B981);
   static const lightWarning = Color(0xFFF59E0B);
 
-  // ========== DARK THEME COLORS ==========
   static const darkPrimary = Color(0xFF5DADE2);
   static const darkSecondary = Color(0xFF8B7FFF);
   static const darkBackground = Color(0xFF0F1419);
@@ -27,7 +25,6 @@ class AppTheme {
   static const darkSuccess = Color(0xFF34D399);
   static const darkWarning = Color(0xFFFBBF24);
 
-  // ========== THEME DATA ==========
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -196,7 +193,6 @@ class AppTheme {
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
   );
 
-  // ========== HELPER METHODS ==========
   static BoxShadow cardShadow(bool isDark) {
     return BoxShadow(
       color: isDark

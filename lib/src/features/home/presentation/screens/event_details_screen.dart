@@ -110,7 +110,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             ),
             const SizedBox(height: 20),
             
-            // Adicionar ao Calendário
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
@@ -142,7 +141,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             
             const Divider(),
             
-            // WhatsApp
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
@@ -162,7 +160,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             
             const Divider(),
             
-            // Compartilhar Genérico
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
@@ -193,7 +190,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     final activity = widget.analysis.activity;
 
-    // Check if user is the owner (owners cannot leave)
     if (activity.isOwner(currentUserId)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +201,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       return;
     }
 
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -231,20 +226,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (confirmed != true || !mounted) return;
 
     try {
-      // Remove participant from activity
       final updatedActivity = activity.copyWith(
         participants: activity.participants
             .where((p) => p.userId != currentUserId)
             .toList(),
       );
 
-      // Update in repository
       final repository = ActivityRepository();
       await repository.update(updatedActivity);
 
       if (!mounted) return;
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Você saiu do evento com sucesso'),
@@ -252,7 +244,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         ),
       );
 
-      // Go back to previous screen
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
@@ -285,16 +276,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               final applyToAll = settings['applyToAll'] == true;
               settings.remove('applyToAll');
 
-              // Update participant settings
               List<EventParticipant> updatedParticipants;
               
               if (applyToAll && isAdmin) {
-                // Admin applying to all participants
                 updatedParticipants = activity.participants.map((p) {
                   return p.copyWith(customAlertSettings: settings);
                 }).toList();
               } else {
-                // Update only current user
                 updatedParticipants = activity.participants.map((p) {
                   if (p.userId == currentUserId) {
                     return p.copyWith(customAlertSettings: settings);
@@ -348,7 +336,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // App Bar
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
@@ -358,13 +345,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // Botão Compartilhar
               IconButton(
                 icon: Icon(Icons.share, color: Colors.white),
                 onPressed: () => _showShareOptions(),
                 tooltip: 'Compartilhar evento',
               ),
-              // Botão Editar
               IconButton(
                 icon: Icon(Icons.edit_outlined, color: Colors.white),
                 onPressed: () async {
@@ -378,7 +363,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   );
 
                   if (result != null && context.mounted) {
-                    // Evento atualizado, voltar para tela anterior
                     Navigator.pop(context);
                   }
                 },
@@ -439,14 +423,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             ),
           ),
 
-          // Conteúdo
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Info básica
                   _buildInfoCard(
                     isDark,
                     icon: Icons.calendar_today,
@@ -472,13 +454,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         '${widget.analysis.activity.coordinates.latitude.toStringAsFixed(4)}, ${widget.analysis.activity.coordinates.longitude.toStringAsFixed(4)}',
                   ),
                   
-                  // Custom Alerts Configuration Button
                   Builder(
                     builder: (context) {
                       final currentUserId = FirebaseAuth.instance.currentUser?.uid;
                       final activity = widget.analysis.activity;
                       
-                      // Show button only for participants
                       if (currentUserId != null && 
                           activity.participants.any((p) => p.userId == currentUserId)) {
                         
@@ -513,13 +493,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   
                   SizedBox(height: 24),
 
-                  // Participantes
                   _buildSectionTitle('Participantes', isDark),
                   SizedBox(height: 12),
                   _buildParticipantsCard(isDark),
                   SizedBox(height: 24),
 
-                  // Previsão do tempo
                   if (widget.analysis.weather != null) ...[
                     _buildSectionTitle('Previsão do Tempo', isDark),
                     SizedBox(height: 12),
@@ -527,7 +505,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     SizedBox(height: 24),
                   ],
 
-                  // Alertas
                   if (widget.analysis.alerts.isNotEmpty) ...[
                     _buildSectionTitle('Alertas Climáticos', isDark),
                     SizedBox(height: 12),
@@ -537,7 +514,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     SizedBox(height: 24),
                   ],
 
-                  // Insight da IA
                   if (widget.analysis.aiInsight != null) ...[
                     _buildSectionTitle('Análise Inteligente', isDark),
                     SizedBox(height: 12),
@@ -545,7 +521,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     SizedBox(height: 24),
                   ],
 
-                  // Sugestões
                   if (widget.analysis.suggestions.isNotEmpty) ...[
                     _buildSectionTitle('Sugestões', isDark),
                     SizedBox(height: 12),
@@ -555,13 +530,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     SizedBox(height: 24),
                   ],
 
-                  // Botão Sair do Evento (apenas para participantes, não para donos)
                   Builder(
                     builder: (context) {
                       final currentUserId = FirebaseAuth.instance.currentUser?.uid;
                       final activity = widget.analysis.activity;
                       
-                      // Show button only if user is a participant but not the owner
                       final isParticipant = currentUserId != null && 
                           activity.participants.any((p) => p.userId == currentUserId);
                       final isOwner = currentUserId != null && activity.isOwner(currentUserId);
@@ -1011,7 +984,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ),
           const SizedBox(height: 16),
           
-          // Lista de participantes
           ...activity.participants.map((participant) {
             final isCurrentUser = participant.userId == currentUserId;
             final isOwnerParticipant = participant.userId == activity.ownerId;
@@ -1020,7 +992,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
-                  // Avatar
                   CircleAvatar(
                     radius: 20,
                     backgroundImage: participant.photoUrl != null
@@ -1039,7 +1010,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                   const SizedBox(width: 12),
                   
-                  // Nome e papel
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1080,10 +1050,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            // Badge de papel
                             _buildRoleBadge(participant.role, isOwnerParticipant),
                             
-                            // Status
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -1109,25 +1077,21 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ),
                   ),
                   
-                  // Botão de promoção (apenas para owner)
                   if (isOwner && !isOwnerParticipant && participant.role != EventRole.admin)
                     IconButton(
                       icon: const Icon(Icons.star_border, size: 20),
                       color: const Color(0xFFFBBF24),
                       onPressed: () {
-                        // TODO: Implementar promoção a admin
                         print('Promover ${participant.name} a admin');
                       },
                       tooltip: 'Promover a Admin',
                     ),
                   
-                  // Botão de rebaixar (apenas para owner)
                   if (isOwner && !isOwnerParticipant && participant.role == EventRole.admin)
                     IconButton(
                       icon: const Icon(Icons.star, size: 20),
                       color: const Color(0xFFFBBF24),
                       onPressed: () {
-                        // TODO: Implementar rebaixar de admin
                         print('Rebaixar ${participant.name} de admin');
                       },
                       tooltip: 'Remover Admin',

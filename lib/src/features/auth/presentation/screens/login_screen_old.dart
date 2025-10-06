@@ -40,10 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      // Desativar loading antes que o AuthWrapper navegue
       setState(() => _isLoading = false);
       
-      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
 
@@ -65,17 +63,14 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final userCredential = await _authService.signInWithGoogle();
 
-      // Criar perfil no Firestore se for novo usuário
       if (userCredential.user != null) {
         await _userDataService.createUserProfile(userCredential.user!);
       }
 
       if (!mounted) return;
 
-      // Desativar loading antes que o AuthWrapper navegue
       setState(() => _isLoading = false);
       
-      // AuthWrapper vai detectar a mudança de estado e navegar automaticamente
     } catch (e) {
       if (!mounted) return;
 
@@ -113,7 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 20),
 
-                // Título
                 const Text(
                   'Bem-vindo de volta!',
                   style: TextStyle(
@@ -135,7 +129,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 40),
 
-                // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -167,7 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Senha
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -207,7 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 12),
 
-                // Esqueceu a senha
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -224,7 +215,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Botão de Login
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
@@ -260,7 +250,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Divider
                 Row(
                   children: [
                     Expanded(
@@ -281,7 +270,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Google Sign-In
                 SizedBox(
                   height: 56,
                   child: OutlinedButton.icon(
@@ -317,7 +305,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 32),
 
-                // Link para registro
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

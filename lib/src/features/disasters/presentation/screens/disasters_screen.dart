@@ -281,16 +281,13 @@ class _DisastersScreenState extends State<DisastersScreen>
         color: Color(0xFF3B82F6),
         child: CustomScrollView(
           slivers: [
-            // Header moderno
             SliverToBoxAdapter(
               child: _buildModernHeader(isDark, themeProvider),
             ),
 
-            // Stats cards
             if (!_loading && _alerts.isNotEmpty)
               SliverToBoxAdapter(child: _buildStatsCards(isDark)),
 
-            // Lista de alertas
             if (_loading)
               SliverFillRemaining(
                 child: Center(
@@ -399,7 +396,6 @@ class _DisastersScreenState extends State<DisastersScreen>
               ),
               Row(
                 children: [
-                  // Filtros
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
@@ -415,7 +411,6 @@ class _DisastersScreenState extends State<DisastersScreen>
                     ),
                   ),
                   SizedBox(width: 8),
-                  // Tema
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
@@ -437,7 +432,6 @@ class _DisastersScreenState extends State<DisastersScreen>
             ],
           ),
           SizedBox(height: 16),
-          // Localização
           InkWell(
             onTap: _selectLocation,
             borderRadius: BorderRadius.circular(12),

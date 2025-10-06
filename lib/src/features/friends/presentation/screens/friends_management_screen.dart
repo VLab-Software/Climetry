@@ -125,7 +125,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
     if (result == true && mounted) {
       final email = emailController.text.trim();
       try {
-        // Buscar usuário por email
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .where('email', isEqualTo: email)
@@ -159,7 +158,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           return;
         }
 
-        // Verificar se já são amigos
         final friendDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUserId)
@@ -179,7 +177,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           return;
         }
 
-        // Verificar se já existe pedido pendente
         final pendingRequest = await FirebaseFirestore.instance
             .collection('friendRequests')
             .where('fromUserId', isEqualTo: currentUserId)
@@ -199,7 +196,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
           return;
         }
 
-        // Criar pedido de amizade
         final currentUserData = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUserId)
@@ -207,14 +203,12 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
 
         final currentUser = FirebaseAuth.instance.currentUser;
         
-        // Debug: ver dados disponíveis
         print('🔍 DEBUG Friend Request:');
         print('  userData displayName: ${currentUserData.data()?['displayName']}');
         print('  userData name: ${currentUserData.data()?['name']}');
         print('  currentUser displayName: ${currentUser?.displayName}');
         print('  currentUser email: ${currentUser?.email}');
         
-        // Tentar pegar o nome de várias fontes (ordem de prioridade)
         String fromUserName = currentUser?.displayName ?? 
             currentUserData.data()?['displayName'] ??
             currentUserData.data()?['name'] ??
@@ -223,7 +217,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
         
         print('  ✅ Nome selecionado: $fromUserName');
         
-        // Tentar pegar a foto
         String? fromUserPhotoUrl = currentUser?.photoURL ?? 
             currentUserData.data()?['photoUrl'] ??
             currentUserData.data()?['photoURL'];
@@ -398,7 +391,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
       ),
       body: Column(
         children: [
-          // Barra de busca
           Container(
             padding: const EdgeInsets.all(16),
             color: isDark ? const Color(0xFF1F2937) : Colors.white,
@@ -431,7 +423,6 @@ class _FriendsManagementScreenState extends State<FriendsManagementScreen> {
             ),
           ),
 
-          // Lista de amigos
           Expanded(
             child: _isLoading
                 ? const Center(

@@ -96,7 +96,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
           Container(
             margin: const EdgeInsets.only(top: 12, bottom: 8),
             width: 40,
@@ -107,7 +106,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
             ),
           ),
 
-          // Header
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -143,7 +141,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
 
           const Divider(height: 1),
 
-          // Lista de amigos
           Expanded(
             child: _isLoading
                 ? const Center(
@@ -230,7 +227,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                           ),
                                         ),
                                       ),
-                                      // Badge para owner
                                       if (widget.ownerId == friend.id)
                                         Container(
                                           padding: const EdgeInsets.symmetric(
@@ -300,7 +296,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                                   onTap: () => _toggleParticipant(friend),
                                 ),
                                 
-                                // Seletor de papel (apenas se selecionado)
                                 if (isSelected && role != null)
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -352,7 +347,6 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                       ),
           ),
 
-          // Footer com botão de confirmar
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Modal bottom sheet for configuring custom weather alert settings per participant
 class CustomAlertsSettings extends StatefulWidget {
   final Map<String, dynamic> currentSettings;
   final bool isAdmin; // Admins can set defaults for all participants
@@ -26,7 +25,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
     super.initState();
     _settings = Map<String, dynamic>.from(widget.currentSettings);
     
-    // Set defaults if empty
     _settings.putIfAbsent('temperatureMin', () => 10.0);
     _settings.putIfAbsent('temperatureMax', () => 35.0);
     _settings.putIfAbsent('rainThreshold', () => 50.0);
@@ -54,7 +52,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             margin: EdgeInsets.only(top: 12, bottom: 8),
             width: 40,
@@ -65,7 +62,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
             ),
           ),
 
-          // Header
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Row(
@@ -109,12 +105,10 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
           Divider(height: 1),
 
-          // Settings content
           Expanded(
             child: ListView(
               padding: EdgeInsets.all(20),
               children: [
-                // Temperature alerts
                 _buildToggleSection(
                   isDark: isDark,
                   icon: Icons.thermostat,
@@ -162,7 +156,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
                 SizedBox(height: 20),
 
-                // Rain alerts
                 _buildToggleSection(
                   isDark: isDark,
                   icon: Icons.water_drop,
@@ -196,7 +189,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
                 SizedBox(height: 20),
 
-                // Wind alerts
                 _buildToggleSection(
                   isDark: isDark,
                   icon: Icons.air,
@@ -230,7 +222,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
 
                 SizedBox(height: 20),
 
-                // Humidity alerts
                 _buildToggleSection(
                   isDark: isDark,
                   icon: Icons.opacity,
@@ -276,7 +267,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
                   ),
                 ),
 
-                // Admin option: Apply to all
                 if (widget.isAdmin) ...[
                   SizedBox(height: 24),
                   Container(
@@ -337,7 +327,6 @@ class _CustomAlertsSettingsState extends State<CustomAlertsSettings> {
             ),
           ),
 
-          // Save button
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(

@@ -14,7 +14,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔌 Injeção simples (Provider). Para algo maior, migrar p/ get_it + injectable.
     final apiClient = ApiClient();
     final geocodingDs = GeocodingRemoteDataSource(client: apiClient);
     final meteomaticsDs = MeteomaticsRemoteDataSource(client: apiClient);

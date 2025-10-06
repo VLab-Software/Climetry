@@ -6,7 +6,6 @@ import '../../features/weather/domain/entities/weather_alert.dart';
 import 'openai_service.dart';
 import 'dart:convert';
 
-/// Status de risco climático para um evento
 enum EventWeatherRisk {
   safe, // Verde - Sem problemas
   warning, // Amarelo - Atenção necessária
@@ -14,7 +13,6 @@ enum EventWeatherRisk {
   unknown, // Cinza - Sem dados ainda
 }
 
-/// Análise completa do impacto climático em um evento
 class EventWeatherAnalysis {
   final Activity activity;
   final DailyWeather? weather;
@@ -81,7 +79,6 @@ class EventWeatherAnalysis {
   }
 }
 
-/// Sugestão de ação para o evento
 class EventSuggestion {
   final String title;
   final String description;
@@ -144,19 +141,15 @@ enum SuggestionType {
 
 enum SuggestionPriority { high, medium, low }
 
-/// Serviço principal para análise preditiva de eventos
 class EventWeatherPredictionService {
   final MeteomaticsService _weatherService = MeteomaticsService();
   final OpenAIService _aiService = OpenAIService();
 
-  /// Analisa um evento e retorna análise completa
   Future<EventWeatherAnalysis> analyzeEvent(Activity activity) async {
     final now = DateTime.now();
     final daysUntil = activity.date.difference(now).inDays;
 
     try {
-      // Buscar previsão do tempo para a data do evento
-      // Determinar qual endpoint usar baseado na distância do evento
       List<DailyWeather> forecasts;
 
       if (daysUntil <= 7) {
@@ -173,7 +166,6 @@ class EventWeatherPredictionService {
         );
       }
 
-      // Encontrar previsão mais próxima da data do evento
       DailyWeather? weather;
       for (final forecast in forecasts) {
         if (forecast.date.day == activity.date.day &&
@@ -184,18 +176,14 @@ class EventWeatherPredictionService {
         }
       }
 
-      // Se não encontrou previsão exata, usar a mais próxima
       weather ??= forecasts.isEmpty
           ? throw Exception('Sem previsão disponível')
           : forecasts.first;
 
-      // Analisar alertas climáticos
       final alerts = _analyzeWeatherAlerts(weather, activity);
 
-      // Calcular risco
       final risk = _calculateRisk(weather, activity, alerts);
 
-      // Gerar insights e sugestões com IA
       final aiAnalysis = await _generateAIAnalysis(
         activity,
         weather,
@@ -231,7 +219,6 @@ class EventWeatherPredictionService {
     }
   }
 
-  /// Analisa múltiplos eventos em paralelo
   Future<List<EventWeatherAnalysis>> analyzeMultipleEvents(
     List<Activity> activities,
   ) async {
@@ -239,14 +226,12 @@ class EventWeatherPredictionService {
     return await Future.wait(futures);
   }
 
-  /// Detecta alertas climáticos baseado em thresholds
   List<WeatherAlert> _analyzeWeatherAlerts(
     DailyWeather weather,
     Activity activity,
   ) {
     final alerts = <WeatherAlert>[];
 
-    // Alerta de chuva forte
     if (weather.precipitation > 30) {
       alerts.add(
         WeatherAlert(
@@ -260,7 +245,6 @@ class EventWeatherPredictionService {
       );
     }
 
-    // Alerta de temperatura extrema
     if (weather.maxTemp > 35) {
       alerts.add(
         WeatherAlert(
@@ -285,7 +269,6 @@ class EventWeatherPredictionService {
       );
     }
 
-    // Alerta de vento forte
     if (weather.windSpeed > 60) {
       alerts.add(
         WeatherAlert(
@@ -297,7 +280,6 @@ class EventWeatherPredictionService {
       );
     }
 
-    // Alerta de tempestade severa (alta precipitação + vento)
     if (weather.precipitation > 40 && weather.windSpeed > 50) {
       alerts.add(
         WeatherAlert(
@@ -309,10 +291,8 @@ class EventWeatherPredictionService {
       );
     }
 
-    // Verificar compatibilidade com tipo de atividade
     if (activity.type == ActivityType.outdoor) {
       if (weather.precipitationProbability > 70 && weather.precipitation > 5) {
-        // Se já não tem alerta de chuva, adicionar alerta de probabilidade
         final hasRainAlert = alerts.any(
           (a) =>
               a.type == WeatherAlertType.heavyRain ||
@@ -335,18 +315,15 @@ class EventWeatherPredictionService {
     return alerts;
   }
 
-  /// Calcula nível de risco geral
   EventWeatherRisk _calculateRisk(
     DailyWeather weather,
     Activity activity,
     List<WeatherAlert> alerts,
   ) {
-    // Sem alertas = seguro
     if (alerts.isEmpty) {
       return EventWeatherRisk.safe;
     }
 
-    // Verificar se há alertas críticos (enchente, tempestade severa)
     final hasCriticalAlert = alerts.any(
       (a) =>
           a.type == WeatherAlertType.floodRisk ||
@@ -358,12 +335,10 @@ class EventWeatherPredictionService {
       return EventWeatherRisk.critical;
     }
 
-    // Se é evento outdoor e tem múltiplos alertas, maior risco
     if (activity.type == ActivityType.outdoor && alerts.length >= 2) {
       return EventWeatherRisk.critical;
     }
 
-    // Alertas moderados = atenção
     if (alerts.isNotEmpty) {
       return EventWeatherRisk.warning;
     }
@@ -390,7 +365,6 @@ class EventWeatherPredictionService {
     }
   }
 
-  /// Gera análise e sugestões com IA
   Future<Map<String, dynamic>> _generateAIAnalysis(
     Activity activity,
     DailyWeather weather,
@@ -450,7 +424,6 @@ REGRAS:
         maxTokens: 600,
       );
 
-      // Tentar extrair JSON da resposta
       final jsonStart = response.indexOf('{');
       final jsonEnd = response.lastIndexOf('}') + 1;
 
@@ -471,7 +444,6 @@ REGRAS:
       debugPrint('Erro ao gerar análise IA: $e');
     }
 
-    // Fallback: sugestões básicas sem IA
     return {
       'insight':
           'Monitore as condições climáticas conforme a data se aproxima.',
@@ -525,23 +497,19 @@ REGRAS:
     return suggestions;
   }
 
-  /// Verifica se evento precisa de nova análise (mudança climática significativa)
   bool shouldReanalyze(EventWeatherAnalysis oldAnalysis) {
     final hoursSinceAnalysis = DateTime.now()
         .difference(oldAnalysis.analyzedAt)
         .inHours;
 
-    // Reanalizar a cada 12 horas para eventos próximos (< 3 dias)
     if (oldAnalysis.daysUntilEvent <= 3 && hoursSinceAnalysis >= 12) {
       return true;
     }
 
-    // Reanalizar diariamente para eventos em 3-7 dias
     if (oldAnalysis.daysUntilEvent <= 7 && hoursSinceAnalysis >= 24) {
       return true;
     }
 
-    // Reanalizar semanalmente para eventos mais distantes
     if (hoursSinceAnalysis >= 168) {
       return true;
     }

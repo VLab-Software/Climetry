@@ -4,7 +4,6 @@ import '../services/event_weather_prediction_service.dart';
 import '../theme/app_theme.dart';
 import 'animated_widgets.dart';
 
-/// Widget que exibe análise climática de um evento com visual moderno
 class EventWeatherCard extends StatelessWidget {
   final EventWeatherAnalysis analysis;
   final VoidCallback? onTap;
@@ -116,7 +115,6 @@ class EventWeatherCard extends StatelessWidget {
   Widget _buildHeader(ThemeData theme) {
     return Row(
       children: [
-        // Ícone do tipo de atividade
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -340,7 +338,6 @@ class EventWeatherCard extends StatelessWidget {
   }
 }
 
-/// Widget para listar múltiplos eventos com análise
 class EventsWeatherList extends StatelessWidget {
   final List<EventWeatherAnalysis> analyses;
   final Function(EventWeatherAnalysis)? onTap;
@@ -349,14 +346,11 @@ class EventsWeatherList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ordernar por risco (crítico primeiro) e depois por data
     final sortedAnalyses = List<EventWeatherAnalysis>.from(analyses)
       ..sort((a, b) {
-        // Primeiro por nível de risco
         final riskCompare = _riskValue(b.risk).compareTo(_riskValue(a.risk));
         if (riskCompare != 0) return riskCompare;
 
-        // Depois por proximidade da data
         return a.daysUntilEvent.compareTo(b.daysUntilEvent);
       });
 

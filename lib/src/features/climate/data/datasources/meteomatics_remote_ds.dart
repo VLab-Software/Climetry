@@ -4,7 +4,6 @@ import '../../domain/entities/weather_payload.dart';
 
 class MeteomaticsRemoteDataSource {
   final ApiClient client;
-  // 🔐 injete via construtor/secure storage no app real
   final String username;
   final String password;
 

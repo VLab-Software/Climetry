@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// provider e theme_provider removidos - tema fixo light
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/user_data_service.dart';
 import '../../../../core/services/location_service.dart';
@@ -45,10 +44,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     try {
       _currentUser = _authService.currentUser;
       
-      // ✅ Tentar carregar do Firestore com timeout CURTO, fallback para valores padrão
       if (_currentUser != null) {
         try {
-          // Timeout de apenas 2 segundos - se não responder, usa padrão
           final prefs = await _userDataService.getPreferences().timeout(
             const Duration(seconds: 2),
             onTimeout: () {
@@ -70,7 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen>
           _precipitationUnit = 'mm';
         }
       } else {
-        // Sem usuário = valores padrão
         _temperatureUnit = 'celsius';
         _windUnit = 'kmh';
         _precipitationUnit = 'mm';
@@ -90,7 +86,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Future<void> _savePreferences() async {
     try {
-      // ✅ Salvar no Firestore com timeout de 3s
       if (_authService.currentUser != null) {
         await _userDataService.savePreferences({
           'temperatureUnit': _temperatureUnit,
@@ -100,7 +95,6 @@ class _SettingsScreenState extends State<SettingsScreen>
           const Duration(seconds: 3),
           onTimeout: () {
             debugPrint('⏱️ Timeout ao salvar preferências - salvando localmente');
-            // TODO: Salvar em SharedPreferences como backup
           },
         );
         debugPrint('💾 Preferências salvas: $_temperatureUnit, $_windUnit, $_precipitationUnit');
@@ -237,7 +231,6 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // themeProvider removido - tema fixo light
 
     if (_isLoading) {
       return Scaffold(
@@ -252,27 +245,19 @@ class _SettingsScreenState extends State<SettingsScreen>
       backgroundColor: isDark ? Color(0xFF0F1419) : Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // Header
           SliverToBoxAdapter(child: _buildHeader(isDark)),
 
-          // Perfil
           SliverToBoxAdapter(child: _buildProfileSection(isDark)),
 
-          // SEÇÃO DE APARÊNCIA/TEMA REMOVIDA - TEMA FIXO LIGHT
 
-          // Unidades de Medida
           SliverToBoxAdapter(child: _buildUnitsSection(isDark)),
 
-          // Localização
           SliverToBoxAdapter(child: _buildLocationSection(isDark)),
 
-          // Amigos
           SliverToBoxAdapter(child: _buildFriendsSection(isDark)),
 
-          // Conta
           SliverToBoxAdapter(child: _buildAccountSection(isDark)),
 
-          // Sobre
           SliverToBoxAdapter(child: _buildAboutSection(isDark)),
 
           SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -340,7 +325,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
       child: Row(
         children: [
-          // Avatar com foto ou inicial
           CircleAvatar(
             radius: 30,
             backgroundImage: _currentUser?.photoURL != null
@@ -404,8 +388,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // MÉTODO REMOVIDO - TEMA FIXO LIGHT
-  // Widget _buildAppearanceSection(...) removido
 
   Widget _buildUnitsSection(bool isDark) {
     return _buildSection(

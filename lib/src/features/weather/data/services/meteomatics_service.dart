@@ -8,7 +8,6 @@ import '../../domain/entities/daily_weather.dart';
 import '../../domain/entities/weather_alert.dart';
 
 class MeteomaticsService {
-  // ✅ Carregar credenciais do .env (seguro e não vai para o Git)
   String get _username => dotenv.env['METEOMATICS_USERNAME'] ?? '';
   String get _password => dotenv.env['METEOMATICS_PASSWORD'] ?? '';
   static const String _baseUrl = 'api.meteomatics.com';
@@ -20,8 +19,6 @@ class MeteomaticsService {
     'Content-Type': 'application/json',
   };
 
-  /// Chamada 1: Condições Atuais Completas (10 parâmetros)
-  /// https://api.meteomatics.com/now/t_2m:C,t_2m:F,t_apparent:C,t_min_2m_24h:C,t_max_2m_24h:C,uv:idx,relative_humidity_2m:p,wind_speed_10m:kmh,wind_dir_10m:d,wind_gusts_10m_1h:kmh/-18.7333,-47.5000/json
   Future<CurrentWeather> getCurrentWeather(LatLng location) async {
     final params = [
       't_2m:C',
@@ -55,8 +52,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada 2: Tendência Próximas 24 Horas (6 parâmetros)
-  /// ✅ CORRIGIDO: Usa formato ISO8601 correto para próximas 24 horas
   Future<List<HourlyWeather>> getHourlyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final future24h = now.add(const Duration(hours: 24));
@@ -92,8 +87,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada 3: Previsão Próximos 7 Dias (10 parâmetros)
-  /// Para cálculos de alertas climáticos
   Future<List<DailyWeather>> getWeeklyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 7));
@@ -133,7 +126,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada 4: Previsão Próximo Mês (30 dias) - 10 parâmetros
   Future<List<DailyWeather>> getMonthlyForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 30));
@@ -173,7 +165,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada 5: Previsão Próximos 6 Meses (180 dias) - 10 parâmetros
   Future<List<DailyWeather>> getSixMonthsForecast(LatLng location) async {
     final now = DateTime.now().toUtc();
     final endDate = now.add(const Duration(days: 180));
@@ -213,8 +204,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada Extra: Contexto Climático e Anomalias (3 parâmetros)
-  /// https://api.meteomatics.com/now/t_2m:C,t_2m_10y_mean:C,anomaly_t_mean_2m_24h:C/-18.7333,-47.5000/json
   Future<Map<String, double>> getClimateAnomalies(LatLng location) async {
     final params = [
       't_2m:C',
@@ -268,8 +257,6 @@ class MeteomaticsService {
     }
   }
 
-  /// Chamada Extra: Horários do Sol e Precipitação (4 parâmetros)
-  /// https://api.meteomatics.com/now/sunrise:sql,sunset:sql,precip_1h:mm,prob_precip_1h:p/-18.7333,-47.5000/json
   Future<Map<String, dynamic>> getSunAndPrecipitation(LatLng location) async {
     final params = [
       'sunrise:sql',
@@ -326,11 +313,9 @@ class MeteomaticsService {
     }
   }
 
-  /// Cálculo de Alertas Climáticos
   List<WeatherAlert> calculateWeatherAlerts(List<DailyWeather> forecast) {
     final alerts = <WeatherAlert>[];
 
-    // Alerta 1: Onda de Calor (3+ dias com temp >= 35°C)
     int heatWaveDays = 0;
     for (var i = 0; i < forecast.length; i++) {
       final day = forecast[i];
@@ -354,7 +339,6 @@ class MeteomaticsService {
     }
 
     for (var day in forecast) {
-      // Alerta 2: Desconforto Térmico Elevado
       if (day.maxTemp >= 30 && day.humidity >= 60) {
         alerts.add(
           WeatherAlert(
@@ -366,7 +350,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 3: Frio Intenso
       if (day.minTemp <= 5) {
         alerts.add(
           WeatherAlert(
@@ -378,7 +361,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 4: Risco de Geada
       if (day.minTemp <= 3) {
         alerts.add(
           WeatherAlert(
@@ -390,7 +372,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 5: Chuva Intensa
       if (day.precipitation > 30) {
         alerts.add(
           WeatherAlert(
@@ -402,7 +383,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 6: Risco de Enchente
       if (day.precipitation > 50) {
         alerts.add(
           WeatherAlert(
@@ -414,7 +394,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 7: Potencial para Tempestades Severas
       if (day.cape != null && day.cape! > 2000) {
         alerts.add(
           WeatherAlert(
@@ -426,7 +405,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 8: Risco de Granizo
       if (day.hail != null && day.hail! > 0) {
         alerts.add(
           WeatherAlert(
@@ -438,7 +416,6 @@ class MeteomaticsService {
         );
       }
 
-      // Alerta 9: Ventania Forte
       if (day.windGust != null && day.windGust! >= 60) {
         alerts.add(
           WeatherAlert(
@@ -454,8 +431,6 @@ class MeteomaticsService {
     return alerts;
   }
 
-  /// ✅ NOVO: Previsão para Data Específica do Evento (10 parâmetros)
-  /// Busca previsão detalhada para um dia específico até 180 dias no futuro
   Future<DailyWeather> getEventDayForecast(
     LatLng location,
     DateTime eventDate,
@@ -535,8 +510,6 @@ class MeteomaticsService {
     }
   }
 
-  /// ✅ NOVO: Previsão Horária para Dia do Evento (10 parâmetros)
-  /// Retorna previsão hora a hora para o dia do evento
   Future<List<HourlyWeather>> getEventDayHourlyForecast(
     LatLng location,
     DateTime eventDate,
@@ -585,8 +558,6 @@ class MeteomaticsService {
     }
   }
 
-  /// ✅ NOVO: Monitoramento de Mudanças Climáticas
-  /// Compara previsão atual com última previsão salva para detectar mudanças
   Future<Map<String, dynamic>> detectWeatherChanges({
     required LatLng location,
     required DateTime eventDate,
@@ -602,9 +573,7 @@ class MeteomaticsService {
         'currentForecast': currentForecast,
       };
 
-      // Verificar mudanças significativas
       
-      // 1. Mudança de temperatura (>3°C)
       final tempDiff = (currentForecast.maxTemp - previousForecast.maxTemp).abs();
       if (tempDiff >= 3) {
         changes['hasChanges'] = true;
@@ -620,7 +589,6 @@ class MeteomaticsService {
         });
       }
 
-      // 2. Mudança na probabilidade de chuva (>20%)
       final rainDiff = (currentForecast.precipitationProbability - 
           previousForecast.precipitationProbability).abs();
       if (rainDiff >= 20) {
@@ -638,7 +606,6 @@ class MeteomaticsService {
         });
       }
 
-      // 3. Mudança na quantidade de chuva (>10mm)
       final precipDiff = (currentForecast.precipitation - 
           previousForecast.precipitation).abs();
       if (precipDiff >= 10) {
@@ -653,7 +620,6 @@ class MeteomaticsService {
         });
       }
 
-      // 4. Mudança no vento (>15 km/h)
       final windDiff = (currentForecast.windSpeed - previousForecast.windSpeed).abs();
       if (windDiff >= 15) {
         changes['hasChanges'] = true;
@@ -667,7 +633,6 @@ class MeteomaticsService {
         });
       }
 
-      // 5. Novos alertas climáticos
       final previousAlerts = calculateWeatherAlerts([previousForecast]);
       final currentAlerts = calculateWeatherAlerts([currentForecast]);
       
@@ -688,8 +653,6 @@ class MeteomaticsService {
     }
   }
 
-  /// ✅ NOVO: Endpoint Completo para Notificações Push
-  /// Retorna resumo climático formatado para notificação
   Future<Map<String, dynamic>> getEventWeatherSummary({
     required LatLng location,
     required DateTime eventDate,
@@ -739,7 +702,6 @@ class MeteomaticsService {
     }
   }
 
-  // Parsing methods
 
   CurrentWeather _parseCurrentWeather(
     Map<String, dynamic> json,
@@ -761,7 +723,6 @@ class MeteomaticsService {
             ],
           },
         );
-        // A API retorna: coordinates[0].dates[0].value
         final dates = paramData['coordinates'][0]['dates'] as List;
         return (dates[0]['value'] as num?)?.toDouble() ?? 0;
       } catch (e) {
@@ -791,7 +752,6 @@ class MeteomaticsService {
     final dataList = json['data'] as List;
     final hourlyData = <HourlyWeather>[];
 
-    // Pega primeiro parâmetro para obter lista de timestamps
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
 
@@ -833,12 +793,10 @@ class MeteomaticsService {
     return hourlyData;
   }
 
-  /// Parsing estendido para previsão horária do evento
   List<HourlyWeather> _parseHourlyForecastExtended(Map<String, dynamic> json) {
     final dataList = json['data'] as List;
     final hourlyData = <HourlyWeather>[];
 
-    // Pega primeiro parâmetro para obter lista de timestamps
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
 
@@ -884,7 +842,6 @@ class MeteomaticsService {
     final dataList = json['data'] as List;
     final dailyData = <DailyWeather>[];
 
-    // Pega primeiro parâmetro para obter lista de timestamps
     final firstParam = dataList.first;
     final coordinates = firstParam['coordinates'][0]['dates'] as List;
 

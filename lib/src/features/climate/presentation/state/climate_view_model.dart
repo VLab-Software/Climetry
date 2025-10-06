@@ -19,7 +19,6 @@ class ClimateViewModel extends ChangeNotifier {
     required this.weatherRepository,
     required this.locationRepository,
   }) {
-    // variáveis default
     _apiVariables = [
       ClimateVariable('Temperature', 't_2m:C', Icons.thermostat_outlined, true),
       ClimateVariable(
@@ -52,7 +51,6 @@ class ClimateViewModel extends ChangeNotifier {
   final WeatherRepository weatherRepository;
   final LocationRepository locationRepository;
 
-  // UI State
   final locationController = TextEditingController();
   final FocusNode locationFocusNode = FocusNode();
   DateTimeRange? selectedDateRange;
@@ -67,7 +65,6 @@ class ClimateViewModel extends ChangeNotifier {
       _apiVariables.where((v) => v.isSelected).toList();
   int get selectedCount => selectedVariables.length;
 
-  // Map state
   LatLng _currentLocation = const LatLng(-18.7394, -46.8767);
   LatLng get currentLocation => _currentLocation;
   set currentLocation(LatLng value) {
@@ -75,12 +72,10 @@ class ClimateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Suggestions
   List<LocationSuggestion> suggestions = [];
   bool showSuggestions = false;
   Timer? _debounce;
 
-  // Helpers
   String get formattedApiDateRange {
     if (isSingleDate && selectedSingleDate != null) {
       final d = selectedSingleDate!;

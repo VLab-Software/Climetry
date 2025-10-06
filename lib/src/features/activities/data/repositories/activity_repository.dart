@@ -9,7 +9,6 @@ class ActivityRepository {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Get all activities where user is owner or participant
   Future<List<Activity>> getAll() async {
     try {
       if (_userId == null) {
@@ -19,8 +18,6 @@ class ActivityRepository {
 
       print('🔍 ActivityRepository: Buscando atividades para $_userId');
 
-      // Query: activities where user is owner or participant
-      // Usando apenas uma query com array-contains é mais eficiente
       final query = await _firestore
           .collection('activities')
           .where('participantIds', arrayContains: _userId)
@@ -53,7 +50,6 @@ class ActivityRepository {
     }
   }
 
-  /// Get activities as a stream for real-time updates
   Stream<List<Activity>> watchAll() {
     if (_userId == null) return Stream.value([]);
 
@@ -94,7 +90,6 @@ class ActivityRepository {
 
       final activityData = activity.toJson();
       
-      // Add participantIds array for querying
       activityData['participantIds'] = [
         activity.ownerId,
         ...activity.participants.map((p) => p.userId),
@@ -115,7 +110,6 @@ class ActivityRepository {
 
       final activityData = activity.toJson();
       
-      // Update participantIds array
       activityData['participantIds'] = [
         activity.ownerId,
         ...activity.participants.map((p) => p.userId),
@@ -141,8 +135,6 @@ class ActivityRepository {
   }
 
   Future<void> clear() async {
-    // Not implementing full clear for safety
-    // Use delete individual activities instead
     throw UnimplementedError('Use delete() para remover atividades individuais');
   }
 }

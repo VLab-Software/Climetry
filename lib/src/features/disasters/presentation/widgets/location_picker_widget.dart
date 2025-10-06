@@ -35,7 +35,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     _searchController = TextEditingController();
     _updateMarker();
 
-    // Se não tiver nome inicial, buscar endereço
     if (widget.initialLocationName.isEmpty) {
       _getAddressFromCoordinates(_selectedLocation);
     }
@@ -53,7 +52,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     setState(() => _isLoadingAddress = true);
 
     try {
-      // Usar LocationService para obter apenas o nome da cidade principal
       final cityName = await _locationService.getCityName(
         location.latitude,
         location.longitude,
@@ -95,7 +93,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   void _onCameraMove(CameraPosition position) {
-    // Atualizar localização enquanto o mapa se move
     if (!_isMapMoving) {
       setState(() => _isMapMoving = true);
     }
@@ -107,7 +104,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   void _onCameraIdle() {
-    // Quando o usuário parar de mover o mapa, buscar o endereço
     if (_isMapMoving) {
       setState(() => _isMapMoving = false);
       _getAddressFromCoordinates(_selectedLocation);
@@ -143,11 +139,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Detectar tema
     final brightness = MediaQuery.of(context).platformBrightness;
     final isDark = brightness == Brightness.dark;
     
-    // Cores adaptativas
     final backgroundColor = isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5);
     final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF1F2937);
@@ -170,7 +164,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       ),
       body: Column(
         children: [
-          // Header com busca e campos
           Container(
             padding: EdgeInsets.only(
               left: 16,
@@ -213,12 +206,10 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                       _updateMarker();
                     });
 
-                    // Mover o mapa para a nova localização
                     _mapController?.animateCamera(
                       CameraUpdate.newLatLngZoom(_selectedLocation, 13.0),
                     );
 
-                    // Fechar o teclado
                     FocusScope.of(context).unfocus();
                   },
                   backgroundColor: inputBackgroundColor,
@@ -269,7 +260,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         : null,
                   ),
                   onTap: () {
-                    // Scroll para manter o campo visível
                   },
                 ),
                 const SizedBox(height: 12),
@@ -316,7 +306,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               ],
             ),
           ),
-          // Mapa
           Expanded(
             child: Stack(
               children: [
@@ -336,7 +325,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   mapToolbarEnabled: false,
                   compassEnabled: true,
                 ),
-                // Botões de controle do mapa
                 Positioned(
                   bottom: 16,
                   right: 16,
@@ -366,7 +354,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                     ],
                   ),
                 ),
-                // Instruções no topo
                 Positioned(
                   top: 16,
                   left: 16,
@@ -409,7 +396,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               ],
             ),
           ),
-          // Botão de confirmar (SafeArea garante que não sobe com teclado)
           SafeArea(
             child: Container(
               padding: const EdgeInsets.all(16),

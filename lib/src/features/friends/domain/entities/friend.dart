@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Representa um amigo do usuário no app
 class Friend {
   final String id; // userId do amigo
   final String name; // Nome customizado (pode ser editado)
@@ -65,7 +64,6 @@ class Friend {
   }
 }
 
-/// Representa uma solicitação de amizade
 class FriendRequest {
   final String id;
   final String fromUserId;
@@ -119,7 +117,6 @@ class FriendRequest {
 
 enum FriendRequestStatus { pending, accepted, rejected }
 
-/// Representa um participante de um evento
 class EventParticipant {
   final String userId;
   final String name;

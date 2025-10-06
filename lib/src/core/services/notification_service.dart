@@ -90,7 +90,6 @@ class NotificationService {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Criar uma notificação
   Future<void> createNotification({
     required String userId,
     required NotificationType type,
@@ -113,7 +112,6 @@ class NotificationService {
     }
   }
 
-  /// Obter notificações do usuário
   Future<List<AppNotification>> getNotifications({
     bool? onlyUnread,
     NotificationType? type,
@@ -144,7 +142,6 @@ class NotificationService {
     }
   }
 
-  /// Stream de notificações
   Stream<List<AppNotification>> getNotificationsStream() {
     if (_userId == null) return Stream.value([]);
 
@@ -161,7 +158,6 @@ class NotificationService {
         });
   }
 
-  /// Marcar notificação como lida
   Future<void> markAsRead(String notificationId) async {
     try {
       await _firestore.collection('notifications').doc(notificationId).update({
@@ -172,7 +168,6 @@ class NotificationService {
     }
   }
 
-  /// Marcar todas como lidas
   Future<void> markAllAsRead() async {
     if (_userId == null) return;
 
@@ -194,7 +189,6 @@ class NotificationService {
     }
   }
 
-  /// Deletar notificação
   Future<void> deleteNotification(String notificationId) async {
     try {
       await _firestore.collection('notifications').doc(notificationId).delete();
@@ -203,7 +197,6 @@ class NotificationService {
     }
   }
 
-  /// Contar notificações não lidas
   Future<int> getUnreadCount() async {
     if (_userId == null) return 0;
 
@@ -221,11 +214,9 @@ class NotificationService {
     }
   }
 
-  /// Stream de contador de não lidas (notificações + friend requests)
   Stream<int> getUnreadCountStream() {
     if (_userId == null) return Stream.value(0);
 
-    // Combinar notificações não lidas com friend requests pendentes
     final notificationsStream = _firestore
         .collection('notifications')
         .where('userId', isEqualTo: _userId)
@@ -233,7 +224,6 @@ class NotificationService {
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
 
-    // Combinar os dois streams
     return notificationsStream.asyncMap((notifCount) async {
       final requestsSnapshot = await _firestore
           .collection('friendRequests')
@@ -245,7 +235,6 @@ class NotificationService {
     });
   }
 
-  // Helpers para criar notificações específicas
 
   Future<void> notifyFriendRequest({
     required String toUserId,

@@ -51,7 +51,6 @@ class CurrentWeather {
     return '⛅';
   }
 
-  // Backward compatibility
   double get temperatureC => temperature;
   double get temperatureF => temperatureFahrenheit;
   double get tempMin => minTemp;

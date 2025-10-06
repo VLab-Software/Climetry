@@ -39,7 +39,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
       ),
       child: Column(
         children: [
-          // Handle
           Container(
             margin: const EdgeInsets.only(top: 12, bottom: 8),
             width: 40,
@@ -50,7 +49,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
             ),
           ),
 
-          // Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -79,7 +77,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
             ),
           ),
 
-          // Tabs
           Container(
             decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
@@ -96,7 +93,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
             ),
           ),
 
-          // Content
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -124,7 +120,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
 
         final notifications = snapshot.data ?? [];
 
-        // Filtrar apenas notificações gerais (não friend requests)
         final generalNotifications = notifications
             .where((n) => n.type != NotificationType.friendRequest)
             .toList();
@@ -357,7 +352,6 @@ class _NotificationsSheetState extends State<NotificationsSheet>
                     try {
                       await _friendsService.acceptFriendRequest(request);
 
-                      // Criar notificação para o remetente
                       final currentUser = FirebaseAuth.instance.currentUser;
                       if (currentUser != null) {
                         await _notificationService.notifyFriendRequestAccepted(

@@ -151,16 +151,13 @@ class _HomeScreenState extends State<HomeScreen>
         color: const Color(0xFF3B82F6),
         child: CustomScrollView(
           slivers: [
-            // Header moderno e clean
             SliverToBoxAdapter(
               child: _buildModernHeader(isDark, themeProvider),
             ),
 
-            // Card de resumo redesenhado
             if (!_loading && _analyses.isNotEmpty)
               SliverToBoxAdapter(child: _buildCleanSummaryCard(isDark)),
 
-            // Lista de eventos
             if (_loading)
               SliverFillRemaining(
                 child: Center(
@@ -226,7 +223,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-            // Espaço para tab bar
             SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
@@ -283,7 +279,6 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               Row(
                 children: [
-                  // Tema
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
@@ -301,7 +296,6 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   SizedBox(width: 8),
-                  // Localização
                   Container(
                     decoration: BoxDecoration(
                       color: isDark ? Color(0xFF374151) : Color(0xFFF3F4F6),
@@ -332,7 +326,6 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
           SizedBox(height: 16),
-          // Localização atual
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -535,7 +528,6 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 Row(
                   children: [
-                    // Ícone do evento
                     Container(
                       width: 48,
                       height: 48,
@@ -551,7 +543,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     SizedBox(width: 12),
-                    // Info do evento
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -587,7 +578,6 @@ class _HomeScreenState extends State<HomeScreen>
                         ],
                       ),
                     ),
-                    // Badge de risco
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,
